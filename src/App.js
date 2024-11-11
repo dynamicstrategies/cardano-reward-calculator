@@ -52,7 +52,11 @@ export default class App extends React.Component {
 			 * when the calculator is first opened with
 			 * these parameters
 			 */
-			poolStake: undefined,
+			poolPledge: 100000,
+			poolStake: 60000000,
+			delegatorsStake: this.poolStake - this.poolPledge,
+			poolFixedCost: 340,
+			poolVariableFee: 0.02,
 			sigma: undefined,
 			sigmadash: undefined,
 			s: undefined,
@@ -297,158 +301,84 @@ export default class App extends React.Component {
 							</div>
 						</div>
 
+						<div className="grid lg:grid-cols-3 lg:grid-rows-[auto_auto_auto_auto] gap-4">
+
+							{/* Row 1, Column 1 */}
+							<div className="rounded-lg bg-white p-4 lg:col-span-2">
+								<h4 className="text-balance m-8 text-4xl font-medium tracking-tight text-gray-900 sm:text-3xl">
+									Amount of ADA to Stake
+								</h4>
+								<div className="px-8 mb-8 pb-8 pt-8 sm:px-10 sm:pb-0 sm:pt-10">
+
+									<ControlGroup fill={true} vertical={false} style={{width:"100%"}}>
+										<InputGroup
+											style={{fontSize: "1.5rem"}}
+											id="ada-to-stake"
+											disabled={false}
+											// leftIcon="filter"
+											onChange={this.handleChange}
+											value={this.state.amountAdaToStake.toLocaleString("en-US")}
+											fill={true}
+											rightElement={<Tag minimal={true}>1.1</Tag>}
+										/>
+									</ControlGroup>
 
 
+									<dl className="mt-8 grid grid-cols-1 gap-0.5 overflow-hidden rounded-2xl text-center sm:grid-cols-2 lg:grid-cols-2">
 
-						<div className="mt-10 grid gap-4 sm:mt-16 lg:grid-cols-3 lg:grid-rows-4">
-
-							<div className="relative lg:col-span-2">
-								<div className="absolute inset-px rounded-lg bg-white"></div>
-								<div className="relative flex h-full flex-col overflow-hidden rounded-[calc(theme(borderRadius.lg)+1px)]">
-									<div className="px-8 pb-3 pt-8 sm:px-10 sm:pb-0 sm:pt-10">
-										<p className="mt-2 text-lg font-medium tracking-tight text-gray-950 max-lg:text-center">
-											1.1 Basic Calculator
-										</p>
-									</div>
-									<div className="px-8 mb-8 pb-8 pt-8 sm:px-10 sm:pb-0 sm:pt-10">
+										<div key="pool-reward-ada" className="flex flex-col bg-gray-700/5 p-8">
+											<dt className="text-sm/6 font-semibold text-gray-600">Pool Reward per Year ADA</dt>
+											<dd className="order-first text-3xl font-semibold tracking-tight text-gray-900">{150}</dd>
+										</div>
+										<div key="pool-reward-perc" className="flex flex-col bg-gray-700/5 p-8">
+											<dt className="text-sm/6 font-semibold text-gray-600">Annualized Pool Reward</dt>
+											<dd className="order-first text-3xl font-semibold tracking-tight text-gray-900">{`${2.85}%`}</dd>
+										</div>
 
 
-										<h4 className="text-balance mb-4 text-4xl font-medium tracking-tight text-gray-900 sm:text-3xl">
-											Amount of ADA to Stake
-										</h4>
-										<ControlGroup fill={true} vertical={false} style={{width:"100%"}}>
-											<InputGroup
-												style={{fontSize: "1.5rem"}}
-												id="ada-to-stake"
-												disabled={false}
-												// leftIcon="filter"
-												onChange={this.handleChange}
-												value={this.state.amountAdaToStake.toLocaleString("en-US")}
-												fill={true}
-												rightElement={<Tag minimal={true}>1.1</Tag>}
-											/>
-										</ControlGroup>
-
-
-										<dl className="mt-8 grid grid-cols-1 gap-0.5 overflow-hidden rounded-2xl text-center sm:grid-cols-2 lg:grid-cols-2">
-
-											<div key="pool-reward-ada" className="flex flex-col bg-gray-400/5 p-8">
-												<dt className="text-sm/6 font-semibold text-gray-600">Pool Reward per Year ADA</dt>
-												<dd className="order-first text-3xl font-semibold tracking-tight text-gray-900">{150}</dd>
-											</div>
-											<div key="pool-reward-perc" className="flex flex-col bg-gray-400/5 p-8">
-												<dt className="text-sm/6 font-semibold text-gray-600">Annualized Pool Reward</dt>
-												<dd className="order-first text-3xl font-semibold tracking-tight text-gray-900">{`${2.85}%`}</dd>
-											</div>
-
-
-										</dl>
-
-									</div>
+									</dl>
 
 								</div>
-								<div className="pointer-events-none absolute inset-px rounded-lg shadow ring-1 ring-black/5"></div>
+
 							</div>
 
-
-							<div className="relative">
-								<div className="absolute inset-px rounded-lg bg-white"></div>
-								<div className="relative flex h-full flex-col overflow-hidden rounded-[calc(theme(borderRadius.lg)+1px)]">
-									<div className="px-8 pt-8 sm:px-10 sm:pt-10">
-										<p className="mt-2 text-lg font-medium tracking-tight text-gray-950 max-lg:text-center">1.2 Information</p>
-										<p className="mt-2 max-w-lg text-sm/6 text-gray-600 max-lg:text-center">
-											...
-										</p>
-									</div>
-
-								</div>
-								<div className="pointer-events-none absolute inset-px rounded-lg shadow ring-1 ring-black/5"></div>
+							{/* Row 1, Column 2 */}
+							<div className="rounded-lg bg-white p-4">
+								<p>Info</p>
 							</div>
 
-
-							<div className="relative lg:col-span-2">
-								<div className="absolute inset-px rounded-lg bg-white"></div>
-								<div className="relative flex h-full flex-col overflow-hidden rounded-[calc(theme(borderRadius.lg)+1px)]">
-									<div className="px-8 pt-8 sm:px-10 sm:pt-10">
-										<p className="mt-2 text-lg font-medium tracking-tight text-gray-950 max-lg:text-center">2.1 Select Stake Pools</p>
-										<p className="mt-2 max-w-lg text-sm/6 text-gray-600 max-lg:text-center">
-											...
-										</p>
-									</div>
-
-
-								</div>
-								<div className="pointer-events-none absolute inset-px rounded-lg shadow ring-1 ring-black/5"></div>
-							</div>
-							<div className="relative">
-								<div className="absolute inset-px rounded-lg bg-white"></div>
-								<div className="relative flex h-full flex-col overflow-hidden rounded-[calc(theme(borderRadius.lg)+1px)]">
-									<div className="px-8 pt-8 sm:px-10 sm:pt-10">
-										<p className="mt-2 text-lg font-medium tracking-tight text-gray-950 max-lg:text-center">2.2 Information</p>
-										<p className="mt-2 max-w-lg text-sm/6 text-gray-600 max-lg:text-center">
-											...
-										</p>
-									</div>
-								</div>
-								<div className="pointer-events-none absolute inset-px rounded-lg shadow ring-1 ring-black/5"></div>
+							{/* Row 2, Column 1 */}
+							<div className="rounded-lg bg-white p-4 lg:col-span-2">
+								<p>Stake Pools</p>
 							</div>
 
-							<div className="relative lg:col-span-2">
-								<div className="absolute inset-px rounded-lg bg-white"></div>
-								<div className="relative flex h-full flex-col overflow-hidden rounded-[calc(theme(borderRadius.lg)+1px)]">
-									<div className="px-8 pt-8 sm:px-10 sm:pt-10">
-										<p className="mt-2 text-lg font-medium tracking-tight text-gray-950 max-lg:text-center">3.1 Stake Pool Parameters</p>
-										<p className="mt-2 max-w-lg text-sm/6 text-gray-600 max-lg:text-center">
-											...
-										</p>
-									</div>
-
-
-								</div>
-								<div className="pointer-events-none absolute inset-px rounded-lg shadow ring-1 ring-black/5"></div>
-							</div>
-							<div className="relative">
-								<div className="absolute inset-px rounded-lg bg-white"></div>
-								<div className="relative flex h-full flex-col overflow-hidden rounded-[calc(theme(borderRadius.lg)+1px)]">
-									<div className="px-8 pt-8 sm:px-10 sm:pt-10">
-										<p className="mt-2 text-lg font-medium tracking-tight text-gray-950 max-lg:text-center">3.2 Information</p>
-										<p className="mt-2 max-w-lg text-sm/6 text-gray-600 max-lg:text-center">
-											...
-										</p>
-									</div>
-								</div>
-								<div className="pointer-events-none absolute inset-px rounded-lg shadow ring-1 ring-black/5"></div>
+							{/* Row 2, Column 2 */}
+							<div className="rounded-lg bg-white p-4">
+								<p>Info</p>
 							</div>
 
-							<div className="relative lg:col-span-2">
-								<div className="absolute inset-px rounded-lg bg-white"></div>
-								<div className="relative flex h-full flex-col overflow-hidden rounded-[calc(theme(borderRadius.lg)+1px)]">
-									<div className="px-8 pt-8 sm:px-10 sm:pt-10">
-										<p className="mt-2 text-lg font-medium tracking-tight text-gray-950 max-lg:text-center">4.1 Cardano Blockchain Parameters</p>
-										<p className="mt-2 max-w-lg text-sm/6 text-gray-600 max-lg:text-center">
-											...
-										</p>
-									</div>
-
-
-								</div>
-								<div className="pointer-events-none absolute inset-px rounded-lg shadow ring-1 ring-black/5"></div>
-							</div>
-							<div className="relative">
-								<div className="absolute inset-px rounded-lg bg-white"></div>
-								<div className="relative flex h-full flex-col overflow-hidden rounded-[calc(theme(borderRadius.lg)+1px)]">
-									<div className="px-8 pt-8 sm:px-10 sm:pt-10">
-										<p className="mt-2 text-lg font-medium tracking-tight text-gray-950 max-lg:text-center">4.2 Information</p>
-										<p className="mt-2 max-w-lg text-sm/6 text-gray-600 max-lg:text-center">
-											...
-										</p>
-									</div>
-								</div>
-								<div className="pointer-events-none absolute inset-px rounded-lg shadow ring-1 ring-black/5"></div>
+							{/* Row 3, Column 1 */}
+							<div className="rounded-lg bg-white p-4 lg:col-span-2">
+								<p>Pool Parameters</p>
 							</div>
 
+							{/* Row 3, Column 2 */}
+							<div className="rounded-lg bg-white p-4">
+								<p>Info</p>
+							</div>
 
+							{/* Row 4, Column 1 */}
+							<div className="rounded-lg bg-white p-4 lg:col-span-2">
+								<p>Blockchain Parameters</p>
+							</div>
+
+							{/* Row 4, Column 2 */}
+							<div className="rounded-lg bg-white p-4">
+								<p>Info</p>
+							</div>
 						</div>
+
+
 
 
 					</div>

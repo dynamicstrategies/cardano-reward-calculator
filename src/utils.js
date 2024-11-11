@@ -90,13 +90,13 @@ export const getStakePoolList = async () => {
 
 	const stepSize = 1000
 	let reachedEnd = false
-	let i = 1
+	let i = 0
 	let poolsData = []
 
 	while (!reachedEnd) {
 
 		const offset = i*stepSize
-		console.log("processing nth stake pool: " + offset)
+		console.log("processed stake pools: " + offset)
 
 		try {
 			const payload = {
