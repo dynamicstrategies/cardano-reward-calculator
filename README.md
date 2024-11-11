@@ -1,3 +1,6 @@
+> [!IMPORTANT]  
+> Work in progress
+
 # Cardano Reward Calculator
 This is a web interface where
 users can enter an ADA balance and calculate their potential rewards
