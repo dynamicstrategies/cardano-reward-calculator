@@ -27,6 +27,31 @@ export const getChainTip = async () => {
 
 }
 
+export const getProtocolParams = async () => {
+
+	try {
+		const response = await axios({
+			method: 'get',
+			url: '/cli_protocol_params',
+			baseURL: KOIOS_URL,
+			headers: {'accept': 'application/json'},
+
+		})
+
+		if (response.status === 200) {
+			const data = response.data;
+			return data
+
+		} else {
+			console.error(response)
+		}
+
+	} catch(err) {
+		console.error("Could not retrieve Protocol Parameters");
+	}
+
+}
+
 export const getEpochInfo = async (currentEpochN) => {
 
 	try {
@@ -60,11 +85,69 @@ export const getEpochInfo = async (currentEpochN) => {
 
 }
 
-// export const getChainTip = async () => {
+
+export const getStakePoolList = async () => {
+
+	const stepSize = 1000
+	let reachedEnd = false
+	let i = 1
+	let poolsData = []
+
+	while (!reachedEnd) {
+
+		const offset = i*stepSize
+		console.log("processing nth stake pool: " + offset)
+
+		try {
+			const payload = {
+				offset,
+				limit: stepSize
+			}
+
+			const response = await axios({
+				method: 'get',
+				url: '/pool_list',
+				baseURL: KOIOS_URL,
+				params: payload,
+				headers: {'accept': 'application/json'},
+
+			})
+
+			if (response.status === 200) {
+
+				const data = response.data;
+
+				if (data.length) {
+					poolsData = poolsData.concat(data)
+				} else {
+					reachedEnd = true
+				}
+
+
+			} else {
+				reachedEnd = true
+				console.error(response)
+			}
+
+		} catch(err) {
+			reachedEnd = true
+			console.error("Could not retrieve List of Stake Pools");
+		}
+
+		i++;
+
+	}
+
+	return poolsData
+
+}
+
+
+
+// export const getStakePoolList = async () => {
 //
 // 	let utxos = [];
 //
-// 	console.log(scriptAddress)
 // 	const req = {
 // 		_addresses: [scriptAddress],
 // 		_extended: true
