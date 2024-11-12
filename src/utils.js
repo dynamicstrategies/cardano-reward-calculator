@@ -86,6 +86,44 @@ export const getEpochInfo = async (currentEpochN) => {
 }
 
 
+/**
+ * https://api.koios.rest/#get-/totals
+ * @param currentEpochN
+ * @returns {Promise<*>}
+ */
+export const getReserves = async (currentEpochN) => {
+
+	try {
+
+		const payload = {
+			_epoch_no: String(currentEpochN),
+		}
+
+		const response = await axios({
+			method: 'get',
+			url: '/totals',
+			baseURL: KOIOS_URL,
+			params: payload,
+			headers: {'accept': 'application/json'},
+
+		})
+
+		if (response.status === 200) {
+
+			const data = response.data[0];
+			return data
+
+		} else {
+			console.error(response)
+		}
+
+	} catch(err) {
+		console.error("Could not retrieve Reserves Info");
+	}
+
+}
+
+
 export const getStakePoolList = async () => {
 
 	const stepSize = 1000
@@ -94,6 +132,8 @@ export const getStakePoolList = async () => {
 	let poolsData = []
 
 	while (!reachedEnd) {
+
+		// reachedEnd = true
 
 		const offset = i*stepSize
 		console.log("processed stake pools: " + offset)

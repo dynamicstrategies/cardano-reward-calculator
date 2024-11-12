@@ -1,7 +1,9 @@
 import React from 'react'
 import './App.css';
-import {getChainTip, getEpochInfo, getProtocolParams, getStakePoolList} from "./utils";
+import cardanoLogo from './cardano_logo_white.svg';
+import {getChainTip, getEpochInfo, getProtocolParams, getReserves, getStakePoolList} from "./utils";
 import {Button, ControlGroup, InputGroup, Intent, Label, Tag} from "@blueprintjs/core";
+import StakePoolSelector from "./StakePoolSelector";
 
 
 export default class App extends React.Component {
@@ -63,20 +65,103 @@ export default class App extends React.Component {
 			sdash: undefined,
 
 			/**
+			 * Stake Pool calculated values
+			 */
+			blockAssigmentProbability: undefined,
+			expectedNBlocksInEpoch: undefined,
+			expectedNBlocksPerYear: undefined,
+			expectedPoolRewardInEpoch: undefined,
+			expectedPoolRewardPerYear: undefined,
+			annualizedPoolReward: undefined,
+
+			/**
 			 * User parameters
 			 */
 			amountAdaToStake: 10000,
 
+			/**
+			 * All stake pools information
+			 */
+			allStakePoolInfo: [],
+
+			/**
+			 * UI Controls
+			 * Control the accordions in the UI. Users who need more detail
+			 * on how the rewards are calculated can open these accordions
+			 */
+			isUIStakePoolsShown: true,
+			isUIStakeParamsShown: true,
+			isUIBlockParamsShown: true,
+			isUIStaticParamsShow: true,
+			isUIDynamicParamsShow: true,
+			isUIFeesReservesShow: true,
+
+
+
+
 		}
-
-
-		this.allStakePoolInfo = []
-
 
 	}
 
 
+	initData = async () => {
 
+		try {
+
+			console.log("--- Getting Chain Tip ---")
+			const chainTipObj = await getChainTip();
+			const currentEpochN = chainTipObj["epoch_no"]
+			const currentEpochSlot = chainTipObj["epoch_slot"]
+			const currentBlockTime = chainTipObj["block_time"]
+
+			console.log("--- Getting Current Epoch Info ---")
+			const epochInfoObj_curr = await getEpochInfo(currentEpochN);
+			const totalAdaStaked = epochInfoObj_curr["active_stake"] / 1000000
+
+			console.log("--- Getting Previous Epoch Info ---")
+			const prevEpochN = currentEpochN - 1;
+			const epochInfoObj_prev = await getEpochInfo(prevEpochN);
+			const feesInEpoch = epochInfoObj_prev["fees"] / 1000000
+
+			console.log("--- Getting Protocol Parameters ---")
+			const protocolParamsObj = await getProtocolParams();
+			const rho = protocolParamsObj["monetaryExpansion"]
+			const tau = protocolParamsObj["treasuryCut"]
+			const k = protocolParamsObj["stakePoolTargetNum"]
+			const a0 = protocolParamsObj["poolPledgeInfluence"]
+
+			console.log("--- Getting Protocol Reserves ---")
+			const reservesObj = await getReserves(currentEpochN);
+			const currentAdaSupply = reservesObj["supply"] / 1000000
+
+
+			console.log("--- Getting Stake Pools Info ---")
+			const spObj = await getStakePoolList();
+			const allStakePoolInfo = spObj.filter(x => x["pool_status"] === "registered" && x["ticker"])
+			console.log("retrieved number of pools: " + allStakePoolInfo?.length)
+
+
+
+			this.setState({
+				allStakePoolInfo,
+				rho, tau, k, a0,
+				currentEpochN, currentEpochSlot, currentBlockTime,
+				totalAdaStaked, feesInEpoch,
+				currentAdaSupply
+			}, () => {
+				this.recalcAll()
+			})
+
+
+		} catch(e) {
+			console.error(e)
+		}
+
+
+
+
+
+	}
 
 
 	/**
@@ -104,31 +189,34 @@ export default class App extends React.Component {
 
 		const expectedPoolRewardInEpoch = rewardToPoolOperators / (1 + a0) * (sigmadash + sdash * a0 * ((sigmadash - sdash * ((z0-sigmadash)/z0))/z0));
 		const expectedPoolRewardPerYear = expectedPoolRewardInEpoch * this.state.epochsInYear;
-		const annualizedPoolReward = expectedPoolRewardPerYear / this.state.totalStake;
+		const annualizedPoolReward = expectedPoolRewardPerYear / this.state.poolStake;
 
 		this.setState({
-			reserveAda: reserveAda,
-			z0: z0,
-			distributionFromReserve: distributionFromReserve,
-			grossReward: grossReward,
-			distributionToTreasury: distributionToTreasury,
-			rewardToPoolOperators: rewardToPoolOperators,
-			delegatorsStake: delegatorsStake,
-			sigma: sigma,
-			s: s,
-			sigmadash: sigmadash,
-			sdash: sdash,
-			blockAssigmentProbability: blockAssigmentProbability,
-			expectedNBlocksInEpoch: expectedNBlocksInEpoch,
-			expectedNBlocksPerYear: expectedNBlocksPerYear,
-			expectedPoolRewardInEpoch: expectedPoolRewardInEpoch,
-			expectedPoolRewardPerYear: expectedPoolRewardPerYear,
-			annualizedPoolReward: annualizedPoolReward,
-			blocksPerEpoch: blocksPerEpoch,
-			poolPledge: poolPledge
+			reserveAda,
+			z0,
+			distributionFromReserve,
+			grossReward,
+			distributionToTreasury,
+			rewardToPoolOperators,
+			delegatorsStake,
+			sigma,
+			s,
+			sigmadash,
+			sdash,
+			blockAssigmentProbability,
+			expectedNBlocksInEpoch,
+			expectedNBlocksPerYear,
+			expectedPoolRewardInEpoch,
+			expectedPoolRewardPerYear,
+			annualizedPoolReward,
+			blocksPerEpoch,
+			poolPledge
 		}, () => {this.runMonteCarlo()})
 
 	}
+
+
+
 
 
 	runMonteCarlo = () => {
@@ -205,14 +293,14 @@ export default class App extends React.Component {
 				break
 
 			case "pool-pledge":
-				const tmp = Math.min(val, this.state.totalStake);
+				const tmp = Math.min(val, this.state.poolStake);
 				this.setState({poolPledge: tmp},() => {this.recalcAll()})
 				break
 			case "delegators-stake":
 				this.setState({delegatorsStake: val},() => {this.recalcAll()})
 				break
 			case "total-pool-stake":
-				this.setState({totalStake: val},() => {this.recalcAll()})
+				this.setState({poolStake: val},() => {this.recalcAll()})
 				break
 			case "pool-fixed-costs":
 				this.setState({poolFixedCost: val},() => {this.recalcAll()})
@@ -229,7 +317,7 @@ export default class App extends React.Component {
 
 
 	async componentDidMount() {
-
+		this.initData().then(r => {})
 	}
 
 	render() {
@@ -237,9 +325,11 @@ export default class App extends React.Component {
 		return (
 
 			<div className="min-h-full">
-				<header className="bg-white shadow">
-					<div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
-						<h1 className="text-3xl font-bold tracking-tight text-gray-900">Staking Reward Calculator</h1>
+
+				<header className="bg-[#023E8A] shadow">
+					<div className="mx-auto flex max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+						<img className="mr-4" src={cardanoLogo} alt="nami logo" height="35" width="35"/>
+						<h1 className="text-3xl font-bold tracking-tight text-gray-50">Staking Reward Calculator</h1>
 					</div>
 				</header>
 				<main className="mx-auto bg-gray-100">
@@ -274,7 +364,7 @@ export default class App extends React.Component {
 									}}/>
 								</div>
 								<div className="m-2">
-									<Button rightIcon="refresh" disabled={!this.state.totalAdaStaked} intent={Intent.PRIMARY} text="Get Protocol Parameters" onClick={() => {
+									<Button rightIcon="refresh" disabled={false} intent={Intent.PRIMARY} text="Get Protocol Parameters" onClick={() => {
 										getProtocolParams().then(r => {
 											const rho = r["monetaryExpansion"]
 											const tau = r["treasuryCut"]
@@ -288,11 +378,22 @@ export default class App extends React.Component {
 								</div>
 
 								<div className="m-2">
+									<Button rightIcon="refresh" disabled={!this.state.currentEpochN} intent={Intent.PRIMARY} text="Get Protocol Reserves" onClick={() => {
+										getReserves(this.state.currentEpochN).then(r => {
+											const currentAdaSupply = r["supply"]
+											this.setState({currentAdaSupply})
+											console.log("--- Protocol Reserves ---")
+											console.log(r)
+										})
+									}}/>
+								</div>
+
+								<div className="m-2">
 									<Button rightIcon="refresh" disabled={false} intent={Intent.PRIMARY} text="Get Stake Pools" onClick={() => {
 										getStakePoolList().then(r => {
-											const livePools = r.filter(x => x["pool_status"] === "registered")
+											const livePools = r.filter(x => x["pool_status"] === "registered" && x["ticker"])
 											console.log("registered pools n: " + livePools.length)
-											this.allStakePoolInfo = livePools
+											this.setState({allStakePoolInfo: livePools})
 											// console.log(r)
 										})
 									}}/>
@@ -304,34 +405,34 @@ export default class App extends React.Component {
 						<div className="grid lg:grid-cols-3 lg:grid-rows-[auto_auto_auto_auto] gap-4">
 
 							{/* Row 1, Column 1 */}
-							<div className="rounded-lg bg-white p-4 lg:col-span-2">
-								<h4 className="text-balance m-8 text-4xl font-medium tracking-tight text-gray-900 sm:text-3xl">
+							<div className="border border-gray-300 shadow-md rounded-lg bg-white p-8 lg:col-span-2">
+								<h4 className="text-balance text-2xl font-medium tracking-tight text-gray-900">
 									Amount of ADA to Stake
 								</h4>
-								<div className="px-8 mb-8 pb-8 pt-8 sm:px-10 sm:pb-0 sm:pt-10">
+								<div className="mt-8 grid gap-4 overflow-hidden text-center">
 
 									<ControlGroup fill={true} vertical={false} style={{width:"100%"}}>
 										<InputGroup
-											style={{fontSize: "1.5rem"}}
+											style={{fontSize: "1.8rem", padding: "1.2em", textAlign: "center", fontWeight: 500}}
 											id="ada-to-stake"
 											disabled={false}
 											// leftIcon="filter"
 											onChange={this.handleChange}
 											value={this.state.amountAdaToStake.toLocaleString("en-US")}
 											fill={true}
-											rightElement={<Tag minimal={true}>1.1</Tag>}
+											rightElement={<Tag minimal={true}>ADA</Tag>}
 										/>
 									</ControlGroup>
 
 
-									<dl className="mt-8 grid grid-cols-1 gap-0.5 overflow-hidden rounded-2xl text-center sm:grid-cols-2 lg:grid-cols-2">
+									<dl className="mt-8 grid grid-cols-1 gap-1 overflow-hidden rounded-2xl text-center sm:grid-cols-2 lg:grid-cols-2">
 
 										<div key="pool-reward-ada" className="flex flex-col bg-gray-700/5 p-8">
-											<dt className="text-sm/6 font-semibold text-gray-600">Pool Reward per Year ADA</dt>
-											<dd className="order-first text-3xl font-semibold tracking-tight text-gray-900">{150}</dd>
+											<dt className="text-sm/6 font-semibold text-gray-600">Staking Reward per Year ADA</dt>
+											<dd className="order-first text-3xl font-semibold tracking-tight text-gray-900">{`xxx ADA`}</dd>
 										</div>
 										<div key="pool-reward-perc" className="flex flex-col bg-gray-700/5 p-8">
-											<dt className="text-sm/6 font-semibold text-gray-600">Annualized Pool Reward</dt>
+											<dt className="text-sm/6 font-semibold text-gray-600">Annualized Staking Reward</dt>
 											<dd className="order-first text-3xl font-semibold tracking-tight text-gray-900">{`${2.85}%`}</dd>
 										</div>
 
@@ -343,37 +444,447 @@ export default class App extends React.Component {
 							</div>
 
 							{/* Row 1, Column 2 */}
-							<div className="rounded-lg bg-white p-4">
+							<div className="border border-gray-300 shadow-md rounded-lg bg-white p-4">
 								<p>Info</p>
 							</div>
 
 							{/* Row 2, Column 1 */}
-							<div className="rounded-lg bg-white p-4 lg:col-span-2">
-								<p>Stake Pools</p>
+							<div className="border border-gray-300 shadow-md rounded-lg bg-white p-8 lg:col-span-2">
+
+								<div className="cursor-pointer" onClick={
+									() => this.setState({isUIStakePoolsShown: !this.state.isUIStakePoolsShown})
+								}>
+									<h4 className="text-balance text-2xl font-medium tracking-tight text-gray-900">
+									<span id="icon" className="text-3xl font-normal text-gray-900 mr-4">
+										{this.state.isUIStakePoolsShown ? "-" : "+"}
+									</span>
+										Stake Pools
+									</h4>
+								</div>
+
+
+
+								<dl className={`${this.state.isUIStakePoolsShown ? "" : "hidden"} mt-8 grid gap-4 overflow-hidden text-center sm:grid-cols-3`}>
+
+									<div key="stake-pool-1" className="flex flex-col bg-gray-700/5 p-8 rounded-xl border-2 border-[#0277BD]">
+										<StakePoolSelector allStakePoolInfo={this.state.allStakePoolInfo}/>
+
+									</div>
+									<div key="stake-pool-2" className="flex flex-col bg-gray-700/5 p-8 rounded-xl">
+										<StakePoolSelector allStakePoolInfo={this.state.allStakePoolInfo}/>
+
+									</div>
+									<div key="stake-pool-3" className="flex flex-col bg-gray-700/5 p-8 rounded-xl">
+										<StakePoolSelector allStakePoolInfo={this.state.allStakePoolInfo}/>
+
+									</div>
+
+
+								</dl>
 							</div>
 
 							{/* Row 2, Column 2 */}
-							<div className="rounded-lg bg-white p-4">
+							<div className="border border-gray-300 shadow-md rounded-lg bg-white p-4">
 								<p>Info</p>
 							</div>
 
 							{/* Row 3, Column 1 */}
-							<div className="rounded-lg bg-white p-4 lg:col-span-2">
-								<p>Pool Parameters</p>
+							<div className="border border-gray-300 shadow-md rounded-lg bg-white p-8 lg:col-span-2">
+								<div className="cursor-pointer" onClick={
+									() => this.setState({isUIStakeParamsShown: !this.state.isUIStakeParamsShown})
+								}>
+									<h4 className="text-balance text-2xl font-medium tracking-tight text-gray-900">
+									<span id="icon" className="text-3xl font-normal text-gray-900 mr-4">
+										{this.state.isUIStakeParamsShown ? "-" : "+"}
+									</span>
+										Stake Pool Parameters
+									</h4>
+								</div>
+
+								<div className={`${this.state.isUIStakeParamsShown ? "" : "hidden"} mt-8`}>
+									<ControlGroup fill={true} vertical={false} style={{width:"90%"}}>
+										<Label htmlFor="pool-pledge" style={{width:"400px"}}>Pool Pledge</Label>
+										<InputGroup
+											id="pool-pledge"
+											disabled={false}
+											leftIcon="plus"
+											onChange={this.handleChange}
+											value={this.state.poolPledge?.toLocaleString("en-US")}
+											fill={true}
+											rightElement={<Tag minimal={true}>ADA</Tag>}
+										/>
+									</ControlGroup>
+
+									<ControlGroup fill={true} vertical={false} style={{width:"90%"}}>
+										<Label htmlFor="delegators-stake" style={{width:"400px"}}>Delegator's Stake</Label>
+										<InputGroup
+											id="delegators-stake"
+											disabled={true}
+											leftIcon="plus"
+											onChange={this.handleChange}
+											value={this.state.delegatorsStake?.toLocaleString("en-US")}
+											fill={true}
+											rightElement={<Tag minimal={true}>ADA</Tag>}
+										/>
+									</ControlGroup>
+
+									<ControlGroup fill={true} vertical={false} style={{width:"90%"}}>
+										<Label htmlFor="total-pool-stake" style={{width:"400px"}}>Total Pool Stake</Label>
+										<InputGroup
+											id="total-pool-stake"
+											disabled={false}
+											leftIcon="equals"
+											onChange={this.handleChange}
+											value={this.state.poolStake?.toLocaleString("en-US", {maximumFractionDigits: 0})}
+											fill={true}
+											rightElement={<Tag minimal={true}>ADA</Tag>}
+										/>
+									</ControlGroup>
+
+									<ControlGroup fill={true} vertical={false} style={{width:"90%"}}>
+										<Label htmlFor="pool-fixed-costs" style={{width:"400px"}}>Pool Fixed Costs</Label>
+										<InputGroup
+											id="pool-fixed-costs"
+											disabled={false}
+											// leftIcon="filter"
+											onChange={this.handleChange}
+											value={this.state.poolFixedCost?.toLocaleString("en-US")}
+											fill={true}
+											rightElement={<Tag minimal={true}>ADA</Tag>}
+										/>
+									</ControlGroup>
+
+									<ControlGroup fill={true} vertical={false} style={{width:"90%"}}>
+										<Label htmlFor="pool-variable-fee" style={{width:"400px"}}>Pool Variable Fee</Label>
+										<InputGroup
+											id="pool-variable-fee"
+											disabled={false}
+											asyncControl={true}
+											// leftIcon="filter"
+											onChange={this.handleChange}
+											value={this.state.poolVariableFee}
+											fill={true}
+											rightElement={<Tag minimal={true}>%</Tag>}
+										/>
+									</ControlGroup>
+								</div>
+
 							</div>
 
 							{/* Row 3, Column 2 */}
-							<div className="rounded-lg bg-white p-4">
+							<div className="border border-gray-300 shadow-md rounded-lg bg-white p-4">
 								<p>Info</p>
 							</div>
 
 							{/* Row 4, Column 1 */}
-							<div className="rounded-lg bg-white p-4 lg:col-span-2">
-								<p>Blockchain Parameters</p>
+							<div className="border border-gray-300 shadow-md rounded-lg bg-white p-8 lg:col-span-2">
+								<div className="cursor-pointer" onClick={
+									() => this.setState({isUIBlockParamsShown: !this.state.isUIBlockParamsShown})
+								}>
+									<h4 className="text-balance text-2xl font-medium tracking-tight text-gray-900">
+									<span id="icon" className="text-3xl font-normal text-gray-900 mr-4">
+										{this.state.isUIBlockParamsShown ? "-" : "+"}
+									</span>
+										Blockchain Parameters
+									</h4>
+								</div>
+
+
+
+								<div className={`${this.state.isUIBlockParamsShown ? "" : "hidden"} mt-8`}>
+
+
+									<div className="cursor-pointer bg-gray-100 px-2 py-1 -mx-2 mt-8 mb-4 text-gray-900" onClick={
+										() => this.setState({isUIDynamicParamsShow: !this.state.isUIDynamicParamsShow})
+									}>
+										<span id="icon" className="font-normal text-gray-900 mr-4">
+											{this.state.isUIDynamicParamsShow ? "-" : "+"}
+										</span>
+										Dynamic Parameters
+									</div>
+
+									<div className={`${this.state.isUIDynamicParamsShow ? "" : "hidden"}`}>
+										<ControlGroup fill={true} vertical={false} style={{width:"90%"}}>
+											<Label htmlFor="rho" style={{width:"400px"}}>Rho</Label>
+											<InputGroup
+												id="rho"
+												disabled={false}
+												asyncControl={true}
+												// leftIcon="filter"
+												onChange={this.handleChange}
+												value={this.state.rho}
+												fill={true}
+												rightElement={<Tag minimal={true}>1.1</Tag>}
+											/>
+										</ControlGroup>
+
+										<ControlGroup fill={true} vertical={false} style={{width:"90%"}}>
+											<Label htmlFor="tau" style={{width:"400px"}}>Tau</Label>
+											<InputGroup
+												id="tau"
+												disabled={false}
+												asyncControl={true}
+												// leftIcon="filter"
+												onChange={this.handleChange}
+												value={this.state.tau}
+												fill={true}
+												rightElement={<Tag minimal={true}>1.2</Tag>}
+											/>
+										</ControlGroup>
+
+										<ControlGroup fill={true} vertical={false} style={{width:"90%"}}>
+											<Label htmlFor="k" style={{width:"400px"}}>K</Label>
+											<InputGroup
+												id="k"
+												disabled={false}
+												// leftIcon="filter"
+												onChange={this.handleChange}
+												value={this.state.k}
+												fill={true}
+												rightElement={<Tag minimal={true}>1.3</Tag>}
+											/>
+										</ControlGroup>
+
+										<ControlGroup fill={true} vertical={false} style={{width:"90%"}}>
+											<Label htmlFor="a0" style={{width:"400px"}}>a0</Label>
+											<InputGroup
+												id="a0"
+												disabled={false}
+												asyncControl={true}
+												// leftIcon="filter"
+												onChange={this.handleChange}
+												value={this.state.a0}
+												fill={true}
+												rightElement={<Tag minimal={true}>1.4</Tag>}
+											/>
+										</ControlGroup>
+
+										<ControlGroup fill={true} vertical={false} style={{width:"90%"}}>
+											<Label htmlFor="z0" style={{width:"400px"}}>z0</Label>
+											<InputGroup
+												id="z0"
+												disabled={true}
+												// leftIcon="filter"
+												// onChange={this.handleChange}
+												value={this.state.z0}
+												fill={true}
+												rightElement={<Tag minimal={true}>1.5</Tag>}
+											/>
+										</ControlGroup>
+									</div>
+
+									<div className="cursor-pointer bg-gray-100 px-2 py-1 -mx-2 mt-8 mb-4 text-gray-900" onClick={
+										() => this.setState({isUIStaticParamsShow: !this.state.isUIStaticParamsShow})
+									}>
+										<span id="icon" className="font-normal text-gray-900 mr-4">
+											{this.state.isUIStaticParamsShow ? "-" : "+"}
+										</span>
+										Static Parameters
+									</div>
+
+									<div className={`${this.state.isUIStaticParamsShow ? "" : "hidden"}`}>
+										<ControlGroup fill={true} vertical={false} style={{width:"90%"}}>
+											<Label htmlFor="days-in-epoch" style={{width:"400px"}}>Days in an Epoch</Label>
+											<InputGroup
+												id="days-in-epoch"
+												disabled={true}
+												// leftIcon="filter"
+												onChange={this.handleChange}
+												value={this.state.daysInEpoch}
+												fill={true}
+												rightElement={<Tag minimal={true}>1.6</Tag>}
+											/>
+
+										</ControlGroup>
+
+										<ControlGroup fill={true} vertical={false} style={{width:"90%"}}>
+											<Label htmlFor="epochs-in-year" style={{width:"400px"}}>Epochs in a Year</Label>
+											<InputGroup
+												id="epochs-in-year"
+												disabled={true}
+												// leftIcon="filter"
+												onChange={this.handleChange}
+												value={this.state.epochsInYear}
+												fill={true}
+												rightElement={<Tag minimal={true}>1.7</Tag>}
+											/>
+										</ControlGroup>
+
+										<ControlGroup fill={true} vertical={false} style={{width:"90%"}}>
+											<Label htmlFor="slots-in-epoch" style={{width:"400px"}}>Slots in an Epoch</Label>
+											<InputGroup
+												id="slots-in-epoch"
+												disabled={true}
+												// leftIcon="filter"
+												onChange={this.handleChange}
+												value={this.state.slotsInEpoch.toLocaleString("en-US")}
+												fill={true}
+												rightElement={<Tag minimal={true}>1.8</Tag>}
+											/>
+										</ControlGroup>
+
+										<ControlGroup fill={true} vertical={false} style={{width:"90%"}}>
+											<Label htmlFor="chain-density" style={{width:"400px"}}>Chain Density</Label>
+											<InputGroup
+												id="chain-density"
+												disabled={true}
+												// asyncControl={true}
+												// leftIcon="filter"
+												onChange={this.handleChange}
+												// inputRef={"chain-density"}
+												value={this.state.chainDensity}
+												fill={true}
+												rightElement={<Tag minimal={true}>1.9</Tag>}
+											/>
+										</ControlGroup>
+
+										<ControlGroup fill={true} vertical={false} style={{width:"90%"}}>
+											<Label htmlFor="blocks-per-epoch" style={{width:"400px"}}>Blocks per Epoch</Label>
+											<InputGroup
+												id="blocks-per-epoch"
+												disabled={true}
+												// leftIcon="filter"
+												onChange={this.handleChange}
+												value={this.state.blocksPerEpoch.toLocaleString("en-US")}
+												fill={true}
+												rightElement={<Tag minimal={true}>1.10</Tag>}
+											/>
+										</ControlGroup>
+
+										<ControlGroup fill={true} vertical={false} style={{width:"90%"}}>
+											<Label htmlFor="max-ada-supply" style={{width:"400px"}}>Max ADA Supply</Label>
+											<InputGroup
+												id="max-ada-supply"
+												disabled={true}
+												// leftIcon="filter"
+												// onChange={this.handleChange}
+												value={this.state.maxAdaSupply.toLocaleString("en-US", {maximumFractionDigits: 0})}
+												fill={true}
+												rightElement={<Tag minimal={true}>1.11</Tag>}
+											/>
+										</ControlGroup>
+
+										<ControlGroup fill={true} vertical={false} style={{width:"90%"}}>
+											<Label htmlFor="current-ada-supply" style={{width:"400px"}}>Current ADA Supply</Label>
+											<InputGroup
+												id="current-ada-supply"
+												disabled={false}
+												// leftIcon="filter"
+												onChange={this.handleChange}
+												value={this.state.currentAdaSupply?.toLocaleString("en-US", {maximumFractionDigits: 0})}
+												// defaultValue={this.state.currentAdaSupply.toLocaleString("en-US")}
+												fill={true}
+												rightElement={<Tag minimal={true}>1.12</Tag>}
+											/>
+										</ControlGroup>
+
+										<ControlGroup fill={true} vertical={false} style={{width:"90%"}}>
+											<Label htmlFor="reserve-ada" style={{width:"400px"}}>Reserve ADA</Label>
+											<InputGroup
+												id="reserve-ada"
+												disabled={true}
+												// leftIcon="filter"
+												// onChange={this.handleChange}
+												value={this.state.reserveAda?.toLocaleString("en-US", {maximumFractionDigits: 0})}
+												fill={true}
+												rightElement={<Tag minimal={true}>1.13</Tag>}
+											/>
+										</ControlGroup>
+
+										<ControlGroup fill={true} vertical={false} style={{width:"90%"}}>
+											<Label htmlFor="total-staked-ada" style={{width:"400px"}}>Total Staked ADA</Label>
+											<InputGroup
+												id="total-staked-ada"
+												disabled={false}
+												// leftIcon="filter"
+												onChange={this.handleChange}
+												value={this.state.totalAdaStaked?.toLocaleString("en-US", {maximumFractionDigits: 0})}
+												fill={true}
+												rightElement={<Tag minimal={true}>1.14</Tag>}
+											/>
+										</ControlGroup>
+									</div>
+
+									<div className="cursor-pointer bg-gray-100 px-2 py-1 -mx-2 mt-8 mb-4 text-gray-900" onClick={
+										() => this.setState({isUIFeesReservesShow: !this.state.isUIFeesReservesShow})
+									}>
+										<span id="icon" className="font-normal text-gray-900 mr-4">
+											{this.state.isUIFeesReservesShow ? "-" : "+"}
+										</span>
+										Fees & Remaining Reserves
+									</div>
+
+									<div className={`${this.state.isUIFeesReservesShow ? "" : "hidden"}`}>
+										<ControlGroup fill={true} vertical={false} style={{width:"90%"}}>
+											<Label htmlFor="fees-in-epoch" style={{width:"400px"}}>Fees per Epoch</Label>
+											<InputGroup
+												id="fees-in-epoch"
+												disabled={false}
+												leftIcon="plus"
+												onChange={this.handleChange}
+												value={this.state.feesInEpoch?.toLocaleString("en-US", {maximumFractionDigits: 0})}
+												fill={true}
+												rightElement={<Tag minimal={true}>1.15</Tag>}
+											/>
+										</ControlGroup>
+
+										<ControlGroup fill={true} vertical={false} style={{width:"90%"}}>
+											<Label htmlFor="distribution-from-reserve" style={{width:"400px"}}>Distribution from Reserve</Label>
+											<InputGroup
+												id="distribution-from-reserve"
+												disabled={true}
+												leftIcon="plus"
+												// onChange={this.handleChange}
+												value={this.state.distributionFromReserve?.toLocaleString("en-US", {maximumFractionDigits: 0})}
+												fill={true}
+												rightElement={<Tag minimal={true}>1.16</Tag>}
+											/>
+										</ControlGroup>
+
+										<ControlGroup fill={true} vertical={false} style={{width:"90%"}}>
+											<Label htmlFor="gross-reward" style={{width:"400px"}}>Gross Reward</Label>
+											<InputGroup
+												id="equals"
+												disabled={true}
+												leftIcon="equals"
+												// onChange={this.handleChange}
+												value={this.state.grossReward?.toLocaleString("en-US", {maximumFractionDigits: 0})}
+												fill={true}
+												rightElement={<Tag minimal={true}>1.17</Tag>}
+											/>
+										</ControlGroup>
+
+										<ControlGroup fill={true} vertical={false} style={{width:"90%"}}>
+											<Label htmlFor="distribution-to-treasury" style={{width:"400px"}}>Distribution to Treasury</Label>
+											<InputGroup
+												id="distribution-to-treasury"
+												disabled={true}
+												leftIcon="minus"
+												// onChange={this.handleChange}
+												value={this.state.distributionToTreasury?.toLocaleString("en-US", {maximumFractionDigits: 0})}
+												fill={true}
+												rightElement={<Tag minimal={true}>1.18</Tag>}
+											/>
+										</ControlGroup>
+
+										<ControlGroup fill={true} vertical={false} style={{width:"90%"}}>
+											<Label htmlFor="reward-to-pools" style={{width:"400px"}}>Net Reward to Pools</Label>
+											<InputGroup
+												id="reward-to-pools"
+												disabled={true}
+												leftIcon="equals"
+												// onChange={this.handleChange}
+												value={this.state.rewardToPoolOperators?.toLocaleString("en-US", {maximumFractionDigits: 0})}
+												fill={true}
+												rightElement={<Tag minimal={true}>1.19</Tag>}
+											/>
+										</ControlGroup>
+									</div>
+								</div>
 							</div>
 
 							{/* Row 4, Column 2 */}
-							<div className="rounded-lg bg-white p-4">
+							<div className="border border-gray-300 shadow-md rounded-lg bg-white p-4">
 								<p>Info</p>
 							</div>
 						</div>
