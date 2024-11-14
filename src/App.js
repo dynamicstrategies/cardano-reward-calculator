@@ -1,7 +1,14 @@
 import React from 'react'
 import './App.css';
 import cardanoLogo from './cardano_logo_white.svg';
-import {getChainTip, getEpochInfo, getProtocolParams, getReserves, getStakePoolList} from "./utils";
+import {
+	getChainTip,
+	getEpochInfo,
+	getProtocolParams,
+	getReserves,
+	getStakePoolInfo,
+	getStakePoolList
+} from "./utils";
 import {Button, ControlGroup, InputGroup, Intent, Label, Tag} from "@blueprintjs/core";
 import StakePoolSelector from "./StakePoolSelector";
 
@@ -54,11 +61,11 @@ export default class App extends React.Component {
 			 * when the calculator is first opened with
 			 * these parameters
 			 */
-			poolPledge: 100000,
-			poolStake: 60000000,
-			delegatorsStake: this.poolStake - this.poolPledge,
-			poolFixedCost: 340,
-			poolVariableFee: 0.02,
+			poolPledge: undefined,
+			poolStake: undefined,
+			delegatorsStake: undefined,
+			poolFixedCost: undefined, // e.g. 340
+			poolVariableFee: undefined, // e.g. 0.02
 			sigma: undefined,
 			sigmadash: undefined,
 			s: undefined,
@@ -78,6 +85,7 @@ export default class App extends React.Component {
 			 * User parameters
 			 */
 			amountAdaToStake: 10000,
+			selectedPoolBech32: "pool1dts0h87pntgmsffp6mjtnahfht2dz5zjjeeujhzmtn6wgctcuzd",
 
 			/**
 			 * All stake pools information
@@ -134,13 +142,11 @@ export default class App extends React.Component {
 			const reservesObj = await getReserves(currentEpochN);
 			const currentAdaSupply = reservesObj["supply"] / 1000000
 
-
 			console.log("--- Getting Stake Pools Info ---")
 			const spObj = await getStakePoolList();
 			const allStakePoolInfo = spObj.filter(x => x["pool_status"] === "registered" && x["ticker"])
 			console.log("retrieved number of pools: " + allStakePoolInfo?.length)
-
-
+			// console.log(allStakePoolInfo)
 
 			this.setState({
 				allStakePoolInfo,
@@ -149,17 +155,34 @@ export default class App extends React.Component {
 				totalAdaStaked, feesInEpoch,
 				currentAdaSupply
 			}, () => {
-				this.recalcAll()
+				this.updateSelectedPoolParams()
 			})
 
 
 		} catch(e) {
 			console.error(e)
 		}
+	}
+
+
+	updateSelectedPoolParams = async (selectedPoolBech32 = this.state.selectedPoolBech32) => {
+
+		// const allStakePoolInfo = this.state.allStakePoolInfo;
+
+		// const spsObj = allStakePoolInfo.filter(x => x.pool_id_bech32 = selectedPoolBech32) || []
+		// const spObj = spsObj.length ? spsObj[0] : undefined;
 
 
 
+		const spInfo = await getStakePoolInfo(selectedPoolBech32)
+		const poolPledge = spInfo?.pledge / 1_000_000;
+		const poolFixedCost = spInfo?.fixed_cost / 1_000_000;
+		const poolVariableFee = spInfo?.margin;
+		const poolStake = spInfo?.active_stake / 1_000_000;
 
+
+		this.setState({poolPledge, poolFixedCost, poolVariableFee, poolStake},
+			() => this.recalcAll())
 
 	}
 
@@ -214,8 +237,6 @@ export default class App extends React.Component {
 		}, () => {this.runMonteCarlo()})
 
 	}
-
-
 
 
 
@@ -317,7 +338,9 @@ export default class App extends React.Component {
 
 
 	async componentDidMount() {
-		this.initData().then(r => {})
+
+		await this.initData()
+
 	}
 
 	render() {
@@ -522,7 +545,7 @@ export default class App extends React.Component {
 											disabled={true}
 											leftIcon="plus"
 											onChange={this.handleChange}
-											value={this.state.delegatorsStake?.toLocaleString("en-US")}
+											value={this.state.delegatorsStake?.toLocaleString("en-US", {maximumFractionDigits: 0})}
 											fill={true}
 											rightElement={<Tag minimal={true}>ADA</Tag>}
 										/>

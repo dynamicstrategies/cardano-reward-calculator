@@ -133,7 +133,7 @@ export const getStakePoolList = async () => {
 
 	while (!reachedEnd) {
 
-		// reachedEnd = true
+		reachedEnd = true
 
 		const offset = i*stepSize
 		console.log("processed stake pools: " + offset)
@@ -184,37 +184,33 @@ export const getStakePoolList = async () => {
 
 
 
-// export const getStakePoolList = async () => {
-//
-// 	let utxos = [];
-//
-// 	const req = {
-// 		_addresses: [scriptAddress],
-// 		_extended: true
-// 	}
-//
-// 	try {
-// 		const response = await axios({
-// 			method: 'post',
-// 			url: '/address_utxos',
-// 			baseURL: KOIOS_URL,
-// 			data: JSON.stringify(req),
-// 			headers: {'Content-Type': 'application/json', 'accept': 'application/json'},
-//
-// 		})
-//
-// 		if (response.status === 200) {
-// 			const o = response.data;
-// 			utxos = o;
-//
-// 		} else {
-// 			console.error(response)
-// 		}
-//
-// 	} catch(err) {
-// 		console.error("Could not retrieve UTXOs");
-// 	}
-//
-// 	return utxos
-//
-// }
+
+export const getStakePoolInfo = async (pool_bech32_id) => {
+
+	const req = {
+		_pool_bech32_ids: [pool_bech32_id]
+	}
+
+	try {
+		const response = await axios({
+			method: 'post',
+			url: '/pool_info',
+			baseURL: KOIOS_URL,
+			data: JSON.stringify(req),
+			headers: {'Content-Type': 'application/json', 'accept': 'application/json'},
+
+		})
+
+		if (response.status === 200) {
+			const data = response.data[0];
+			return data
+
+		} else {
+			console.error(response)
+		}
+
+	} catch(err) {
+		console.error("Could not retrieve Stake Pool Info");
+	}
+
+}
