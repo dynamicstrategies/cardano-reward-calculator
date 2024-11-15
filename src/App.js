@@ -87,6 +87,7 @@ export default class App extends React.Component {
 			 */
 			amountAdaToStake: 10000,
 			selectedPoolBech32: "pool189lsf6c2upyhmrzddyvyfjxxkqnte9pw8aqx7f4cuf85sjxlm02",
+			poolStake_plus_userAmount: undefined,
 
 			/**
 			 * All stake pools information
@@ -108,7 +109,7 @@ export default class App extends React.Component {
 			/**
 			 * Monte Carlo Simulation
 			 */
-			nMonteCarloSimuls: 100,
+			nMonteCarloSimuls: 1000,
 
 		}
 
@@ -203,19 +204,20 @@ export default class App extends React.Component {
 		const distributionToTreasury = grossReward * Number(this.state.tau);
 		const rewardToPoolOperators = grossReward - distributionToTreasury;
 		const poolPledge = this.state.poolPledge;
-		const delegatorsStake = this.state.poolStake - poolPledge;
-		const sigma = this.state.poolStake / this.state.currentAdaSupply;
+		const poolStake_plus_userAmount = this.state.poolStake + this.state.amountAdaToStake
+		const delegatorsStake = poolStake_plus_userAmount - poolPledge;
+		const sigma = poolStake_plus_userAmount / this.state.currentAdaSupply;
 		const s = this.state.poolPledge / this.state.currentAdaSupply;
 		const sigmadash = Math.min(sigma, z0);
 		const sdash = Math.min(s, z0);
-		const blockAssigmentProbability = this.state.poolStake / this.state.totalAdaStaked;
+		const blockAssigmentProbability = poolStake_plus_userAmount / this.state.totalAdaStaked;
 		const expectedNBlocksInEpoch = blockAssigmentProbability * blocksPerEpoch;
 		const expectedNBlocksPerYear = expectedNBlocksInEpoch * this.state.epochsInYear;
 		const a0 = Number(this.state.a0);
 
 		const expectedPoolRewardInEpoch = rewardToPoolOperators / (1 + a0) * (sigmadash + sdash * a0 * ((sigmadash - sdash * ((z0-sigmadash)/z0))/z0));
 		const expectedPoolRewardPerYear = expectedPoolRewardInEpoch * this.state.epochsInYear;
-		const annualizedPoolReward = expectedPoolRewardPerYear / this.state.poolStake;
+		const annualizedPoolReward = expectedPoolRewardPerYear / poolStake_plus_userAmount;
 
 		this.setState({
 			reserveAda,
@@ -236,7 +238,8 @@ export default class App extends React.Component {
 			expectedPoolRewardPerYear,
 			annualizedPoolReward,
 			blocksPerEpoch,
-			poolPledge
+			poolPledge,
+			poolStake_plus_userAmount
 		}, () => {this.runMonteCarlo()})
 
 	}
@@ -254,7 +257,16 @@ export default class App extends React.Component {
 			return
 		}
 
-		let simulatedResults = {};
+		// let simulatedResults = {};
+		let totalReward = 0;
+		let poolFixedReward = 0;
+		let poolVariableReward = 0;
+		let poolReturnOnPledge = 0;
+		let poolReward = 0;
+		let delegatorsReward = 0;
+		let totalBlocks = 0;
+
+
 
 		for (let i = 0; i < this.state.epochsInYear; i++) {
 
@@ -273,44 +285,36 @@ export default class App extends React.Component {
 
 			} while(!stop)
 
+			totalBlocks += nblocks;
 
-			// add results for a simulation to an object
 			const rewardMultiplier = (nblocks / this.state.blocksPerEpoch) / this.state.blockAssigmentProbability;
-			const totalReward = this.state.expectedPoolRewardInEpoch * rewardMultiplier;
-			const poolFixedReward = Math.min(totalReward, this.state.poolFixedCost);
-			const poolVariableReward = (totalReward - poolFixedReward) * Number(this.state.poolVariableFee);
-			const poolReturnOnPledge = (totalReward - poolFixedReward - poolVariableReward) * this.state.poolPledge / this.state.poolStake;
-			const poolReward = poolFixedReward + poolVariableReward + poolReturnOnPledge;
-			const delegatorsReward = totalReward - poolReward;
+			const epoch_totalReward = this.state.expectedPoolRewardInEpoch * rewardMultiplier;
+			const epoch_poolFixedReward = Math.min(epoch_totalReward, this.state.poolFixedCost);
+			const epoch_poolVariableReward = (epoch_totalReward - epoch_poolFixedReward) * Number(this.state.poolVariableFee);
+			const epoch_poolReturnOnPledge = (epoch_totalReward - epoch_poolFixedReward - epoch_poolVariableReward) * this.state.poolPledge / this.state.poolStake_plus_userAmount;
+			const epoch_poolReward = epoch_poolFixedReward + epoch_poolVariableReward + epoch_poolReturnOnPledge;
+			const epoch_delegatorsReward = epoch_totalReward - epoch_poolReward;
 
-			simulatedResults[i] = {
-				nblocks: nblocks,
-				rewardMultiplier: rewardMultiplier,
-				totalReward: totalReward,
-				poolFixedReward: poolFixedReward,
-				poolVariableReward: poolVariableReward,
-				poolReturnOnPledge: poolReturnOnPledge,
-				poolReward: poolReward,
-				delegatorsReward: delegatorsReward
-			}
+			totalReward += epoch_totalReward;
+			poolFixedReward += epoch_poolFixedReward;
+			poolVariableReward += epoch_poolVariableReward;
+			poolReturnOnPledge += epoch_poolReturnOnPledge;
+			poolReward +=  epoch_poolReward
+			delegatorsReward += epoch_delegatorsReward;
 
 		}
 
-		// create object with summary
+
 		const simulatedResultsSummary = {
-			totalReward: Object.values(simulatedResults).reduce((tot, val) => {return (tot + val.totalReward)}, 0),
-			poolFixedReward: Object.values(simulatedResults).reduce((tot, val) => {return (tot + val.poolFixedReward)}, 0),
-			poolVariableReward: Object.values(simulatedResults).reduce((tot, val) => {return (tot + val.poolVariableReward)}, 0),
-			poolReturnOnPledge: Object.values(simulatedResults).reduce((tot, val) => {return (tot + val.poolReturnOnPledge)}, 0),
-			poolReward: Object.values(simulatedResults).reduce((tot, val) => {return (tot + val.poolReward)}, 0),
-			delegatorsReward: Object.values(simulatedResults).reduce((tot, val) => {return (tot + val.delegatorsReward)}, 0),
+			totalReward,
+			poolFixedReward,
+			poolVariableReward,
+			poolReturnOnPledge,
+			poolReward,
+			delegatorsReward,
 		}
-
-		// set to objects to state
-		// this.setState({simulatedResults: this.simulatedResults, simulatedResultsSummary: this.simulatedResultsSummary})
 
 		return simulatedResultsSummary
-
 
 	}
 
@@ -402,9 +406,7 @@ export default class App extends React.Component {
 
 		switch(id) {
 			case "ada-to-stake":
-				const amountAdaToStake = val;
-				const poolStake = this.state.poolStake + amountAdaToStake;
-				this.setState({amountAdaToStake, poolStake}, () => this.recalcAll())
+				this.setState({amountAdaToStake: val}, () => this.recalcAll())
 				break
 
 			case "days-in-epoch":
@@ -463,14 +465,15 @@ export default class App extends React.Component {
 				break
 
 			case "pool-pledge":
-				const tmp = Math.min(val, this.state.poolStake);
+				const tmp = Math.min(val, this.state.poolStake_plus_userAmount);
 				this.setState({poolPledge: tmp},() => {this.recalcAll()})
 				break
-			case "delegators-stake":
-				this.setState({delegatorsStake: val},() => {this.recalcAll()})
-				break
+			// case "delegators-stake":
+			// 	this.setState({delegatorsStake: val},() => {this.recalcAll()})
+			// 	break
 			case "total-pool-stake":
-				this.setState({poolStake: val},() => {this.recalcAll()})
+				const poolStake = val - this.state.amountAdaToStake
+				this.setState({poolStake},() => {this.recalcAll()})
 				break
 			case "pool-fixed-costs":
 				this.setState({poolFixedCost: val},() => {this.recalcAll()})
@@ -482,6 +485,13 @@ export default class App extends React.Component {
 			default:
 				console.log(`id not found: ${id}`)
 		}
+
+	}
+
+	handlePoolSelect = (spObj) => {
+		const selectedPoolBech32 = spObj?.pool_id_bech32;
+		this.setState({selectedPoolBech32},
+			() => this.updateSelectedPoolParams().then(() => {}))
 
 	}
 
@@ -643,15 +653,15 @@ export default class App extends React.Component {
 								<dl className={`${this.state.isUIStakePoolsShown ? "" : "hidden"} mt-8 grid gap-4 overflow-hidden text-center sm:grid-cols-3`}>
 
 									<div key="stake-pool-1" className="flex flex-col bg-gray-700/5 p-8 rounded-xl border-2 border-[#0277BD]">
-										<StakePoolSelector allStakePoolInfo={this.state.allStakePoolInfo}/>
+										<StakePoolSelector allStakePoolInfo={this.state.allStakePoolInfo} handlePoolSelect={this.handlePoolSelect}/>
 
 									</div>
 									<div key="stake-pool-2" className="flex flex-col bg-gray-700/5 p-8 rounded-xl">
-										<StakePoolSelector allStakePoolInfo={this.state.allStakePoolInfo}/>
+										<StakePoolSelector allStakePoolInfo={this.state.allStakePoolInfo} handlePoolSelect={this.handlePoolSelect}/>
 
 									</div>
 									<div key="stake-pool-3" className="flex flex-col bg-gray-700/5 p-8 rounded-xl">
-										<StakePoolSelector allStakePoolInfo={this.state.allStakePoolInfo}/>
+										<StakePoolSelector allStakePoolInfo={this.state.allStakePoolInfo} handlePoolSelect={this.handlePoolSelect}/>
 
 									</div>
 
@@ -711,7 +721,7 @@ export default class App extends React.Component {
 											disabled={false}
 											leftIcon="equals"
 											onChange={this.handleChange}
-											value={this.state.poolStake?.toLocaleString("en-US", {maximumFractionDigits: 0})}
+											value={this.state.poolStake_plus_userAmount?.toLocaleString("en-US", {maximumFractionDigits: 0})}
 											fill={true}
 											rightElement={<Tag minimal={true}>ADA</Tag>}
 										/>

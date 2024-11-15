@@ -233,13 +233,13 @@ const LogGamma = (Z) => {
 }
 
 const Betinc = (X,A,B) => {
-	var A0=0;
-	var B0=1;
-	var A1=1;
-	var B1=1;
-	var M9=0;
-	var A2=0;
-	var C9;
+	let A0=0;
+	let B0=1;
+	let A1=1;
+	let B1=1;
+	let M9=0;
+	let A2=0;
+	let C9;
 	while (Math.abs((A1-A2)/A1)>.00001) {
 		A2=A1;
 		C9=-(A+M9)*(A+B+M9)*X/(A+2*M9)/(A+2*M9+1);

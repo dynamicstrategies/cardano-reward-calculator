@@ -34,6 +34,13 @@ function StakePoolSelector(props) {
 		setAllPoolTickers(poolTickers)
 	}, [props])
 
+	useEffect(() => {
+		if (selectedPool?.ticker !== "Placeholder") {
+			console.log(selectedPool)
+			props.handlePoolSelect(selectedPool)
+		}
+	}, [selectedPool])
+
 
 	return (
 
@@ -71,6 +78,7 @@ function StakePoolSelector(props) {
 			}}
 
 			onItemSelect={setSelectedPool}
+			// onItemSelect={p => props.handlePoolSelect(p)}
 			placeholder="Select a Pool"
 			noResults={<MenuItem disabled={true} text="No results." roleStructure="listoption" />}
 		>
