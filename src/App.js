@@ -2,6 +2,7 @@ import React from 'react'
 import './App.css';
 import cardanoLogo from './cardano_logo_white.svg';
 import {
+	computeBinomCFD,
 	getChainTip,
 	getEpochInfo,
 	getProtocolParams,
@@ -85,7 +86,7 @@ export default class App extends React.Component {
 			 * User parameters
 			 */
 			amountAdaToStake: 10000,
-			selectedPoolBech32: "pool1dts0h87pntgmsffp6mjtnahfht2dz5zjjeeujhzmtn6wgctcuzd",
+			selectedPoolBech32: "pool189lsf6c2upyhmrzddyvyfjxxkqnte9pw8aqx7f4cuf85sjxlm02",
 
 			/**
 			 * All stake pools information
@@ -104,8 +105,10 @@ export default class App extends React.Component {
 			isUIDynamicParamsShow: true,
 			isUIFeesReservesShow: true,
 
-
-
+			/**
+			 * Monte Carlo Simulation
+			 */
+			nMonteCarloSimuls: 100,
 
 		}
 
@@ -239,8 +242,152 @@ export default class App extends React.Component {
 	}
 
 
+	/**
+	 * Simulates a full year of rewards, by going through every epoch and
+	 * checking how much rewards would have been earned by the stake pool
+	 * and what proportion would be distributed to delegators
+	 */
+	simulatedPoolRewards = () => {
 
+		if (!(this.state.epochsInYear < 5000)) {
+			console.log("Too many epochs in a Year ...")
+			return
+		}
+
+		let simulatedResults = {};
+
+		for (let i = 0; i < this.state.epochsInYear; i++) {
+
+			const randn = Math.random();
+			let nblocks = 0;
+			let stop = false;
+
+			do {
+
+				const binomcfd = computeBinomCFD(nblocks,this.state.blocksPerEpoch, this.state.blockAssigmentProbability)
+				if (randn > binomcfd) {
+					nblocks++;
+				} else {
+					stop = true;
+				}
+
+			} while(!stop)
+
+
+			// add results for a simulation to an object
+			const rewardMultiplier = (nblocks / this.state.blocksPerEpoch) / this.state.blockAssigmentProbability;
+			const totalReward = this.state.expectedPoolRewardInEpoch * rewardMultiplier;
+			const poolFixedReward = Math.min(totalReward, this.state.poolFixedCost);
+			const poolVariableReward = (totalReward - poolFixedReward) * Number(this.state.poolVariableFee);
+			const poolReturnOnPledge = (totalReward - poolFixedReward - poolVariableReward) * this.state.poolPledge / this.state.poolStake;
+			const poolReward = poolFixedReward + poolVariableReward + poolReturnOnPledge;
+			const delegatorsReward = totalReward - poolReward;
+
+			simulatedResults[i] = {
+				nblocks: nblocks,
+				rewardMultiplier: rewardMultiplier,
+				totalReward: totalReward,
+				poolFixedReward: poolFixedReward,
+				poolVariableReward: poolVariableReward,
+				poolReturnOnPledge: poolReturnOnPledge,
+				poolReward: poolReward,
+				delegatorsReward: delegatorsReward
+			}
+
+		}
+
+		// create object with summary
+		const simulatedResultsSummary = {
+			totalReward: Object.values(simulatedResults).reduce((tot, val) => {return (tot + val.totalReward)}, 0),
+			poolFixedReward: Object.values(simulatedResults).reduce((tot, val) => {return (tot + val.poolFixedReward)}, 0),
+			poolVariableReward: Object.values(simulatedResults).reduce((tot, val) => {return (tot + val.poolVariableReward)}, 0),
+			poolReturnOnPledge: Object.values(simulatedResults).reduce((tot, val) => {return (tot + val.poolReturnOnPledge)}, 0),
+			poolReward: Object.values(simulatedResults).reduce((tot, val) => {return (tot + val.poolReward)}, 0),
+			delegatorsReward: Object.values(simulatedResults).reduce((tot, val) => {return (tot + val.delegatorsReward)}, 0),
+		}
+
+		// set to objects to state
+		// this.setState({simulatedResults: this.simulatedResults, simulatedResultsSummary: this.simulatedResultsSummary})
+
+		return simulatedResultsSummary
+
+
+	}
+
+
+	/**
+	 * Run multiple simulation of the same year of returns
+	 */
 	runMonteCarlo = () => {
+
+		// reset previous run before kicking off a new one
+		let monetCarloSimul = [];
+
+		for (let i = 0; i < this.state.nMonteCarloSimuls; i++) {
+
+			const simul = this.simulatedPoolRewards();
+
+			const simulRes = {
+				totalReward: simul.totalReward,
+				poolReward: simul.poolReward,
+				delegatorsReward: simul.delegatorsReward,
+			}
+
+			monetCarloSimul.push(simulRes)
+
+		}
+
+
+		// calc summary stats
+		const poolRewardS = monetCarloSimul.map(x => x.poolReward);
+		const delegatorsRewardS = monetCarloSimul.map(x => x.delegatorsReward);
+		const totalRewardS = monetCarloSimul.map(x => x.totalReward);
+
+		const poolReward_av = (monetCarloSimul.reduce((tot, val) => {return (tot + val.poolReward)}, 0)) / this.state.nMonteCarloSimuls;
+		const delegatorsReward_av = (monetCarloSimul.reduce((tot, val) => {return (tot + val.delegatorsReward)}, 0)) / this.state.nMonteCarloSimuls;
+		const totalReward_av = (monetCarloSimul.reduce((tot, val) => {return (tot + val.totalReward)}, 0)) / this.state.nMonteCarloSimuls;
+
+
+		const monteCarloPoolStats = {
+			poolReward_av,
+			delegatorsReward_av,
+			totalReward_av,
+		}
+
+		// // total reward stats
+		// const poolStats = {
+		// 	"total": [
+		// 		(this.Quartile(totalRewardS, 0.1) / this.state.totalStake)*100,
+		// 		(this.Quartile(totalRewardS, 0.25) / this.state.totalStake)*100,
+		// 		(totalReward_av / this.state.totalStake)*100,
+		// 		(this.Quartile(totalRewardS, 0.75) / this.state.totalStake)*100,
+		// 		(this.Quartile(totalRewardS, 0.9) / this.state.totalStake)*100
+		// 	],
+		// 	"pool": [
+		// 		(this.Quartile(poolRewardS, 0.1) / this.state.poolPledge)*100,
+		// 		(this.Quartile(poolRewardS, 0.25) / this.state.poolPledge)*100,
+		// 		(poolReward_av / this.state.poolPledge)*100,
+		// 		(this.Quartile(poolRewardS, 0.75) / this.state.poolPledge)*100,
+		// 		(this.Quartile(poolRewardS, 0.9) / this.state.poolPledge)*100
+		// 	],
+		// 	"delegators": [
+		// 		(this.Quartile(delegatorsRewardS, 0.1) / this.state.delegatorsStake)*100,
+		// 		(this.Quartile(delegatorsRewardS, 0.25) / this.state.delegatorsStake)*100,
+		// 		(delegatorsReward_av / this.state.delegatorsStake)*100,
+		// 		(this.Quartile(delegatorsRewardS, 0.75) / this.state.delegatorsStake)*100,
+		// 		(this.Quartile(delegatorsRewardS, 0.9) / this.state.delegatorsStake)*100,
+		// 	]
+		// }
+
+
+		// set state
+		this.setState({monetCarloSimul, monteCarloPoolStats})
+
+		// if (this.state.poolIdSelected) {
+		// 	let tmp = this.state.poolComparisonStats;
+		// 	tmp[this.state.poolHashSelected] = poolStats
+		// 	this.setState({poolComparisonStats: tmp})
+		// }
 
 	}
 
@@ -255,7 +402,9 @@ export default class App extends React.Component {
 
 		switch(id) {
 			case "ada-to-stake":
-				this.setState({amountAdaToStake: val})
+				const amountAdaToStake = val;
+				const poolStake = this.state.poolStake + amountAdaToStake;
+				this.setState({amountAdaToStake, poolStake}, () => this.recalcAll())
 				break
 
 			case "days-in-epoch":
@@ -452,11 +601,15 @@ export default class App extends React.Component {
 
 										<div key="pool-reward-ada" className="flex flex-col bg-gray-700/5 p-8">
 											<dt className="text-sm/6 font-semibold text-gray-600">Staking Reward per Year ADA</dt>
-											<dd className="order-first text-3xl font-semibold tracking-tight text-gray-900">{`xxx ADA`}</dd>
+											<dd className="order-first text-3xl font-semibold tracking-tight text-gray-900">{
+												`${Number(this.state.monteCarloPoolStats?.delegatorsReward_av / this.state.delegatorsStake * this.state.amountAdaToStake).toLocaleString("en-US", {maximumFractionDigits: 0})}`
+											}</dd>
 										</div>
 										<div key="pool-reward-perc" className="flex flex-col bg-gray-700/5 p-8">
 											<dt className="text-sm/6 font-semibold text-gray-600">Annualized Staking Reward</dt>
-											<dd className="order-first text-3xl font-semibold tracking-tight text-gray-900">{`${2.85}%`}</dd>
+											<dd className="order-first text-3xl font-semibold tracking-tight text-gray-900">{`${
+												(this.state.monteCarloPoolStats?.delegatorsReward_av / this.state.delegatorsStake * 100).toLocaleString("en-US", {maximumFractionDigits: 2})
+											}%`}</dd>
 										</div>
 
 
