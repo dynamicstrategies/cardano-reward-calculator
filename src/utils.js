@@ -133,7 +133,7 @@ export const getStakePoolList = async () => {
 
 	while (!reachedEnd) {
 
-		reachedEnd = true
+		// reachedEnd = true
 
 		const offset = i*stepSize
 		console.log("processed stake pools: " + offset)

@@ -11,6 +11,7 @@ import {
 	getStakePoolList, Quartile
 } from "./utils";
 import {Button, ControlGroup, InputGroup, Intent, Label, Tag} from "@blueprintjs/core";
+import {Calendar, Cube, SeriesAdd, User} from "@blueprintjs/icons";
 import StakePoolSelector from "./StakePoolSelector";
 
 
@@ -107,6 +108,11 @@ export default class App extends React.Component {
 			isUIFeesReservesShow: true,
 			stakePoolNSelected: undefined,
 			stakePool_1_Stats: {
+				name: "",
+				description: "",
+				yearsActive: 0,
+				lifetimeBlocks: 0,
+				nDelegators: 0,
 				delegatorsReward_lower: undefined,
 				delegatorsReward_av: undefined,
 				delegatorsReward_upper: undefined
@@ -183,6 +189,31 @@ export default class App extends React.Component {
 		const poolFixedCost = spInfo?.fixed_cost / 1_000_000;
 		const poolVariableFee = spInfo?.margin;
 		const poolStake = spInfo?.active_stake / 1_000_000;
+
+		const activeSinceEpoch = spInfo?.active_epoch_no;
+		const yearsActive = (this.state.currentEpochN - activeSinceEpoch) / this.state.epochsInYear;
+		const lifetimeBlocks = spInfo?.block_count;
+		const nDelegators = spInfo?.live_delegators;
+		const name = spInfo?.meta_json?.name;
+		const description = spInfo?.meta_json?.description;
+
+
+		if (this.state.stakePoolNSelected === 1) {
+			let stakePool_1_Stats = this.state.stakePool_1_Stats;
+
+			stakePool_1_Stats = {
+				...stakePool_1_Stats,
+				name,
+				description,
+				yearsActive,
+				lifetimeBlocks,
+				nDelegators,
+			}
+
+			this.setState({stakePool_1_Stats})
+
+		}
+
 
 		this.setState({poolPledge, poolFixedCost, poolVariableFee, poolStake},
 			() => this.recalcAll())
@@ -342,17 +373,17 @@ export default class App extends React.Component {
 
 
 		// calc summary stats
-		const poolRewardS = monetCarloSimul.map(x => x.poolReward);
-		const delegatorsRewardS = monetCarloSimul.map(x => x.delegatorsReward);
-		const totalRewardS = monetCarloSimul.map(x => x.totalReward);
+		const poolRewards = monetCarloSimul.map(x => x.poolReward);
+		const delegatorsRewards = monetCarloSimul.map(x => x.delegatorsReward);
+		const totalRewards = monetCarloSimul.map(x => x.totalReward);
 
 		const poolReward_av = (monetCarloSimul.reduce((tot, val) => {return (tot + val.poolReward)}, 0)) / this.state.nMonteCarloSimuls;
 		const delegatorsReward_av = (monetCarloSimul.reduce((tot, val) => {return (tot + val.delegatorsReward)}, 0)) / this.state.nMonteCarloSimuls;
 		const totalReward_av = (monetCarloSimul.reduce((tot, val) => {return (tot + val.totalReward)}, 0)) / this.state.nMonteCarloSimuls;
 
 
-		const delegatorsReward_lower = Quartile(totalRewardS, 0.1)
-		const delegatorsReward_upper = Quartile(totalRewardS, 0.9);
+		const delegatorsReward_lower = Quartile(delegatorsRewards, 0.1)
+		const delegatorsReward_upper = Quartile(delegatorsRewards, 0.9);
 
 		const monteCarloPoolStats = {
 			poolReward_av,
@@ -368,7 +399,10 @@ export default class App extends React.Component {
 
 		// Hard code select pool returns
 		if (this.state.stakePoolNSelected === 1) {
-			const stakePool_1_Stats = {
+			let stakePool_1_Stats = this.state.stakePool_1_Stats;
+
+			stakePool_1_Stats = {
+				...stakePool_1_Stats,
 				delegatorsReward_av,
 				delegatorsReward_lower,
 				delegatorsReward_upper,
@@ -643,24 +677,43 @@ export default class App extends React.Component {
 
 
 
-								<dl className={`${this.state.isUIStakePoolsShown ? "" : "hidden"} mt-8 grid gap-4 overflow-hidden text-center sm:grid-cols-3`}>
-
-
-
+								<div className={`${this.state.isUIStakePoolsShown ? "" : "hidden"} mt-8 grid gap-4 overflow-hidden md:grid-cols-3`}>
 
 
 									<div key="stake-pool-1" className={`flex flex-col bg-gray-700/5 p-4 rounded-xl border-2 ${this.state.stakePoolNSelected === 1 ? "border-blue-primary" : ""}`} onClick={() => {
 										this.setState({stakePoolNSelected: 1})
 									}}>
+
 										<StakePoolSelector stakePoolN={1} allStakePoolInfo={this.state.allStakePoolInfo} handlePoolSelect={this.handlePoolSelect}/>
-										<p className="my-4 text-sm/6 text-gray-600">pool description</p>
-										<div className="grid gap-2 grid-cols-3 text-xs">
+
+										<p className="items-center mb-2 mt-4 font-semibold">
+											{this.state.stakePool_1_Stats?.name}
+										</p>
+
+										<p className="leading-normal pb-2 font-normal">
+											{this.state.stakePool_1_Stats?.description}
+										</p>
+
+										<div className="grid gap-1 grid-cols-3 py-2 text-left border-t border-b border-gray-300">
+											<div className="col-span-2"><Cube size={14} className="mr-2"/> Blocks Minted</div>
+											<div className="text-center">{(this.state.stakePool_1_Stats?.lifetimeBlocks).toLocaleString("en-US")}</div>
+
+											<div className="col-span-2"><Calendar size={14} className="mr-2"/> Years Active</div>
+											<div className="text-center">{(this.state.stakePool_1_Stats?.yearsActive).toLocaleString("en-US", {maximumFractionDigits: 1})}</div>
+
+											<div className="col-span-2"><User size={14} className="mr-2"/> # Delegators</div>
+											<div className="text-center">{this.state.stakePool_1_Stats?.nDelegators}</div>
+
+										</div>
+
+										<p className="mt-4"><SeriesAdd size={14} className="mr-2"/> Expected Return</p>
+										<div className="grid gap-2 grid-cols-3 bg-gray-900/5 -ml-2 -mr-2 mt-1 p-1 text-center bg-blue-primary rounded-md">
 											<div className="font-medium">Lower</div>
 											<div className="font-medium">Average</div>
 											<div className="font-medium">Upper</div>
-											<div>{(this.state.stakePool_1_Stats?.delegatorsReward_lower / this.state.delegatorsStake * 100).toLocaleString("en-US", {maximumFractionDigits: 2})}</div>
-											<div>{(this.state.stakePool_1_Stats?.delegatorsReward_av / this.state.delegatorsStake * 100).toLocaleString("en-US", {maximumFractionDigits: 2})}</div>
-											<div>{(this.state.stakePool_1_Stats?.delegatorsReward_upper / this.state.delegatorsStake * 100).toLocaleString("en-US", {maximumFractionDigits: 2})}</div>
+											<div>{`${(this.state.stakePool_1_Stats?.delegatorsReward_lower / this.state.delegatorsStake * 100).toLocaleString("en-US", {maximumFractionDigits: 2})} %`}</div>
+											<div>{`${(this.state.stakePool_1_Stats?.delegatorsReward_av / this.state.delegatorsStake * 100).toLocaleString("en-US", {maximumFractionDigits: 2})} %`}</div>
+											<div>{`${(this.state.stakePool_1_Stats?.delegatorsReward_upper / this.state.delegatorsStake * 100).toLocaleString("en-US", {maximumFractionDigits: 2})} %`}</div>
 										</div>
 									</div>
 
@@ -686,7 +739,7 @@ export default class App extends React.Component {
 									</div>
 
 
-								</dl>
+								</div>
 							</div>
 
 							{/* Row 2, Column 2 */}
