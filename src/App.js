@@ -8,7 +8,7 @@ import {
 	getProtocolParams,
 	getReserves,
 	getStakePoolInfo,
-	getStakePoolList
+	getStakePoolList, Quartile
 } from "./utils";
 import {Button, ControlGroup, InputGroup, Intent, Label, Tag} from "@blueprintjs/core";
 import StakePoolSelector from "./StakePoolSelector";
@@ -85,7 +85,7 @@ export default class App extends React.Component {
 			/**
 			 * User parameters
 			 */
-			amountAdaToStake: 10000,
+			userAmount: 10000,
 			selectedPoolBech32: "pool189lsf6c2upyhmrzddyvyfjxxkqnte9pw8aqx7f4cuf85sjxlm02",
 			poolStake_plus_userAmount: undefined,
 
@@ -105,6 +105,13 @@ export default class App extends React.Component {
 			isUIStaticParamsShow: true,
 			isUIDynamicParamsShow: true,
 			isUIFeesReservesShow: true,
+			stakePoolNSelected: undefined,
+			stakePool_1_Stats: {
+				delegatorsReward_lower: undefined,
+				delegatorsReward_av: undefined,
+				delegatorsReward_upper: undefined
+			},
+
 
 			/**
 			 * Monte Carlo Simulation
@@ -171,19 +178,11 @@ export default class App extends React.Component {
 
 	updateSelectedPoolParams = async (selectedPoolBech32 = this.state.selectedPoolBech32) => {
 
-		// const allStakePoolInfo = this.state.allStakePoolInfo;
-
-		// const spsObj = allStakePoolInfo.filter(x => x.pool_id_bech32 = selectedPoolBech32) || []
-		// const spObj = spsObj.length ? spsObj[0] : undefined;
-
-
-
 		const spInfo = await getStakePoolInfo(selectedPoolBech32)
 		const poolPledge = spInfo?.pledge / 1_000_000;
 		const poolFixedCost = spInfo?.fixed_cost / 1_000_000;
 		const poolVariableFee = spInfo?.margin;
 		const poolStake = spInfo?.active_stake / 1_000_000;
-
 
 		this.setState({poolPledge, poolFixedCost, poolVariableFee, poolStake},
 			() => this.recalcAll())
@@ -204,7 +203,7 @@ export default class App extends React.Component {
 		const distributionToTreasury = grossReward * Number(this.state.tau);
 		const rewardToPoolOperators = grossReward - distributionToTreasury;
 		const poolPledge = this.state.poolPledge;
-		const poolStake_plus_userAmount = this.state.poolStake + this.state.amountAdaToStake
+		const poolStake_plus_userAmount = this.state.poolStake + this.state.userAmount
 		const delegatorsStake = poolStake_plus_userAmount - poolPledge;
 		const sigma = poolStake_plus_userAmount / this.state.currentAdaSupply;
 		const s = this.state.poolPledge / this.state.currentAdaSupply;
@@ -352,40 +351,30 @@ export default class App extends React.Component {
 		const totalReward_av = (monetCarloSimul.reduce((tot, val) => {return (tot + val.totalReward)}, 0)) / this.state.nMonteCarloSimuls;
 
 
+		const delegatorsReward_lower = Quartile(totalRewardS, 0.1)
+		const delegatorsReward_upper = Quartile(totalRewardS, 0.9);
+
 		const monteCarloPoolStats = {
 			poolReward_av,
 			delegatorsReward_av,
 			totalReward_av,
+			delegatorsReward_lower,
+			delegatorsReward_upper,
 		}
-
-		// // total reward stats
-		// const poolStats = {
-		// 	"total": [
-		// 		(this.Quartile(totalRewardS, 0.1) / this.state.totalStake)*100,
-		// 		(this.Quartile(totalRewardS, 0.25) / this.state.totalStake)*100,
-		// 		(totalReward_av / this.state.totalStake)*100,
-		// 		(this.Quartile(totalRewardS, 0.75) / this.state.totalStake)*100,
-		// 		(this.Quartile(totalRewardS, 0.9) / this.state.totalStake)*100
-		// 	],
-		// 	"pool": [
-		// 		(this.Quartile(poolRewardS, 0.1) / this.state.poolPledge)*100,
-		// 		(this.Quartile(poolRewardS, 0.25) / this.state.poolPledge)*100,
-		// 		(poolReward_av / this.state.poolPledge)*100,
-		// 		(this.Quartile(poolRewardS, 0.75) / this.state.poolPledge)*100,
-		// 		(this.Quartile(poolRewardS, 0.9) / this.state.poolPledge)*100
-		// 	],
-		// 	"delegators": [
-		// 		(this.Quartile(delegatorsRewardS, 0.1) / this.state.delegatorsStake)*100,
-		// 		(this.Quartile(delegatorsRewardS, 0.25) / this.state.delegatorsStake)*100,
-		// 		(delegatorsReward_av / this.state.delegatorsStake)*100,
-		// 		(this.Quartile(delegatorsRewardS, 0.75) / this.state.delegatorsStake)*100,
-		// 		(this.Quartile(delegatorsRewardS, 0.9) / this.state.delegatorsStake)*100,
-		// 	]
-		// }
-
 
 		// set state
 		this.setState({monetCarloSimul, monteCarloPoolStats})
+
+
+		// Hard code select pool returns
+		if (this.state.stakePoolNSelected === 1) {
+			const stakePool_1_Stats = {
+				delegatorsReward_av,
+				delegatorsReward_lower,
+				delegatorsReward_upper,
+			}
+			this.setState({stakePool_1_Stats})
+		}
 
 		// if (this.state.poolIdSelected) {
 		// 	let tmp = this.state.poolComparisonStats;
@@ -406,7 +395,7 @@ export default class App extends React.Component {
 
 		switch(id) {
 			case "ada-to-stake":
-				this.setState({amountAdaToStake: val}, () => this.recalcAll())
+				this.setState({userAmount: val}, () => this.recalcAll())
 				break
 
 			case "days-in-epoch":
@@ -472,7 +461,7 @@ export default class App extends React.Component {
 			// 	this.setState({delegatorsStake: val},() => {this.recalcAll()})
 			// 	break
 			case "total-pool-stake":
-				const poolStake = val - this.state.amountAdaToStake
+				const poolStake = val - this.state.userAmount
 				this.setState({poolStake},() => {this.recalcAll()})
 				break
 			case "pool-fixed-costs":
@@ -489,9 +478,13 @@ export default class App extends React.Component {
 	}
 
 	handlePoolSelect = (spObj) => {
+
 		const selectedPoolBech32 = spObj?.pool_id_bech32;
-		this.setState({selectedPoolBech32},
+		const stakePoolNSelected = spObj?.stakePoolN;
+		this.setState({selectedPoolBech32, stakePoolNSelected},
 			() => this.updateSelectedPoolParams().then(() => {}))
+
+
 
 	}
 
@@ -600,7 +593,7 @@ export default class App extends React.Component {
 											disabled={false}
 											// leftIcon="filter"
 											onChange={this.handleChange}
-											value={this.state.amountAdaToStake.toLocaleString("en-US")}
+											value={this.state.userAmount.toLocaleString("en-US")}
 											fill={true}
 											rightElement={<Tag minimal={true}>ADA</Tag>}
 										/>
@@ -612,7 +605,7 @@ export default class App extends React.Component {
 										<div key="pool-reward-ada" className="flex flex-col bg-gray-700/5 p-8">
 											<dt className="text-sm/6 font-semibold text-gray-600">Staking Reward per Year ADA</dt>
 											<dd className="order-first text-3xl font-semibold tracking-tight text-gray-900">{
-												`${Number(this.state.monteCarloPoolStats?.delegatorsReward_av / this.state.delegatorsStake * this.state.amountAdaToStake).toLocaleString("en-US", {maximumFractionDigits: 0})}`
+												`${Number(this.state.monteCarloPoolStats?.delegatorsReward_av / this.state.delegatorsStake * this.state.userAmount).toLocaleString("en-US", {maximumFractionDigits: 0})}`
 											}</dd>
 										</div>
 										<div key="pool-reward-perc" className="flex flex-col bg-gray-700/5 p-8">
@@ -652,16 +645,43 @@ export default class App extends React.Component {
 
 								<dl className={`${this.state.isUIStakePoolsShown ? "" : "hidden"} mt-8 grid gap-4 overflow-hidden text-center sm:grid-cols-3`}>
 
-									<div key="stake-pool-1" className="flex flex-col bg-gray-700/5 p-8 rounded-xl border-2 border-[#0277BD]">
-										<StakePoolSelector allStakePoolInfo={this.state.allStakePoolInfo} handlePoolSelect={this.handlePoolSelect}/>
+
+
+
+
+									<div key="stake-pool-1" className={`flex flex-col bg-gray-700/5 p-4 rounded-xl border-2 ${this.state.stakePoolNSelected === 1 ? "border-blue-primary" : ""}`} onClick={() => {
+										this.setState({stakePoolNSelected: 1})
+									}}>
+										<StakePoolSelector stakePoolN={1} allStakePoolInfo={this.state.allStakePoolInfo} handlePoolSelect={this.handlePoolSelect}/>
+										<p className="my-4 text-sm/6 text-gray-600">pool description</p>
+										<div className="grid gap-2 grid-cols-3 text-xs">
+											<div className="font-medium">Lower</div>
+											<div className="font-medium">Average</div>
+											<div className="font-medium">Upper</div>
+											<div>{(this.state.stakePool_1_Stats?.delegatorsReward_lower / this.state.delegatorsStake * 100).toLocaleString("en-US", {maximumFractionDigits: 2})}</div>
+											<div>{(this.state.stakePool_1_Stats?.delegatorsReward_av / this.state.delegatorsStake * 100).toLocaleString("en-US", {maximumFractionDigits: 2})}</div>
+											<div>{(this.state.stakePool_1_Stats?.delegatorsReward_upper / this.state.delegatorsStake * 100).toLocaleString("en-US", {maximumFractionDigits: 2})}</div>
+										</div>
+									</div>
+
+
+
+
+
+									<div key="stake-pool-2" className={`flex flex-col bg-gray-700/5 p-4 rounded-xl border-2 ${this.state.stakePoolNSelected === 2 ? "border-blue-primary" : ""}`} onClick={() => {
+										this.setState({stakePoolNSelected: 2})
+									}}>
+										<StakePoolSelector stakePoolN={2} allStakePoolInfo={this.state.allStakePoolInfo} handlePoolSelect={this.handlePoolSelect}/>
 
 									</div>
-									<div key="stake-pool-2" className="flex flex-col bg-gray-700/5 p-8 rounded-xl">
-										<StakePoolSelector allStakePoolInfo={this.state.allStakePoolInfo} handlePoolSelect={this.handlePoolSelect}/>
 
-									</div>
-									<div key="stake-pool-3" className="flex flex-col bg-gray-700/5 p-8 rounded-xl">
-										<StakePoolSelector allStakePoolInfo={this.state.allStakePoolInfo} handlePoolSelect={this.handlePoolSelect}/>
+
+
+
+									<div key="stake-pool-3" className={`flex flex-col bg-gray-700/5 p-4 rounded-xl border-2 ${this.state.stakePoolNSelected === 3 ? "border-blue-primary" : ""}`} onClick={() => {
+										this.setState({stakePoolNSelected: 3})
+									}}>
+										<StakePoolSelector stakePoolN={3} allStakePoolInfo={this.state.allStakePoolInfo} handlePoolSelect={this.handlePoolSelect}/>
 
 									</div>
 

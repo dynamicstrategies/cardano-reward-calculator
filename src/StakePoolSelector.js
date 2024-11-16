@@ -1,36 +1,32 @@
 import React, { useState, useEffect } from "react";
 import { Button, MenuItem } from "@blueprintjs/core";
 import { Select } from "@blueprintjs/select";
-
-/* Randomize array in-place using Durstenfeld shuffle algorithm */
-const shuffleArray = (array) => {
-	for (let i = array.length - 1; i >= 0; i--) {
-		const j = Math.floor(Math.random() * (i + 1));
-		const temp = array[i];
-		array[i] = array[j];
-		array[j] = temp;
-	}
-
-	return array
-}
+import {shuffleArray} from "./utils";
 
 function StakePoolSelector(props) {
 
-	const [selectedPool, setSelectedPool] = useState({ticker: "Placeholder", pool_id_bech32: "stake pools are loading"});
+	const [selectedPool, setSelectedPool] = useState({
+		ticker: "Placeholder",
+		pool_id_bech32: "stake pools are loading",
+		stakePoolN: undefined
+	});
+
 	const [allPoolTickers, setAllPoolTickers] = useState([selectedPool])
 
 	useEffect(() => {
 		// console.log(props.allStakePoolInfo)
 
 		const allStakePoolInfo = shuffleArray(props.allStakePoolInfo)
+		const stakePoolN = props.stakePoolN
 
 		let poolTickers = []
 		for (const x of allStakePoolInfo) {
 			const ticker = x?.ticker;
 			const pool_id_bech32 = x?.pool_id_bech32;
-			const poolDict = {ticker, pool_id_bech32}
+			const poolDict = {ticker, pool_id_bech32, stakePoolN}
 			poolTickers.push(poolDict)
 		}
+
 		setAllPoolTickers(poolTickers)
 	}, [props])
 
@@ -43,6 +39,7 @@ function StakePoolSelector(props) {
 
 
 	return (
+
 
 		<Select
 			items={allPoolTickers}
@@ -84,6 +81,10 @@ function StakePoolSelector(props) {
 		>
 			<Button text={selectedPool?.ticker} rightIcon="double-caret-vertical" placeholder="Select a Stake Pool" />
 		</Select>
+
+
+
+
 
 	);
 }

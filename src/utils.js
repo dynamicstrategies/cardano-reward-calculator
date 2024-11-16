@@ -288,3 +288,35 @@ export const computeBinomCFD = (X,N,P) => {
 	return bincdf;
 
 }
+
+
+export const Quartile = (data, q) => {
+
+	data = Array_Sort_Numbers(data);
+	const pos = ((data.length) - 1) * q;
+	const base = Math.floor(pos);
+	const rest = pos - base;
+	if( (data[base+1]!==undefined) ) {
+		return data[base] + rest * (data[base+1] - data[base]);
+	} else {
+		return data[base];
+	}
+}
+
+const Array_Sort_Numbers = (inputarray) => {
+	return inputarray.sort(function(a, b) {
+		return a - b;
+	});
+}
+
+/* Randomize array in-place using Durstenfeld shuffle algorithm */
+export const shuffleArray = (array) => {
+	for (let i = array.length - 1; i >= 0; i--) {
+		const j = Math.floor(Math.random() * (i + 1));
+		const temp = array[i];
+		array[i] = array[j];
+		array[j] = temp;
+	}
+
+	return array
+}
