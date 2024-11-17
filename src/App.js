@@ -10,7 +10,7 @@ import {
 	getStakePoolInfo,
 	getStakePoolList, Quartile
 } from "./utils";
-import {Button, ControlGroup, InputGroup, Intent, Label, Tag} from "@blueprintjs/core";
+import {Button, ControlGroup, InputGroup, Intent, Label, Spinner, Tag} from "@blueprintjs/core";
 import {Calendar, Cube, SeriesAdd, User} from "@blueprintjs/icons";
 import StakePoolSelector from "./StakePoolSelector";
 
@@ -20,7 +20,6 @@ export default class App extends React.Component {
 		super(props);
 
 		this.state = {
-
 
 			/**
 			 * Cardano Static Parameters
@@ -100,23 +99,47 @@ export default class App extends React.Component {
 			 * Control the accordions in the UI. Users who need more detail
 			 * on how the rewards are calculated can open these accordions
 			 */
-			isUIStakePoolsShown: true,
-			isUIStakeParamsShown: true,
-			isUIBlockParamsShown: true,
-			isUIStaticParamsShow: true,
+			isUIStakePoolsShown: false,
+			isUIStakeParamsShown: false,
+			isUIBlockParamsShown: false,
 			isUIDynamicParamsShow: true,
-			isUIFeesReservesShow: true,
+			isUIStaticParamsShow: false,
+			isUIFeesReservesShow: false,
 			stakePoolNSelected: undefined,
 			stakePool_1_Stats: {
 				name: "",
 				description: "",
 				yearsActive: 0,
-				lifetimeBlocks: 0,
+				lifetimeBlocks: undefined,
 				nDelegators: 0,
-				delegatorsReward_lower: undefined,
-				delegatorsReward_av: undefined,
-				delegatorsReward_upper: undefined
+				delegatorsReward_lower: 0,
+				delegatorsReward_av: 0,
+				delegatorsReward_upper: 0,
+				delegatorsStake: 0,
 			},
+			stakePool_2_Stats: {
+				name: "",
+				description: "",
+				yearsActive: 0,
+				lifetimeBlocks: undefined,
+				nDelegators: 0,
+				delegatorsReward_lower: 0,
+				delegatorsReward_av: 0,
+				delegatorsReward_upper: 0,
+				delegatorsStake: 0,
+			},
+			stakePool_3_Stats: {
+				name: "",
+				description: "",
+				yearsActive: 0,
+				lifetimeBlocks: undefined,
+				nDelegators: 0,
+				delegatorsReward_lower: 0,
+				delegatorsReward_av: 0,
+				delegatorsReward_upper: 0,
+				delegatorsStake: 0,
+			},
+
 
 
 			/**
@@ -128,7 +151,24 @@ export default class App extends React.Component {
 
 	}
 
-
+	/**
+	 * Retrieves data from a blockchain indexer
+	 * - Gets the chain tip find the latest epoch
+	 *
+	 * - Gets the current active stake from the latest epoch
+	 * and the gets the total fees of the blockchain from the previous epoch (the
+	 * previous epoch is preferred as it has the fees for the whole epoch - whereas
+	 * getting fees from the current epoch would need to extrapolate until the end
+	 * of epoch that can lead to inaccuracies)
+	 *
+	 * - Gets the Blockchain protocol parameters (rho - monetaryExpansion;
+	 * tau - treasuryCut; k - stakePoolTargetNum; a0 - poolPledgeInfluence)
+	 *
+	 * - Get the Current Ada supply (not all of 45b ADA has been released)
+	 *
+	 *
+	 * @returns {Promise<void>}
+	 */
 	initData = async () => {
 
 		try {
@@ -181,7 +221,23 @@ export default class App extends React.Component {
 		}
 	}
 
-
+	/**
+	 * This is called when a user selects a specific pool
+	 * The function queries additional parameters for that pool
+	 * from the blockchain indexer. Additional fields are:
+	 * - pool name and description
+	 * - pool pledge
+	 * - pool fixed cost
+	 * - pool variable fee
+	 * - pool active stake (the stake used to determine block probability)
+	 * - active since epoch
+	 *
+	 * This then updates the parameters used in the calculator and a
+	 * recalculation is launched + the UI is updated with pool
+	 * parameters
+	 * @param selectedPoolBech32
+	 * @returns {Promise<void>}
+	 */
 	updateSelectedPoolParams = async (selectedPoolBech32 = this.state.selectedPoolBech32) => {
 
 		const spInfo = await getStakePoolInfo(selectedPoolBech32)
@@ -197,26 +253,39 @@ export default class App extends React.Component {
 		const name = spInfo?.meta_json?.name;
 		const description = spInfo?.meta_json?.description;
 
-
-		if (this.state.stakePoolNSelected === 1) {
-			let stakePool_1_Stats = this.state.stakePool_1_Stats;
-
-			stakePool_1_Stats = {
-				...stakePool_1_Stats,
-				name,
-				description,
-				yearsActive,
-				lifetimeBlocks,
-				nDelegators,
-			}
-
-			this.setState({stakePool_1_Stats})
-
-		}
-
-
+		// update state and recalculate all parameters in the calculator
 		this.setState({poolPledge, poolFixedCost, poolVariableFee, poolStake},
 			() => this.recalcAll())
+
+		/**
+		 * Update the state variable that are used in the UI
+		 * depending on which pool has been selected. This information
+		 * is used only used in the UI and does not trigger
+		 * additional calculation
+		 */
+		if (this.state.stakePoolNSelected) {
+			let _poolStats =
+				this.state.stakePoolNSelected === 1 ? this.state.stakePool_1_Stats :
+				this.state.stakePoolNSelected === 2 ? this.state.stakePool_2_Stats :
+				this.state.stakePoolNSelected === 3 ? this.state.stakePool_3_Stats : undefined
+
+			if (_poolStats) {
+				_poolStats = {
+					..._poolStats,
+					name,
+					description,
+					yearsActive,
+					lifetimeBlocks,
+					nDelegators,
+				}
+			}
+
+			const _result =
+				this.state.stakePoolNSelected === 1 ? this.setState({stakePool_1_Stats: _poolStats}) :
+				this.state.stakePoolNSelected === 2 ? this.setState({stakePool_2_Stats: _poolStats}) :
+				this.state.stakePoolNSelected === 3 ? this.setState({stakePool_3_Stats: _poolStats}) : undefined
+
+		}
 
 	}
 
@@ -385,6 +454,8 @@ export default class App extends React.Component {
 		const delegatorsReward_lower = Quartile(delegatorsRewards, 0.1)
 		const delegatorsReward_upper = Quartile(delegatorsRewards, 0.9);
 
+		const delegatorsStake = this.state.delegatorsStake;
+
 		const monteCarloPoolStats = {
 			poolReward_av,
 			delegatorsReward_av,
@@ -396,18 +467,35 @@ export default class App extends React.Component {
 		// set state
 		this.setState({monetCarloSimul, monteCarloPoolStats})
 
+		/**
+		 * Update the state variable that are used in the UI
+		 * depending on which pool has been selected. This information
+		 * is used only used in the UI and does not trigger
+		 * additional calculation
+		 */
+		if (this.state.stakePoolNSelected) {
+			let _poolStats =
+				this.state.stakePoolNSelected === 1 ? this.state.stakePool_1_Stats :
+				this.state.stakePoolNSelected === 2 ? this.state.stakePool_2_Stats :
+				this.state.stakePoolNSelected === 3 ? this.state.stakePool_3_Stats : undefined
 
-		// Hard code select pool returns
-		if (this.state.stakePoolNSelected === 1) {
-			let stakePool_1_Stats = this.state.stakePool_1_Stats;
-
-			stakePool_1_Stats = {
-				...stakePool_1_Stats,
-				delegatorsReward_av,
-				delegatorsReward_lower,
-				delegatorsReward_upper,
+			if (_poolStats) {
+				_poolStats = {
+					..._poolStats,
+					delegatorsReward_av,
+					delegatorsReward_lower,
+					delegatorsReward_upper,
+					delegatorsStake,
+				}
 			}
-			this.setState({stakePool_1_Stats})
+
+			console.log(_poolStats)
+
+			const _result =
+				this.state.stakePoolNSelected === 1 ? this.setState({stakePool_1_Stats: _poolStats}) :
+				this.state.stakePoolNSelected === 2 ? this.setState({stakePool_2_Stats: _poolStats}) :
+				this.state.stakePoolNSelected === 3 ? this.setState({stakePool_3_Stats: _poolStats}) : undefined
+
 		}
 
 		// if (this.state.poolIdSelected) {
@@ -518,8 +606,6 @@ export default class App extends React.Component {
 		this.setState({selectedPoolBech32, stakePoolNSelected},
 			() => this.updateSelectedPoolParams().then(() => {}))
 
-
-
 	}
 
 
@@ -544,72 +630,72 @@ export default class App extends React.Component {
 				<main className="mx-auto bg-gray-100">
 					<div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
 
-						<div className="mt-4 bg-yellow-100">
-							<p className="p-4 text-lg font-medium tracking-tight text-gray-950 max-lg:text-center">
-								Testing
-							</p>
-							<div className="flex m-4">
-								<div className="m-2">
-									<Button rightIcon="refresh" intent={Intent.PRIMARY} text="Get Tip" onClick={() => {
-										getChainTip().then(r => {
-											const currentEpochN = r["epoch_no"]
-											const currentEpochSlot = r["epoch_slot"]
-											const currentBlockTime = r["block_time"]
-											this.setState({currentEpochN, currentEpochSlot, currentBlockTime})
-											console.log("--- Chain Tip ---")
-											console.log(r)
-										})
-									}}/>
-								</div>
-								<div className="m-2">
-									<Button rightIcon="refresh" disabled={!this.state.currentEpochN} intent={Intent.PRIMARY} text="Get Epoch Info" onClick={() => {
-										getEpochInfo(this.state.currentEpochN).then(r => {
-											const totalAdaStaked = r["active_stake"]
-											const feesInEpoch = r["fees"]
-											this.setState({totalAdaStaked, feesInEpoch})
-											console.log("--- Current Epoch Info ---")
-											console.log(r)
-										})
-									}}/>
-								</div>
-								<div className="m-2">
-									<Button rightIcon="refresh" disabled={false} intent={Intent.PRIMARY} text="Get Protocol Parameters" onClick={() => {
-										getProtocolParams().then(r => {
-											const rho = r["monetaryExpansion"]
-											const tau = r["treasuryCut"]
-											const k = r["stakePoolTargetNum"]
-											const a0 = r["poolPledgeInfluence"]
-											this.setState({rho, tau, k, a0})
-											console.log("--- Protocol Parameters ---")
-											console.log(r)
-										})
-									}}/>
-								</div>
+						{/*<div className="mt-4 bg-yellow-100">*/}
+						{/*	<p className="p-4 text-lg font-medium tracking-tight text-gray-950 max-lg:text-center">*/}
+						{/*		Testing*/}
+						{/*	</p>*/}
+						{/*	<div className="flex m-4">*/}
+						{/*		<div className="m-2">*/}
+						{/*			<Button rightIcon="refresh" intent={Intent.PRIMARY} text="Get Tip" onClick={() => {*/}
+						{/*				getChainTip().then(r => {*/}
+						{/*					const currentEpochN = r["epoch_no"]*/}
+						{/*					const currentEpochSlot = r["epoch_slot"]*/}
+						{/*					const currentBlockTime = r["block_time"]*/}
+						{/*					this.setState({currentEpochN, currentEpochSlot, currentBlockTime})*/}
+						{/*					console.log("--- Chain Tip ---")*/}
+						{/*					console.log(r)*/}
+						{/*				})*/}
+						{/*			}}/>*/}
+						{/*		</div>*/}
+						{/*		<div className="m-2">*/}
+						{/*			<Button rightIcon="refresh" disabled={!this.state.currentEpochN} intent={Intent.PRIMARY} text="Get Epoch Info" onClick={() => {*/}
+						{/*				getEpochInfo(this.state.currentEpochN).then(r => {*/}
+						{/*					const totalAdaStaked = r["active_stake"]*/}
+						{/*					const feesInEpoch = r["fees"]*/}
+						{/*					this.setState({totalAdaStaked, feesInEpoch})*/}
+						{/*					console.log("--- Current Epoch Info ---")*/}
+						{/*					console.log(r)*/}
+						{/*				})*/}
+						{/*			}}/>*/}
+						{/*		</div>*/}
+						{/*		<div className="m-2">*/}
+						{/*			<Button rightIcon="refresh" disabled={false} intent={Intent.PRIMARY} text="Get Protocol Parameters" onClick={() => {*/}
+						{/*				getProtocolParams().then(r => {*/}
+						{/*					const rho = r["monetaryExpansion"]*/}
+						{/*					const tau = r["treasuryCut"]*/}
+						{/*					const k = r["stakePoolTargetNum"]*/}
+						{/*					const a0 = r["poolPledgeInfluence"]*/}
+						{/*					this.setState({rho, tau, k, a0})*/}
+						{/*					console.log("--- Protocol Parameters ---")*/}
+						{/*					console.log(r)*/}
+						{/*				})*/}
+						{/*			}}/>*/}
+						{/*		</div>*/}
 
-								<div className="m-2">
-									<Button rightIcon="refresh" disabled={!this.state.currentEpochN} intent={Intent.PRIMARY} text="Get Protocol Reserves" onClick={() => {
-										getReserves(this.state.currentEpochN).then(r => {
-											const currentAdaSupply = r["supply"]
-											this.setState({currentAdaSupply})
-											console.log("--- Protocol Reserves ---")
-											console.log(r)
-										})
-									}}/>
-								</div>
+						{/*		<div className="m-2">*/}
+						{/*			<Button rightIcon="refresh" disabled={!this.state.currentEpochN} intent={Intent.PRIMARY} text="Get Protocol Reserves" onClick={() => {*/}
+						{/*				getReserves(this.state.currentEpochN).then(r => {*/}
+						{/*					const currentAdaSupply = r["supply"]*/}
+						{/*					this.setState({currentAdaSupply})*/}
+						{/*					console.log("--- Protocol Reserves ---")*/}
+						{/*					console.log(r)*/}
+						{/*				})*/}
+						{/*			}}/>*/}
+						{/*		</div>*/}
 
-								<div className="m-2">
-									<Button rightIcon="refresh" disabled={false} intent={Intent.PRIMARY} text="Get Stake Pools" onClick={() => {
-										getStakePoolList().then(r => {
-											const livePools = r.filter(x => x["pool_status"] === "registered" && x["ticker"])
-											console.log("registered pools n: " + livePools.length)
-											this.setState({allStakePoolInfo: livePools})
-											// console.log(r)
-										})
-									}}/>
-								</div>
+						{/*		<div className="m-2">*/}
+						{/*			<Button rightIcon="refresh" disabled={false} intent={Intent.PRIMARY} text="Get Stake Pools" onClick={() => {*/}
+						{/*				getStakePoolList().then(r => {*/}
+						{/*					const livePools = r.filter(x => x["pool_status"] === "registered" && x["ticker"])*/}
+						{/*					console.log("registered pools n: " + livePools.length)*/}
+						{/*					this.setState({allStakePoolInfo: livePools})*/}
+						{/*					// console.log(r)*/}
+						{/*				})*/}
+						{/*			}}/>*/}
+						{/*		</div>*/}
 
-							</div>
-						</div>
+						{/*	</div>*/}
+						{/*</div>*/}
 
 						<div className="grid lg:grid-cols-3 lg:grid-rows-[auto_auto_auto_auto] gap-4">
 
@@ -639,14 +725,32 @@ export default class App extends React.Component {
 										<div key="pool-reward-ada" className="flex flex-col bg-gray-700/5 p-8">
 											<dt className="text-sm/6 font-semibold text-gray-600">Staking Reward per Year ADA</dt>
 											<dd className="order-first text-3xl font-semibold tracking-tight text-gray-900">{
+												this.state.monteCarloPoolStats?.delegatorsReward_av
+													?
 												`${Number(this.state.monteCarloPoolStats?.delegatorsReward_av / this.state.delegatorsStake * this.state.userAmount).toLocaleString("en-US", {maximumFractionDigits: 0})}`
+													:
+												<Spinner
+													aria-label={1 ? `Loading ${0.7 * 100}% complete` : "Loading..."}
+													intent={Intent.NONE}
+													size={25}
+													value={0 ? 0.7 : null}
+												/>
 											}</dd>
 										</div>
 										<div key="pool-reward-perc" className="flex flex-col bg-gray-700/5 p-8">
 											<dt className="text-sm/6 font-semibold text-gray-600">Annualized Staking Reward</dt>
-											<dd className="order-first text-3xl font-semibold tracking-tight text-gray-900">{`${
-												(this.state.monteCarloPoolStats?.delegatorsReward_av / this.state.delegatorsStake * 100).toLocaleString("en-US", {maximumFractionDigits: 2})
-											}%`}</dd>
+											<dd className="order-first text-3xl font-semibold tracking-tight text-gray-900">{
+												this.state.monteCarloPoolStats?.delegatorsReward_av
+													?
+												`${(this.state.monteCarloPoolStats?.delegatorsReward_av / this.state.delegatorsStake * 100).toLocaleString("en-US", {maximumFractionDigits: 2})}%`
+													:
+												<Spinner
+													aria-label={1 ? `Loading ${0.7 * 100}% complete` : "Loading..."}
+													intent={Intent.NONE}
+													size={25}
+													value={0 ? 0.7 : null}
+												/>
+											}</dd>
 										</div>
 
 
@@ -661,7 +765,7 @@ export default class App extends React.Component {
 								<p>Info</p>
 							</div>
 
-							{/* Row 2, Column 1 */}
+							{/* Row 2, Column 1 - Stake Pools*/}
 							<div className="border border-gray-300 shadow-md rounded-lg bg-white p-8 lg:col-span-2">
 
 								<div className="cursor-pointer" onClick={
@@ -675,16 +779,19 @@ export default class App extends React.Component {
 									</h4>
 								</div>
 
-
-
 								<div className={`${this.state.isUIStakePoolsShown ? "" : "hidden"} mt-8 grid gap-4 overflow-hidden md:grid-cols-3`}>
+
 
 
 									<div key="stake-pool-1" className={`flex flex-col bg-gray-700/5 p-4 rounded-xl border-2 ${this.state.stakePoolNSelected === 1 ? "border-blue-primary" : ""}`} onClick={() => {
 										this.setState({stakePoolNSelected: 1})
 									}}>
 
-										<StakePoolSelector stakePoolN={1} allStakePoolInfo={this.state.allStakePoolInfo} handlePoolSelect={this.handlePoolSelect}/>
+										<div className="">
+											<p className="mb-2">Select a Pool Ticker #1:</p>
+											<StakePoolSelector stakePoolN={1} allStakePoolInfo={this.state.allStakePoolInfo} handlePoolSelect={this.handlePoolSelect}/>
+										</div>
+
 
 										<p className="items-center mb-2 mt-4 font-semibold">
 											{this.state.stakePool_1_Stats?.name}
@@ -696,37 +803,123 @@ export default class App extends React.Component {
 
 										<div className="grid gap-1 grid-cols-3 py-2 text-left border-t border-b border-gray-300">
 											<div className="col-span-2"><Cube size={14} className="mr-2"/> Blocks Minted</div>
-											<div className="text-center">{(this.state.stakePool_1_Stats?.lifetimeBlocks).toLocaleString("en-US")}</div>
+											<div className="text-center">{
+												this.state.stakePool_1_Stats?.lifetimeBlocks
+													?
+												(this.state.stakePool_1_Stats?.lifetimeBlocks).toLocaleString("en-US")
+													:
+												null
+											}</div>
 
 											<div className="col-span-2"><Calendar size={14} className="mr-2"/> Years Active</div>
-											<div className="text-center">{(this.state.stakePool_1_Stats?.yearsActive).toLocaleString("en-US", {maximumFractionDigits: 1})}</div>
+											<div className="text-center">{
+												this.state.stakePool_1_Stats?.yearsActive
+													?
+												(this.state.stakePool_1_Stats?.yearsActive).toLocaleString("en-US", {maximumFractionDigits: 1})
+													:
+												null
+											}</div>
 
 											<div className="col-span-2"><User size={14} className="mr-2"/> # Delegators</div>
-											<div className="text-center">{this.state.stakePool_1_Stats?.nDelegators}</div>
+											<div className="text-center">{
+												this.state.stakePool_1_Stats?.nDelegators
+													?
+												(this.state.stakePool_1_Stats?.nDelegators).toLocaleString("en-US", {maximumFractionDigits: 0})
+													:
+												null
+
+											}</div>
 
 										</div>
 
-										<p className="mt-4"><SeriesAdd size={14} className="mr-2"/> Expected Return</p>
-										<div className="grid gap-2 grid-cols-3 bg-gray-900/5 -ml-2 -mr-2 mt-1 p-1 text-center bg-blue-primary rounded-md">
-											<div className="font-medium">Lower</div>
-											<div className="font-medium">Average</div>
-											<div className="font-medium">Upper</div>
-											<div>{`${(this.state.stakePool_1_Stats?.delegatorsReward_lower / this.state.delegatorsStake * 100).toLocaleString("en-US", {maximumFractionDigits: 2})} %`}</div>
-											<div>{`${(this.state.stakePool_1_Stats?.delegatorsReward_av / this.state.delegatorsStake * 100).toLocaleString("en-US", {maximumFractionDigits: 2})} %`}</div>
-											<div>{`${(this.state.stakePool_1_Stats?.delegatorsReward_upper / this.state.delegatorsStake * 100).toLocaleString("en-US", {maximumFractionDigits: 2})} %`}</div>
-										</div>
+										<p className="mt-8"><SeriesAdd size={14} className="mr-2"/> Expected Return</p>
+										{
+											// Only show expected return if there is something to show
+											this.state.stakePool_1_Stats?.delegatorsReward_av
+												?
+											<div className="grid gap-2 grid-cols-3 bg-gray-900/5 -ml-2 -mr-2 mt-1 py-4 px-2 text-center bg-blue-primary rounded-md">
+												<div className="font-medium">Lower</div>
+												<div className="font-medium">Average</div>
+												<div className="font-medium">Upper</div>
+												<div>{`${(this.state.stakePool_1_Stats?.delegatorsReward_lower / this.state.stakePool_1_Stats?.delegatorsStake * 100).toLocaleString("en-US", {maximumFractionDigits: 2})} %`}</div>
+												<div>{`${(this.state.stakePool_1_Stats?.delegatorsReward_av / this.state.stakePool_1_Stats?.delegatorsStake * 100).toLocaleString("en-US", {maximumFractionDigits: 2})} %`}</div>
+												<div>{`${(this.state.stakePool_1_Stats?.delegatorsReward_upper / this.state.stakePool_1_Stats?.delegatorsStake * 100).toLocaleString("en-US", {maximumFractionDigits: 2})} %`}</div>
+											</div>
+												:
+											null
+										}
+
 									</div>
-
-
-
 
 
 									<div key="stake-pool-2" className={`flex flex-col bg-gray-700/5 p-4 rounded-xl border-2 ${this.state.stakePoolNSelected === 2 ? "border-blue-primary" : ""}`} onClick={() => {
 										this.setState({stakePoolNSelected: 2})
 									}}>
-										<StakePoolSelector stakePoolN={2} allStakePoolInfo={this.state.allStakePoolInfo} handlePoolSelect={this.handlePoolSelect}/>
+
+										<div className="">
+											<p className="mb-2">Select a Pool Ticker #2:</p>
+											<StakePoolSelector stakePoolN={2} allStakePoolInfo={this.state.allStakePoolInfo} handlePoolSelect={this.handlePoolSelect}/>
+										</div>
+
+
+										<p className="items-center mb-2 mt-4 font-semibold">
+											{this.state.stakePool_2_Stats?.name}
+										</p>
+
+										<p className="leading-normal pb-2 font-normal">
+											{this.state.stakePool_2_Stats?.description}
+										</p>
+
+										<div className="grid gap-1 grid-cols-3 py-2 text-left border-t border-b border-gray-300">
+											<div className="col-span-2"><Cube size={14} className="mr-2"/> Blocks Minted</div>
+											<div className="text-center">{
+												this.state.stakePool_2_Stats?.lifetimeBlocks
+													?
+													(this.state.stakePool_2_Stats?.lifetimeBlocks).toLocaleString("en-US")
+													:
+													null
+											}</div>
+
+											<div className="col-span-2"><Calendar size={14} className="mr-2"/> Years Active</div>
+											<div className="text-center">{
+												this.state.stakePool_2_Stats?.yearsActive
+													?
+													(this.state.stakePool_2_Stats?.yearsActive).toLocaleString("en-US", {maximumFractionDigits: 1})
+													:
+													null
+											}</div>
+
+											<div className="col-span-2"><User size={14} className="mr-2"/> # Delegators</div>
+											<div className="text-center">{
+												this.state.stakePool_2_Stats?.nDelegators
+													?
+													(this.state.stakePool_2_Stats?.nDelegators).toLocaleString("en-US", {maximumFractionDigits: 0})
+													:
+													null
+
+											}</div>
+
+										</div>
+
+										<p className="mt-8"><SeriesAdd size={14} className="mr-2"/> Expected Return</p>
+										{
+											// Only show expected return if there is something to show
+											this.state.stakePool_2_Stats?.delegatorsReward_av
+												?
+												<div className="grid gap-2 grid-cols-3 bg-gray-900/5 -ml-2 -mr-2 mt-1 py-4 px-2 text-center bg-blue-primary rounded-md">
+													<div className="font-medium">Lower</div>
+													<div className="font-medium">Average</div>
+													<div className="font-medium">Upper</div>
+													<div>{`${(this.state.stakePool_2_Stats?.delegatorsReward_lower / this.state.stakePool_2_Stats?.delegatorsStake * 100).toLocaleString("en-US", {maximumFractionDigits: 2})} %`}</div>
+													<div>{`${(this.state.stakePool_2_Stats?.delegatorsReward_av / this.state.stakePool_2_Stats?.delegatorsStake * 100).toLocaleString("en-US", {maximumFractionDigits: 2})} %`}</div>
+													<div>{`${(this.state.stakePool_2_Stats?.delegatorsReward_upper / this.state.stakePool_2_Stats?.delegatorsStake * 100).toLocaleString("en-US", {maximumFractionDigits: 2})} %`}</div>
+												</div>
+												:
+												null
+										}
 
 									</div>
+
 
 
 
@@ -734,9 +927,73 @@ export default class App extends React.Component {
 									<div key="stake-pool-3" className={`flex flex-col bg-gray-700/5 p-4 rounded-xl border-2 ${this.state.stakePoolNSelected === 3 ? "border-blue-primary" : ""}`} onClick={() => {
 										this.setState({stakePoolNSelected: 3})
 									}}>
-										<StakePoolSelector stakePoolN={3} allStakePoolInfo={this.state.allStakePoolInfo} handlePoolSelect={this.handlePoolSelect}/>
+
+										<div className="">
+											<p className="mb-2">Select a Pool Ticker #3:</p>
+											<StakePoolSelector stakePoolN={3} allStakePoolInfo={this.state.allStakePoolInfo} handlePoolSelect={this.handlePoolSelect}/>
+										</div>
+
+
+										<p className="items-center mb-2 mt-4 font-semibold">
+											{this.state.stakePool_3_Stats?.name}
+										</p>
+
+										<p className="leading-normal pb-2 font-normal">
+											{this.state.stakePool_3_Stats?.description}
+										</p>
+
+										<div className="grid gap-1 grid-cols-3 py-2 text-left border-t border-b border-gray-300">
+											<div className="col-span-2"><Cube size={14} className="mr-2"/> Blocks Minted</div>
+											<div className="text-center">{
+												this.state.stakePool_3_Stats?.lifetimeBlocks
+													?
+													(this.state.stakePool_3_Stats?.lifetimeBlocks).toLocaleString("en-US")
+													:
+													null
+											}</div>
+
+											<div className="col-span-2"><Calendar size={14} className="mr-2"/> Years Active</div>
+											<div className="text-center">{
+												this.state.stakePool_3_Stats?.yearsActive
+													?
+													(this.state.stakePool_3_Stats?.yearsActive).toLocaleString("en-US", {maximumFractionDigits: 1})
+													:
+													null
+											}</div>
+
+											<div className="col-span-2"><User size={14} className="mr-2"/> # Delegators</div>
+											<div className="text-center">{
+												this.state.stakePool_3_Stats?.nDelegators
+													?
+													(this.state.stakePool_3_Stats?.nDelegators).toLocaleString("en-US", {maximumFractionDigits: 0})
+													:
+													null
+
+											}</div>
+
+										</div>
+
+										<p className="mt-8"><SeriesAdd size={14} className="mr-2"/> Expected Return</p>
+										{
+											// Only show expected return if there is something to show
+											this.state.stakePool_3_Stats?.delegatorsReward_av
+												?
+												<div className="grid gap-2 grid-cols-3 bg-gray-900/5 -ml-2 -mr-2 mt-1 py-4 px-2 text-center bg-blue-primary rounded-md">
+													<div className="font-medium">Lower</div>
+													<div className="font-medium">Average</div>
+													<div className="font-medium">Upper</div>
+													<div>{`${(this.state.stakePool_3_Stats?.delegatorsReward_lower / this.state.stakePool_3_Stats?.delegatorsStake * 100).toLocaleString("en-US", {maximumFractionDigits: 2})} %`}</div>
+													<div>{`${(this.state.stakePool_3_Stats?.delegatorsReward_av / this.state.stakePool_3_Stats?.delegatorsStake * 100).toLocaleString("en-US", {maximumFractionDigits: 2})} %`}</div>
+													<div>{`${(this.state.stakePool_3_Stats?.delegatorsReward_upper / this.state.stakePool_3_Stats?.delegatorsStake * 100).toLocaleString("en-US", {maximumFractionDigits: 2})} %`}</div>
+												</div>
+												:
+												null
+										}
 
 									</div>
+
+
+
 
 
 								</div>

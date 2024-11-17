@@ -6,7 +6,7 @@ import {shuffleArray} from "./utils";
 function StakePoolSelector(props) {
 
 	const [selectedPool, setSelectedPool] = useState({
-		ticker: "Placeholder",
+		ticker: "Select ...",
 		pool_id_bech32: "stake pools are loading",
 		stakePoolN: undefined
 	});
@@ -31,7 +31,7 @@ function StakePoolSelector(props) {
 	}, [props])
 
 	useEffect(() => {
-		if (selectedPool?.ticker !== "Placeholder") {
+		if (selectedPool?.ticker !== "Select ...") {
 			console.log(selectedPool)
 			props.handlePoolSelect(selectedPool)
 		}
