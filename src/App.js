@@ -8,7 +8,8 @@ import {
 	getProtocolParams,
 	getReserves,
 	getStakePoolInfo,
-	getStakePoolList, Quartile
+	getStakePoolList,
+	Quartile
 } from "./utils";
 import {Button, ControlGroup, InputGroup, Intent, Label, Spinner, Tag} from "@blueprintjs/core";
 import {Calendar, Cube, SeriesAdd, User} from "@blueprintjs/icons";
@@ -72,6 +73,8 @@ export default class App extends React.Component {
 			s: undefined,
 			sdash: undefined,
 
+			prev_delegatorsStake: undefined,
+
 			/**
 			 * Stake Pool calculated values
 			 */
@@ -89,6 +92,8 @@ export default class App extends React.Component {
 			selectedPoolBech32: "pool189lsf6c2upyhmrzddyvyfjxxkqnte9pw8aqx7f4cuf85sjxlm02",
 			poolStake_plus_userAmount: undefined,
 
+			prev_userAmount: undefined,
+
 			/**
 			 * All stake pools information
 			 */
@@ -99,6 +104,8 @@ export default class App extends React.Component {
 			 * Control the accordions in the UI. Users who need more detail
 			 * on how the rewards are calculated can open these accordions
 			 */
+			showHeader: false,
+
 			isUIStakePoolsShown: false,
 			isUIStakeParamsShown: false,
 			isUIBlockParamsShown: false,
@@ -145,7 +152,21 @@ export default class App extends React.Component {
 			/**
 			 * Monte Carlo Simulation
 			 */
-			nMonteCarloSimuls: 1000,
+			monteCarloPoolStats: {
+				poolReward_av: undefined,
+				delegatorsReward_av: undefined,
+				totalReward_av: undefined,
+				delegatorsReward_lower: undefined,
+				delegatorsReward_upper: undefined,
+			},
+
+			/**
+			 * Clone to the monte carlo object to store the
+			 * previously simulated results
+			 */
+			prev_monteCarloPoolStats: {},
+
+			nMonteCarloSimuls: 5000,
 
 		}
 
@@ -214,6 +235,7 @@ export default class App extends React.Component {
 			}, () => {
 				this.updateSelectedPoolParams()
 			})
+
 
 
 		} catch(e) {
@@ -293,7 +315,7 @@ export default class App extends React.Component {
 	/**
 	 * Recalculates all parameters and the results of the calculator
 	 */
-	recalcAll = () => {
+	recalcAll = (_prev_userAmount = undefined) => {
 
 		const reserveAda = this.state.maxAdaSupply - this.state.currentAdaSupply;
 		const blocksPerEpoch = this.state.slotsInEpoch * Number(this.state.chainDensity);
@@ -318,6 +340,14 @@ export default class App extends React.Component {
 		const expectedPoolRewardPerYear = expectedPoolRewardInEpoch * this.state.epochsInYear;
 		const annualizedPoolReward = expectedPoolRewardPerYear / poolStake_plus_userAmount;
 
+		/**
+		 * Store the previous delegatorsStake and save to state
+		 * this is done to show a comparison of rewards between
+		 * simulations
+		 */
+		const prev_delegatorsStake = this.state.delegatorsStake;
+		const prev_userAmount = _prev_userAmount || this.state.userAmount
+
 		this.setState({
 			reserveAda,
 			z0,
@@ -326,6 +356,7 @@ export default class App extends React.Component {
 			distributionToTreasury,
 			rewardToPoolOperators,
 			delegatorsStake,
+			prev_delegatorsStake,
 			sigma,
 			s,
 			sigmadash,
@@ -338,7 +369,8 @@ export default class App extends React.Component {
 			annualizedPoolReward,
 			blocksPerEpoch,
 			poolPledge,
-			poolStake_plus_userAmount
+			poolStake_plus_userAmount,
+			prev_userAmount,
 		}, () => {this.runMonteCarlo()})
 
 	}
@@ -423,6 +455,10 @@ export default class App extends React.Component {
 	 */
 	runMonteCarlo = () => {
 
+		// time the execution
+		console.time('monte_carlo_core')
+		console.time('monte_carlo_total')
+
 		// reset previous run before kicking off a new one
 		let monetCarloSimul = [];
 
@@ -439,6 +475,8 @@ export default class App extends React.Component {
 			monetCarloSimul.push(simulRes)
 
 		}
+
+		console.timeEnd('monte_carlo_core')
 
 
 		// calc summary stats
@@ -464,8 +502,15 @@ export default class App extends React.Component {
 			delegatorsReward_upper,
 		}
 
+		/**
+		 * Copy previous monte carlo results into a separate
+		 * object and store
+		 */
+		let prev_monteCarloPoolStats = {}
+		Object.assign(prev_monteCarloPoolStats, this.state.monteCarloPoolStats)
+
 		// set state
-		this.setState({monetCarloSimul, monteCarloPoolStats})
+		this.setState({monetCarloSimul, prev_monteCarloPoolStats, monteCarloPoolStats})
 
 		/**
 		 * Update the state variable that are used in the UI
@@ -504,7 +549,10 @@ export default class App extends React.Component {
 		// 	this.setState({poolComparisonStats: tmp})
 		// }
 
+		console.timeEnd('monte_carlo_total')
+
 	}
+
 
 
 
@@ -517,7 +565,12 @@ export default class App extends React.Component {
 
 		switch(id) {
 			case "ada-to-stake":
-				this.setState({userAmount: val}, () => this.recalcAll())
+				/**
+				 * Store previous user amount in state variable and
+				 * then update current userAmount
+				 */
+				const prev_userAmount = this.state.userAmount;
+				this.setState({userAmount: val}, () => this.recalcAll(prev_userAmount))
 				break
 
 			case "days-in-epoch":
@@ -609,6 +662,77 @@ export default class App extends React.Component {
 	}
 
 
+	printStakingRewardPerYearInADA = () => {
+		let html = [];
+
+
+		if (this.state.monteCarloPoolStats?.delegatorsReward_av) {
+			html.push(
+				<div id="curr_adareward">
+					{`${Number(this.state.monteCarloPoolStats?.delegatorsReward_av / this.state.delegatorsStake * this.state.userAmount).toLocaleString("en-US", {maximumFractionDigits: 0})}`}
+				</div>
+			)
+
+
+			if (this.state.prev_monteCarloPoolStats?.delegatorsReward_av) {
+				html.push(
+					<div id="prev_adareward" className="text-gray-300 font-normal">
+						{`${Number(this.state.prev_monteCarloPoolStats?.delegatorsReward_av / this.state.prev_delegatorsStake * this.state.prev_userAmount).toLocaleString("en-US", {maximumFractionDigits: 0})}`}
+					</div>
+				)
+			}
+
+
+		} else {
+			html.push(
+				<Spinner
+					aria-label={1 ? `Loading ${0.7 * 100}% complete` : "Loading..."}
+					intent={Intent.NONE}
+					size={25}
+					value={0 ? 0.7 : null}
+				/>
+			)
+		}
+
+
+		return html;
+	}
+
+	printAnnualizedStakingRewardInPerc = () => {
+
+		let html = [];
+
+		if (this.state.monteCarloPoolStats?.delegatorsReward_av) {
+			html.push(
+				<div id="curr_percreward">
+					{`${(this.state.monteCarloPoolStats?.delegatorsReward_av / this.state.delegatorsStake * 100).toLocaleString("en-US", {maximumFractionDigits: 2})}%`}
+				</div>
+			)
+
+			if (this.state.prev_monteCarloPoolStats?.delegatorsReward_av) {
+				html.push(
+					<div id="prev_percreward" className="text-gray-300 font-normal">
+						{`${(this.state.prev_monteCarloPoolStats?.delegatorsReward_av / this.state.prev_delegatorsStake * 100).toLocaleString("en-US", {maximumFractionDigits: 2})}%`}
+					</div>
+				)
+			}
+
+		} else {
+			html.push(
+				<Spinner
+					aria-label={1 ? `Loading ${0.7 * 100}% complete` : "Loading..."}
+					intent={Intent.NONE}
+					size={25}
+					value={0 ? 0.7 : null}
+				/>
+			)
+		}
+
+		return html;
+
+	}
+
+
 	async componentDidMount() {
 
 		await this.initData()
@@ -621,12 +745,27 @@ export default class App extends React.Component {
 
 			<div className="min-h-full">
 
-				<header className="bg-[#023E8A] shadow">
-					<div className="mx-auto flex max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
-						<img className="mr-4" src={cardanoLogo} alt="nami logo" height="35" width="35"/>
-						<h1 className="text-3xl font-bold tracking-tight text-gray-50">Staking Reward Calculator</h1>
-					</div>
-				</header>
+
+
+				{
+					/**
+					 * Control with a showHeader state variable if you want to show
+					 * the header or not
+ 					 */
+
+					this.state.showHeader
+						?
+					<header className="bg-[#023E8A] shadow">
+						<div className="mx-auto flex max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+							<img className="mr-4" src={cardanoLogo} alt="nami logo" height="35" width="35"/>
+							<h1 className="text-3xl font-bold tracking-tight text-gray-50">Staking Reward Calculator</h1>
+						</div>
+					</header>
+						:
+					null
+				}
+
+
 				<main className="mx-auto bg-gray-100">
 					<div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
 
@@ -723,34 +862,22 @@ export default class App extends React.Component {
 									<dl className="mt-8 grid grid-cols-1 gap-1 overflow-hidden rounded-2xl text-center sm:grid-cols-2 lg:grid-cols-2">
 
 										<div key="pool-reward-ada" className="flex flex-col bg-gray-700/5 p-8">
-											<dt className="text-sm/6 font-semibold text-gray-600">Staking Reward per Year ADA</dt>
-											<dd className="order-first text-3xl font-semibold tracking-tight text-gray-900">{
-												this.state.monteCarloPoolStats?.delegatorsReward_av
-													?
-												`${Number(this.state.monteCarloPoolStats?.delegatorsReward_av / this.state.delegatorsStake * this.state.userAmount).toLocaleString("en-US", {maximumFractionDigits: 0})}`
-													:
-												<Spinner
-													aria-label={1 ? `Loading ${0.7 * 100}% complete` : "Loading..."}
-													intent={Intent.NONE}
-													size={25}
-													value={0 ? 0.7 : null}
-												/>
-											}</dd>
+											<dt className="text-sm/6 font-semibold mt-4 text-gray-600">Staking Reward per Year ADA</dt>
+											<dd className="order-first text-3xl font-semibold tracking-tight text-gray-900 flex flex-row gap-4 justify-center">
+												{
+													this.printStakingRewardPerYearInADA()
+												}
+											</dd>
 										</div>
+
+
 										<div key="pool-reward-perc" className="flex flex-col bg-gray-700/5 p-8">
-											<dt className="text-sm/6 font-semibold text-gray-600">Annualized Staking Reward</dt>
-											<dd className="order-first text-3xl font-semibold tracking-tight text-gray-900">{
-												this.state.monteCarloPoolStats?.delegatorsReward_av
-													?
-												`${(this.state.monteCarloPoolStats?.delegatorsReward_av / this.state.delegatorsStake * 100).toLocaleString("en-US", {maximumFractionDigits: 2})}%`
-													:
-												<Spinner
-													aria-label={1 ? `Loading ${0.7 * 100}% complete` : "Loading..."}
-													intent={Intent.NONE}
-													size={25}
-													value={0 ? 0.7 : null}
-												/>
-											}</dd>
+											<dt className="text-sm/6 font-semibold mt-4 text-gray-600">Annualized Staking Reward</dt>
+											<dd className="order-first text-3xl font-semibold tracking-tight text-gray-900 flex flex-row gap-4 justify-center">
+												{
+													this.printAnnualizedStakingRewardInPerc()
+												}
+											</dd>
 										</div>
 
 
@@ -787,19 +914,19 @@ export default class App extends React.Component {
 										this.setState({stakePoolNSelected: 1})
 									}}>
 
-										<div className="">
+										<div className="mb-4">
 											<p className="mb-2">Select a Pool Ticker #1:</p>
 											<StakePoolSelector stakePoolN={1} allStakePoolInfo={this.state.allStakePoolInfo} handlePoolSelect={this.handlePoolSelect}/>
 										</div>
 
 
-										<p className="items-center mb-2 mt-4 font-semibold">
-											{this.state.stakePool_1_Stats?.name}
-										</p>
+										{/*<p className="items-center mb-2 mt-4 font-semibold">*/}
+										{/*	{this.state.stakePool_1_Stats?.name}*/}
+										{/*</p>*/}
 
-										<p className="leading-normal pb-2 font-normal">
-											{this.state.stakePool_1_Stats?.description}
-										</p>
+										{/*<p className="leading-normal pb-2 font-normal">*/}
+										{/*	{this.state.stakePool_1_Stats?.description}*/}
+										{/*</p>*/}
 
 										<div className="grid gap-1 grid-cols-3 py-2 text-left border-t border-b border-gray-300">
 											<div className="col-span-2"><Cube size={14} className="mr-2"/> Blocks Minted</div>
@@ -856,19 +983,19 @@ export default class App extends React.Component {
 										this.setState({stakePoolNSelected: 2})
 									}}>
 
-										<div className="">
+										<div className="mb-4">
 											<p className="mb-2">Select a Pool Ticker #2:</p>
 											<StakePoolSelector stakePoolN={2} allStakePoolInfo={this.state.allStakePoolInfo} handlePoolSelect={this.handlePoolSelect}/>
 										</div>
 
 
-										<p className="items-center mb-2 mt-4 font-semibold">
-											{this.state.stakePool_2_Stats?.name}
-										</p>
+										{/*<p className="items-center mb-2 mt-4 font-semibold">*/}
+										{/*	{this.state.stakePool_2_Stats?.name}*/}
+										{/*</p>*/}
 
-										<p className="leading-normal pb-2 font-normal">
-											{this.state.stakePool_2_Stats?.description}
-										</p>
+										{/*<p className="leading-normal pb-2 font-normal">*/}
+										{/*	{this.state.stakePool_2_Stats?.description}*/}
+										{/*</p>*/}
 
 										<div className="grid gap-1 grid-cols-3 py-2 text-left border-t border-b border-gray-300">
 											<div className="col-span-2"><Cube size={14} className="mr-2"/> Blocks Minted</div>
@@ -928,19 +1055,19 @@ export default class App extends React.Component {
 										this.setState({stakePoolNSelected: 3})
 									}}>
 
-										<div className="">
+										<div className="mb-4">
 											<p className="mb-2">Select a Pool Ticker #3:</p>
 											<StakePoolSelector stakePoolN={3} allStakePoolInfo={this.state.allStakePoolInfo} handlePoolSelect={this.handlePoolSelect}/>
 										</div>
 
 
-										<p className="items-center mb-2 mt-4 font-semibold">
-											{this.state.stakePool_3_Stats?.name}
-										</p>
+										{/*<p className="items-center mb-2 mt-4 font-semibold">*/}
+										{/*	{this.state.stakePool_3_Stats?.name}*/}
+										{/*</p>*/}
 
-										<p className="leading-normal pb-2 font-normal">
-											{this.state.stakePool_3_Stats?.description}
-										</p>
+										{/*<p className="leading-normal pb-2 font-normal">*/}
+										{/*	{this.state.stakePool_3_Stats?.description}*/}
+										{/*</p>*/}
 
 										<div className="grid gap-1 grid-cols-3 py-2 text-left border-t border-b border-gray-300">
 											<div className="col-span-2"><Cube size={14} className="mr-2"/> Blocks Minted</div>
