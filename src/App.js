@@ -166,7 +166,8 @@ export default class App extends React.Component {
 			 */
 			prev_monteCarloPoolStats: {},
 
-			nMonteCarloSimuls: 5000,
+			maxNblocksPoolInEpoch: 120,
+			nMonteCarloSimuls: 10000,
 
 		}
 
@@ -263,12 +264,12 @@ export default class App extends React.Component {
 	updateSelectedPoolParams = async (selectedPoolBech32 = this.state.selectedPoolBech32) => {
 
 		const spInfo = await getStakePoolInfo(selectedPoolBech32)
-		const poolPledge = spInfo?.pledge / 1_000_000;
-		const poolFixedCost = spInfo?.fixed_cost / 1_000_000;
+		const poolPledge = Number(spInfo?.pledge) / 1_000_000;
+		const poolFixedCost = Number(spInfo?.fixed_cost) / 1_000_000;
 		const poolVariableFee = spInfo?.margin;
-		const poolStake = spInfo?.active_stake / 1_000_000;
+		const poolStake = Number(spInfo?.active_stake) / 1_000_000;
 
-		const activeSinceEpoch = spInfo?.active_epoch_no;
+		const activeSinceEpoch = Number(spInfo?.active_epoch_no);
 		const yearsActive = (this.state.currentEpochN - activeSinceEpoch) / this.state.epochsInYear;
 		const lifetimeBlocks = spInfo?.block_count;
 		const nDelegators = spInfo?.live_delegators;
@@ -381,7 +382,7 @@ export default class App extends React.Component {
 	 * checking how much rewards would have been earned by the stake pool
 	 * and what proportion would be distributed to delegators
 	 */
-	simulatedPoolRewards = () => {
+	simulatedPoolRewards = (binomialCDFArr) => {
 
 		if (!(this.state.epochsInYear < 5000)) {
 			console.log("Too many epochs in a Year ...")
@@ -403,18 +404,11 @@ export default class App extends React.Component {
 
 			const randn = Math.random();
 			let nblocks = 0;
-			let stop = false;
 
-			do {
-
-				const binomcfd = computeBinomCFD(nblocks,this.state.blocksPerEpoch, this.state.blockAssigmentProbability)
-				if (randn > binomcfd) {
-					nblocks++;
-				} else {
-					stop = true;
-				}
-
-			} while(!stop)
+			while (randn > binomialCDFArr[nblocks]) {
+				if (nblocks > binomialCDFArr.length) break
+				nblocks++;
+			}
 
 			totalBlocks += nblocks;
 
@@ -459,12 +453,25 @@ export default class App extends React.Component {
 		console.time('monte_carlo_core')
 		console.time('monte_carlo_total')
 
+
+		/**
+		 * Pre-populate an array with number of blocks for a random draw from a
+		 * uniform distribution. This speeds up the monte carlo simulation by
+		 * not having to compute the Binomial CDF at every epoch of every iteration
+		 */
+		let binomialCDFArr = []
+		for (let i = 0; i <= this.state.maxNblocksPoolInEpoch; i++) {
+			const binomcdf = computeBinomCFD(i, this.state.blocksPerEpoch, this.state.blockAssigmentProbability)
+			binomialCDFArr.push(binomcdf)
+		}
+
 		// reset previous run before kicking off a new one
 		let monetCarloSimul = [];
 
+
 		for (let i = 0; i < this.state.nMonteCarloSimuls; i++) {
 
-			const simul = this.simulatedPoolRewards();
+			const simul = this.simulatedPoolRewards(binomialCDFArr);
 
 			const simulRes = {
 				totalReward: simul.totalReward,

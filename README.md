@@ -68,7 +68,7 @@ The following formula outlines how the rewards mechanism works.
 The available rewards amount, transaction fees, plus monetary expansion, is denoted by **R**. 
 
 #### 1 - How much Rewards does a Stake Pool generate
-First, the share of all available rewards that a specific pool can receive is determined, as follows:
+First, the share of all available rewards that a specific pool can receive is determined with the following formula:
 
 <img src="./public/images/reward_formula_1.png" alt="Logo" height="60">
 
@@ -90,7 +90,7 @@ where β is the fraction of all blocks produced by the pool during the epoch.
 > receive any rewards. This is important to understand why some pools do not distribute rewards
 > in some epochs
 
-#### 2 - How much Goes to Pool Operator
+#### 2 - How much Reward Goes to the Pool Operator
 
 After pool rewards have been calculated and adjusted for pool performance, 
 the rewards are then distributed amongst the pool operator and the individuals who delegated to the pool
@@ -156,14 +156,23 @@ operator receives 580 / 12,000 = 4.8% of all rewards and the rest goes to the de
 
 ### Monte Carlo
 Monte Carlo is an algorithm that relies on repeated random number sampling to estimate numerical resulsts. It is often used
-in finance and engeneering to estimate a results for which a closed form solutions doesn't exist or is too difficult to derived.
-It is also often used to explain to the end user the final results as, if expaliend clearly, it can be easier to understand
+in finance and engineering to estimate a results for which a closed form solutions doesn't exist or is too difficult to derived.
+It is also often used to explain to the end user the final results as, if explained clearly, it can be easier to understand
 than a mathematical derivation
 
 We used Monte Carlor in the calculator because:
 - It makes the estimate of the staking reward more accurate
 - It explains why there is difference in reward for stake pools with different saturation
 - It shows the factor that luck plays when delegating to stake pools with a smaller saturation
+
+#### Binomial CDF
+The Binomial Cumulative Distribution Function (CDF) is the center-piece of the monte carlo simulation. It tells us
+the probability that at most N number of blocks will be minted by a staking pool in a given epoch
+out of ~21,600 possible blocks.
+
+A wikipedia article on what the <a href="https://en.wikipedia.org/wiki/Binomial_distribution">Binomial distribution</a> is a useful refresher
+
+The Binomial CDF is implemented in `utils.js`
 
 ### Frontend vs. Backend
 
