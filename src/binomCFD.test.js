@@ -6,10 +6,10 @@
  * of a stake pool
  */
 import {
-	computeBinomCFD,
-} from "./utils";
+	binomialCDF,
+} from "../binomCFD";
 
-test("binom CFD equality", () => {
-	expect(computeBinomCFD()).toBe(0.2)
+test("Binomal CDF max error ", () => {
+	expect(binomialCDF()).toBe(0.2)
 })
 

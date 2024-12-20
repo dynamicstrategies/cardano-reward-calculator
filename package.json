@@ -19,7 +19,7 @@
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
-    "test": "jest",
+    "test": "jest --transformIgnorePatterns",
     "eject": "react-scripts eject"
   },
   "eslintConfig": {

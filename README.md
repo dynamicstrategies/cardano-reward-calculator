@@ -174,6 +174,17 @@ A wikipedia article on what the <a href="https://en.wikipedia.org/wiki/Binomial_
 
 The Binomial CDF is implemented in `utils.js`
 
+#### Optimization
+
+Computing the Binomial CDF for each epoch in each monte carlo simulation becomes computationally heavy, particularly
+on slower devices (as all computation is performed in the front-end). To speed up the computation we made 2 assumptions
+and that allowed us to reduce the time taken by a factor of 10x:
+- create an array with [n blocks, probability from CDF] at beginning of the simulation
+- generate a random number from 0 to 1 at each epoch
+- lookup the number of blocks expected to generate using that array
+
+
+
 ### Frontend vs. Backend
 
 The "Calculator" that the used sees and interacts with is the front end. All the calculation logic
@@ -274,6 +285,25 @@ to be an acceptable trade-off as the main goal of the application is to
 inform users of the future expected rewards from staking and how these
 change if blockchain or stake pool parameters are amended rather than a
 precise calculation of historic rewards.
+
+## Tests
+
+### Binomial CDF
+
+Test the accuracy of the Binomial CDF computed in Javascript by
+comparing it to what is computed by the Scipy library in Python
+
+List conda environments:
+`conda env list`
+
+Activate conda environment:
+`conda activate py_binom`
+
+Export conda environment definition:
+`conda env export > conda_environment.yml`
+
+Create conda environment from file:
+`conda env create --file=conda_environments.yml`
 
 
 <!-- MARKDOWN LINKS & IMAGES -->
