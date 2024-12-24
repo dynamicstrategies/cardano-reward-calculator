@@ -15,6 +15,9 @@ import {Button, ControlGroup, InputGroup, Intent, Label, Spinner, Tag} from "@bl
 import {Calendar, Cube, InfoSign, SeriesAdd, User} from "@blueprintjs/icons";
 import { XCircleIcon, PlusSmIcon, InformationCircleIcon} from '@heroicons/react/24/outline'
 import StakePoolSelector from "./StakePoolSelector";
+import InfoHoverComponent from "./InfoHoverComponent";
+import {infoHovers} from "./infos";
+
 
 
 export default class App extends React.Component {
@@ -68,7 +71,7 @@ export default class App extends React.Component {
 			poolStake: undefined,
 			delegatorsStake: undefined,
 			poolFixedCost: undefined, // e.g. 340
-			poolVariableFee: undefined, // e.g. 0.02
+			poolVariableFee: undefined, // e.g. 2
 			sigma: undefined,
 			sigmadash: undefined,
 			s: undefined,
@@ -165,11 +168,15 @@ export default class App extends React.Component {
 			},
 
 			/**
-			 * Clone to the monte carlo object to store the
+			 * Plaecholder with Monte Carlo stats
+			 * Clones the monte carlo object to store the
 			 * previously simulated results
 			 */
 			prev_monteCarloPoolStats: {},
 
+			/**
+			 * Global Parameters
+			 */
 			maxNblocksPoolInEpoch: 120,
 			nMonteCarloSimuls: 10000,
 
@@ -270,7 +277,7 @@ export default class App extends React.Component {
 		const spInfo = await getStakePoolInfo(selectedPoolBech32)
 		const poolPledge = Number(spInfo?.pledge) / 1_000_000;
 		const poolFixedCost = Number(spInfo?.fixed_cost) / 1_000_000;
-		const poolVariableFee = spInfo?.margin;
+		const poolVariableFee = Number(spInfo?.margin) * 100;
 		const poolStake = Number(spInfo?.active_stake) / 1_000_000;
 
 		const activeSinceEpoch = Number(spInfo?.active_epoch_no);
@@ -421,7 +428,7 @@ export default class App extends React.Component {
 			const rewardMultiplier = (nblocks / this.state.blocksPerEpoch) / this.state.blockAssigmentProbability;
 			const epoch_totalReward = this.state.expectedPoolRewardInEpoch * rewardMultiplier;
 			const epoch_poolFixedReward = Math.min(epoch_totalReward, this.state.poolFixedCost);
-			const epoch_poolVariableReward = (epoch_totalReward - epoch_poolFixedReward) * Number(this.state.poolVariableFee);
+			const epoch_poolVariableReward = (epoch_totalReward - epoch_poolFixedReward) * Number(this.state.poolVariableFee) / 100;
 			const epoch_poolReturnOnPledge = (epoch_totalReward - epoch_poolFixedReward - epoch_poolVariableReward) * this.state.poolPledge / this.state.poolStake_plus_userAmount;
 			const epoch_poolReward = epoch_poolFixedReward + epoch_poolVariableReward + epoch_poolReturnOnPledge;
 			const epoch_delegatorsReward = epoch_totalReward - epoch_poolReward;
@@ -457,7 +464,6 @@ export default class App extends React.Component {
 
 		// time the execution
 		console.time('monte_carlo_core')
-		console.time('monte_carlo_total')
 
 
 		/**
@@ -556,13 +562,6 @@ export default class App extends React.Component {
 
 		}
 
-		// if (this.state.poolIdSelected) {
-		// 	let tmp = this.state.poolComparisonStats;
-		// 	tmp[this.state.poolHashSelected] = poolStats
-		// 	this.setState({poolComparisonStats: tmp})
-		// }
-
-		console.timeEnd('monte_carlo_total')
 
 	}
 
@@ -698,12 +697,16 @@ export default class App extends React.Component {
 
 		} else {
 			html.push(
-				<Spinner
-					aria-label={1 ? `Loading ${0.7 * 100}% complete` : "Loading..."}
-					intent={Intent.NONE}
-					size={25}
-					value={0 ? 0.7 : null}
-				/>
+				<div className="flex flex-row">
+					<Spinner
+						aria-label={1 ? `Loading ${0.7 * 100}% complete` : "Loading..."}
+						intent={Intent.NONE}
+						size={25}
+						value={0 ? 0.7 : null}
+					/>
+					<p className="text-base font-normal ml-4">loading stake pools ...</p>
+				</div>
+
 			)
 		}
 
@@ -732,12 +735,15 @@ export default class App extends React.Component {
 
 		} else {
 			html.push(
-				<Spinner
-					aria-label={1 ? `Loading ${0.7 * 100}% complete` : "Loading..."}
-					intent={Intent.NONE}
-					size={25}
-					value={0 ? 0.7 : null}
-				/>
+				<div className="flex flex-row">
+					<Spinner
+						aria-label={1 ? `Loading ${0.7 * 100}% complete` : "Loading..."}
+						intent={Intent.NONE}
+						size={25}
+						value={0 ? 0.7 : null}
+					/>
+					<p className="text-base font-normal ml-4">loading stake pools ...</p>
+				</div>
 			)
 		}
 
@@ -781,6 +787,8 @@ export default class App extends React.Component {
 
 				<main className="mx-auto bg-gray-100">
 					<div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+
+
 
 						{/*<div className="mt-4 bg-yellow-100">*/}
 						{/*	<p className="p-4 text-lg font-medium tracking-tight text-gray-950 max-lg:text-center">*/}
@@ -909,13 +917,13 @@ export default class App extends React.Component {
 							</div>
 
 							{/* Row 2, Column 1 - Stake Pools*/}
-							<div className="border border-gray-300 shadow-md rounded-lg bg-white p-8 lg:col-span-2">
+							<div className={`${this.state.isUIStakePoolsShown ? "bg-white text-gray-900" : "bg-gray-900 text-white"} border border-gray-300 shadow-md rounded-lg p-8 lg:col-span-2`}>
 
 								<div className="cursor-pointer" onClick={
 									() => this.setState({isUIStakePoolsShown: !this.state.isUIStakePoolsShown})
 								}>
-									<h4 className="text-balance text-2xl font-medium tracking-tight text-gray-900">
-									<span id="icon" className="text-3xl font-normal text-gray-900 mr-4">
+									<h4 className="text-balance text-2xl font-medium tracking-tight">
+									<span id="icon" className="text-3xl font-normal mr-4">
 										{this.state.isUIStakePoolsShown ? "-" : "+"}
 									</span>
 										Stake Pools
@@ -982,15 +990,7 @@ export default class App extends React.Component {
 
 										<div className="flex flex-row justify-between mt-8">
 											<p className=""><SeriesAdd size={14} className="mr-2"/> Expected Return</p>
-											<InformationCircleIcon
-												key="infocircle_pool_1"
-												className="h-5 w-5 ml-2"
-												aria-hidden="true"
-												onClick={() => {
-
-												}}>
-											</InformationCircleIcon>
-
+											<InfoHoverComponent>{infoHovers["monte_carlo"]}</InfoHoverComponent>
 										</div>
 
 
@@ -1169,12 +1169,12 @@ export default class App extends React.Component {
 							</div>
 
 							{/* Row 3, Column 1 */}
-							<div className="border border-gray-300 shadow-md rounded-lg bg-white p-8 lg:col-span-2">
+							<div className={`${this.state.isUIStakeParamsShown ? "bg-white text-gray-900" : "bg-gray-900 text-white"} border border-gray-300 shadow-md rounded-lg p-8 lg:col-span-2`}>
 								<div className="cursor-pointer" onClick={
 									() => this.setState({isUIStakeParamsShown: !this.state.isUIStakeParamsShown})
 								}>
-									<h4 className="text-balance text-2xl font-medium tracking-tight text-gray-900">
-									<span id="icon" className="text-3xl font-normal text-gray-900 mr-4">
+									<h4 className="text-balance text-2xl font-medium tracking-tight">
+									<span id="icon" className="text-3xl font-normal mr-4">
 										{this.state.isUIStakeParamsShown ? "-" : "+"}
 									</span>
 										Stake Pool Parameters
@@ -1187,8 +1187,11 @@ export default class App extends React.Component {
 								</div>
 
 								<div className={`${this.state.isUIStakeParamsShown ? "" : "hidden"} mt-8`}>
-									<ControlGroup fill={true} vertical={false} style={{width:"90%"}}>
-										<Label htmlFor="pool-pledge" style={{width:"400px"}}>Pool Pledge</Label>
+
+									<ControlGroup fill={true} vertical={false} style={{width:"90%",display: "flex"}}>
+										<Label htmlFor="pool-pledge" style={{width:"400px"}}>
+												<p>Pool Pledge</p>
+										</Label>
 										<InputGroup
 											id="pool-pledge"
 											disabled={false}
@@ -1196,12 +1199,18 @@ export default class App extends React.Component {
 											onChange={this.handleChange}
 											value={this.state.poolPledge?.toLocaleString("en-US")}
 											fill={true}
-											rightElement={<Tag minimal={true}>ADA</Tag>}
+											rightElement={
+											<div className="flex flex-row content-center">
+												<Tag minimal={true}>ADA</Tag>
+												<span className="mt-1.5 mr-1"><InfoHoverComponent>{infoHovers["pool_pledge"]}</InfoHoverComponent></span>
+
+											</div>
+											}
 										/>
 									</ControlGroup>
 
 									<ControlGroup fill={true} vertical={false} style={{width:"90%"}}>
-										<Label htmlFor="delegators-stake" style={{width:"400px"}}>Delegator's Stake</Label>
+										<Label htmlFor="delegators-stake" style={{width:"400px"}}>Delegators' Stake</Label>
 										<InputGroup
 											id="delegators-stake"
 											disabled={true}
@@ -1209,7 +1218,12 @@ export default class App extends React.Component {
 											onChange={this.handleChange}
 											value={this.state.delegatorsStake?.toLocaleString("en-US", {maximumFractionDigits: 0})}
 											fill={true}
-											rightElement={<Tag minimal={true}>ADA</Tag>}
+											rightElement={
+												<div className="flex flex-row content-center">
+													<Tag minimal={true}>ADA</Tag>
+													<span className="mt-1.5 mr-1"><InfoHoverComponent>{infoHovers["delegator_stake"]}</InfoHoverComponent></span>
+												</div>
+											}
 										/>
 									</ControlGroup>
 
@@ -1222,7 +1236,12 @@ export default class App extends React.Component {
 											onChange={this.handleChange}
 											value={this.state.poolStake_plus_userAmount?.toLocaleString("en-US", {maximumFractionDigits: 0})}
 											fill={true}
-											rightElement={<Tag minimal={true}>ADA</Tag>}
+											rightElement={
+												<div className="flex flex-row content-center">
+													<Tag minimal={true}>ADA</Tag>
+													<span className="mt-1.5 mr-1"><InfoHoverComponent>{infoHovers["total_pool_stake"]}</InfoHoverComponent></span>
+												</div>
+											}
 										/>
 									</ControlGroup>
 
@@ -1235,7 +1254,12 @@ export default class App extends React.Component {
 											onChange={this.handleChange}
 											value={this.state.poolFixedCost?.toLocaleString("en-US")}
 											fill={true}
-											rightElement={<Tag minimal={true}>ADA</Tag>}
+											rightElement={
+												<div className="flex flex-row content-center">
+													<Tag minimal={true}>ADA</Tag>
+													<span className="mt-1.5 mr-1"><InfoHoverComponent>{infoHovers["pool_fixed_costs"]}</InfoHoverComponent></span>
+												</div>
+											}
 										/>
 									</ControlGroup>
 
@@ -1249,7 +1273,12 @@ export default class App extends React.Component {
 											onChange={this.handleChange}
 											value={this.state.poolVariableFee}
 											fill={true}
-											rightElement={<Tag minimal={true}>%</Tag>}
+											rightElement={
+												<div className="flex flex-row content-center">
+													<Tag minimal={true}>%</Tag>
+													<span className="mt-1.5 mr-1"><InfoHoverComponent>{infoHovers["pool_variable_fee"]}</InfoHoverComponent></span>
+												</div>
+											}
 										/>
 									</ControlGroup>
 								</div>
@@ -1262,12 +1291,12 @@ export default class App extends React.Component {
 							</div>
 
 							{/* Row 4, Column 1 */}
-							<div className="border border-gray-300 shadow-md rounded-lg bg-white p-8 lg:col-span-2">
+							<div className={`${this.state.isUIBlockParamsShown ? "bg-white text-gray-900" : "bg-gray-900 text-white"} border border-gray-300 shadow-md rounded-lg bg-white p-8 lg:col-span-2`}>
 								<div className="cursor-pointer" onClick={
 									() => this.setState({isUIBlockParamsShown: !this.state.isUIBlockParamsShown})
 								}>
-									<h4 className="text-balance text-2xl font-medium tracking-tight text-gray-900">
-									<span id="icon" className="text-3xl font-normal text-gray-900 mr-4">
+									<h4 className="text-balance text-2xl font-medium tracking-tight">
+									<span id="icon" className="text-3xl font-normal mr-4">
 										{this.state.isUIBlockParamsShown ? "-" : "+"}
 									</span>
 										Blockchain Parameters
@@ -1304,7 +1333,11 @@ export default class App extends React.Component {
 												onChange={this.handleChange}
 												value={this.state.rho}
 												fill={true}
-												rightElement={<Tag minimal={true}>1.1</Tag>}
+												rightElement={
+													<div className="flex flex-row content-center">
+														<span className="mt-1.5 mr-1"><InfoHoverComponent>{infoHovers["rho"]}</InfoHoverComponent></span>
+													</div>
+												}
 											/>
 										</ControlGroup>
 
@@ -1318,7 +1351,11 @@ export default class App extends React.Component {
 												onChange={this.handleChange}
 												value={this.state.tau}
 												fill={true}
-												rightElement={<Tag minimal={true}>1.2</Tag>}
+												rightElement={
+													<div className="flex flex-row content-center">
+														<span className="mt-1.5 mr-1"><InfoHoverComponent>{infoHovers["tau"]}</InfoHoverComponent></span>
+													</div>
+												}
 											/>
 										</ControlGroup>
 
@@ -1331,7 +1368,11 @@ export default class App extends React.Component {
 												onChange={this.handleChange}
 												value={this.state.k}
 												fill={true}
-												rightElement={<Tag minimal={true}>1.3</Tag>}
+												rightElement={
+													<div className="flex flex-row content-center">
+														<span className="mt-1.5 mr-1"><InfoHoverComponent>{infoHovers["k"]}</InfoHoverComponent></span>
+													</div>
+												}
 											/>
 										</ControlGroup>
 
@@ -1345,7 +1386,11 @@ export default class App extends React.Component {
 												onChange={this.handleChange}
 												value={this.state.a0}
 												fill={true}
-												rightElement={<Tag minimal={true}>1.4</Tag>}
+												rightElement={
+													<div className="flex flex-row content-center">
+														<span className="mt-1.5 mr-1"><InfoHoverComponent>{infoHovers["a0"]}</InfoHoverComponent></span>
+													</div>
+												}
 											/>
 										</ControlGroup>
 
@@ -1358,7 +1403,11 @@ export default class App extends React.Component {
 												// onChange={this.handleChange}
 												value={this.state.z0}
 												fill={true}
-												rightElement={<Tag minimal={true}>1.5</Tag>}
+												rightElement={
+													<div className="flex flex-row content-center">
+														<span className="mt-1.5 mr-1"><InfoHoverComponent>{infoHovers["z0"]}</InfoHoverComponent></span>
+													</div>
+												}
 											/>
 										</ControlGroup>
 									</div>
