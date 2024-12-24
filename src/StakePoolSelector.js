@@ -79,7 +79,7 @@ function StakePoolSelector(props) {
 			placeholder="Select a Pool"
 			noResults={<MenuItem disabled={true} text="No results." roleStructure="listoption" />}
 		>
-			<Button text={selectedPool?.ticker} rightIcon="double-caret-vertical" placeholder="Select a Stake Pool" />
+			<Button text={selectedPool?.ticker} rightIcon="double-caret-vertical" fill={true} placeholder="Select a Stake Pool" />
 		</Select>
 
 

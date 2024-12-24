@@ -12,7 +12,8 @@ import {
 	Quartile
 } from "./utils";
 import {Button, ControlGroup, InputGroup, Intent, Label, Spinner, Tag} from "@blueprintjs/core";
-import {Calendar, Cube, SeriesAdd, User} from "@blueprintjs/icons";
+import {Calendar, Cube, InfoSign, SeriesAdd, User} from "@blueprintjs/icons";
+import { XCircleIcon, PlusSmIcon, InformationCircleIcon} from '@heroicons/react/24/outline'
 import StakePoolSelector from "./StakePoolSelector";
 
 
@@ -115,6 +116,7 @@ export default class App extends React.Component {
 			stakePoolNSelected: undefined,
 			stakePool_1_Stats: {
 				name: "",
+				poolBech32: "",
 				description: "",
 				yearsActive: 0,
 				lifetimeBlocks: undefined,
@@ -126,6 +128,7 @@ export default class App extends React.Component {
 			},
 			stakePool_2_Stats: {
 				name: "",
+				poolBech32: "",
 				description: "",
 				yearsActive: 0,
 				lifetimeBlocks: undefined,
@@ -137,6 +140,7 @@ export default class App extends React.Component {
 			},
 			stakePool_3_Stats: {
 				name: "",
+				poolBech32: "",
 				description: "",
 				yearsActive: 0,
 				lifetimeBlocks: undefined,
@@ -275,6 +279,7 @@ export default class App extends React.Component {
 		const nDelegators = spInfo?.live_delegators;
 		const name = spInfo?.meta_json?.name;
 		const description = spInfo?.meta_json?.description;
+		const poolBech32 = selectedPoolBech32;
 
 		// update state and recalculate all parameters in the calculator
 		this.setState({poolPledge, poolFixedCost, poolVariableFee, poolStake},
@@ -296,6 +301,7 @@ export default class App extends React.Component {
 				_poolStats = {
 					..._poolStats,
 					name,
+					poolBech32,
 					description,
 					yearsActive,
 					lifetimeBlocks,
@@ -850,6 +856,9 @@ export default class App extends React.Component {
 								<h4 className="text-balance text-2xl font-medium tracking-tight text-gray-900">
 									Amount of ADA to Stake
 								</h4>
+
+								<p className="mt-2">Input the amount of ADA that you are looking to stake</p>
+
 								<div className="mt-8 grid gap-4 overflow-hidden text-center">
 
 									<ControlGroup fill={true} vertical={false} style={{width:"100%"}}>
@@ -911,29 +920,34 @@ export default class App extends React.Component {
 									</span>
 										Stake Pools
 									</h4>
+
+									<p className="mt-2">Compare up to 3 stake pools between themselves. Check how much Staking rewards is expected for the operator and the delegators (you).
+									Uses a Monte Carlo simulation to account for luck and shows the expected Low, Medium and High reward for each pool.</p>
+
 								</div>
 
 								<div className={`${this.state.isUIStakePoolsShown ? "" : "hidden"} mt-8 grid gap-4 overflow-hidden md:grid-cols-3`}>
 
 
 
-									<div key="stake-pool-1" className={`flex flex-col bg-gray-700/5 p-4 rounded-xl border-2 ${this.state.stakePoolNSelected === 1 ? "border-blue-primary" : ""}`} onClick={() => {
-										this.setState({stakePoolNSelected: 1})
-									}}>
+									<div key="stake-pool-1" className={`flex flex-col bg-gray-700/5 p-4 rounded-xl border-2 ${this.state.stakePoolNSelected === 1 ? "border-blue-primary" : ""}`}
+										 onClick={() => {
+											// this.setState({stakePoolNSelected: 1})
+
+											 const poolBech32 = this.state.stakePool_1_Stats?.poolBech32
+											 if (poolBech32) {
+												 this.setState({selectedPoolBech32: poolBech32, stakePoolNSelected: 1},
+													 () => this.updateSelectedPoolParams().then(() => {}))
+											 }
+
+										 }
+									}>
 
 										<div className="mb-4">
 											<p className="mb-2">Select a Pool Ticker #1:</p>
 											<StakePoolSelector stakePoolN={1} allStakePoolInfo={this.state.allStakePoolInfo} handlePoolSelect={this.handlePoolSelect}/>
 										</div>
 
-
-										{/*<p className="items-center mb-2 mt-4 font-semibold">*/}
-										{/*	{this.state.stakePool_1_Stats?.name}*/}
-										{/*</p>*/}
-
-										{/*<p className="leading-normal pb-2 font-normal">*/}
-										{/*	{this.state.stakePool_1_Stats?.description}*/}
-										{/*</p>*/}
 
 										<div className="grid gap-1 grid-cols-3 py-2 text-left border-t border-b border-gray-300">
 											<div className="col-span-2"><Cube size={14} className="mr-2"/> Blocks Minted</div>
@@ -966,7 +980,22 @@ export default class App extends React.Component {
 
 										</div>
 
-										<p className="mt-8"><SeriesAdd size={14} className="mr-2"/> Expected Return</p>
+										<div className="flex flex-row justify-between mt-8">
+											<p className=""><SeriesAdd size={14} className="mr-2"/> Expected Return</p>
+											<InformationCircleIcon
+												key="infocircle_pool_1"
+												className="h-5 w-5 ml-2"
+												aria-hidden="true"
+												onClick={() => {
+
+												}}>
+											</InformationCircleIcon>
+
+										</div>
+
+
+
+
 										{
 											// Only show expected return if there is something to show
 											this.state.stakePool_1_Stats?.delegatorsReward_av
@@ -986,23 +1015,24 @@ export default class App extends React.Component {
 									</div>
 
 
-									<div key="stake-pool-2" className={`flex flex-col bg-gray-700/5 p-4 rounded-xl border-2 ${this.state.stakePoolNSelected === 2 ? "border-blue-primary" : ""}`} onClick={() => {
-										this.setState({stakePoolNSelected: 2})
-									}}>
+									<div key="stake-pool-2" className={`flex flex-col bg-gray-700/5 p-4 rounded-xl border-2 ${this.state.stakePoolNSelected === 2 ? "border-blue-primary" : ""}`}
+										 onClick={() => {
+											 // this.setState({stakePoolNSelected: 1})
+
+											 const poolBech32 = this.state.stakePool_2_Stats?.poolBech32
+											 if (poolBech32) {
+												 this.setState({selectedPoolBech32: poolBech32, stakePoolNSelected: 2},
+													 () => this.updateSelectedPoolParams().then(() => {}))
+											 }
+
+										 }
+										 }>
 
 										<div className="mb-4">
 											<p className="mb-2">Select a Pool Ticker #2:</p>
 											<StakePoolSelector stakePoolN={2} allStakePoolInfo={this.state.allStakePoolInfo} handlePoolSelect={this.handlePoolSelect}/>
 										</div>
 
-
-										{/*<p className="items-center mb-2 mt-4 font-semibold">*/}
-										{/*	{this.state.stakePool_2_Stats?.name}*/}
-										{/*</p>*/}
-
-										{/*<p className="leading-normal pb-2 font-normal">*/}
-										{/*	{this.state.stakePool_2_Stats?.description}*/}
-										{/*</p>*/}
 
 										<div className="grid gap-1 grid-cols-3 py-2 text-left border-t border-b border-gray-300">
 											<div className="col-span-2"><Cube size={14} className="mr-2"/> Blocks Minted</div>
@@ -1058,23 +1088,23 @@ export default class App extends React.Component {
 
 
 
-									<div key="stake-pool-3" className={`flex flex-col bg-gray-700/5 p-4 rounded-xl border-2 ${this.state.stakePoolNSelected === 3 ? "border-blue-primary" : ""}`} onClick={() => {
-										this.setState({stakePoolNSelected: 3})
-									}}>
+									<div key="stake-pool-3" className={`flex flex-col bg-gray-700/5 p-4 rounded-xl border-2 ${this.state.stakePoolNSelected === 3 ? "border-blue-primary" : ""}`}
+										 onClick={() => {
+											 // this.setState({stakePoolNSelected: 1})
+
+											 const poolBech32 = this.state.stakePool_3_Stats?.poolBech32
+											 if (poolBech32) {
+												 this.setState({selectedPoolBech32: poolBech32, stakePoolNSelected: 3},
+													 () => this.updateSelectedPoolParams().then(() => {}))
+											 }
+
+										 }
+									 }>
 
 										<div className="mb-4">
 											<p className="mb-2">Select a Pool Ticker #3:</p>
 											<StakePoolSelector stakePoolN={3} allStakePoolInfo={this.state.allStakePoolInfo} handlePoolSelect={this.handlePoolSelect}/>
 										</div>
-
-
-										{/*<p className="items-center mb-2 mt-4 font-semibold">*/}
-										{/*	{this.state.stakePool_3_Stats?.name}*/}
-										{/*</p>*/}
-
-										{/*<p className="leading-normal pb-2 font-normal">*/}
-										{/*	{this.state.stakePool_3_Stats?.description}*/}
-										{/*</p>*/}
 
 										<div className="grid gap-1 grid-cols-3 py-2 text-left border-t border-b border-gray-300">
 											<div className="col-span-2"><Cube size={14} className="mr-2"/> Blocks Minted</div>
@@ -1149,6 +1179,11 @@ export default class App extends React.Component {
 									</span>
 										Stake Pool Parameters
 									</h4>
+
+									<p className="mt-2">These parameters are specific to each stake pool and influence how the rewards are distributed between
+									the operator of the pool and the delegators, and also how many blocks the pool is expected to mint each epoch. Expand to change
+									these parameters and see impact on rewards</p>
+
 								</div>
 
 								<div className={`${this.state.isUIStakeParamsShown ? "" : "hidden"} mt-8`}>
@@ -1237,6 +1272,11 @@ export default class App extends React.Component {
 									</span>
 										Blockchain Parameters
 									</h4>
+
+									<p className="mt-2">These parameters are specific to the Cardano blockchain and affect the total size of reward "pot" available
+									for distribution and how it is distributed to different pools. Some parameters can be changed with a community vote (Dynamic Parameters)
+									and some can't be changed at all (Static Parameters)</p>
+
 								</div>
 
 
