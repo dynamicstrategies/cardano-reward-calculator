@@ -1291,7 +1291,7 @@ export default class App extends React.Component {
 							</div>
 
 							{/* Row 4, Column 1 */}
-							<div className={`${this.state.isUIBlockParamsShown ? "bg-white text-gray-900" : "bg-gray-900 text-white"} border border-gray-300 shadow-md rounded-lg bg-white p-8 lg:col-span-2`}>
+							<div className={`${this.state.isUIBlockParamsShown ? "bg-white text-gray-900" : "bg-gray-900 text-white"} border border-gray-300 shadow-md rounded-lg p-8 lg:col-span-2`}>
 								<div className="cursor-pointer" onClick={
 									() => this.setState({isUIBlockParamsShown: !this.state.isUIBlockParamsShown})
 								}>
