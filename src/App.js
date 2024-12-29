@@ -111,6 +111,7 @@ export default class App extends React.Component {
 			 */
 			showHeader: false,
 			uiProgressPerc: 0,
+			indexerDataLoaded: false,
 
 			isUIStakePoolsShown: false,
 			isUIStakeParamsShown: false,
@@ -257,6 +258,7 @@ export default class App extends React.Component {
 				// && Number(x["live_pledge"]) >= Number(x["pledge"])
 			)
 			console.log("retrieved live pools that have a ticker: " + allStakePoolInfo?.length)
+			const indexerDataLoaded = true
 
 			/**
 			 * Update state with the retrieved information
@@ -267,9 +269,10 @@ export default class App extends React.Component {
 				rho, tau, k, a0,
 				currentEpochN, currentEpochSlot, currentBlockTime,
 				totalAdaStaked, feesInEpoch,
-				currentAdaSupply
+				currentAdaSupply,
 			}, () => {
 				this.updateSelectedPoolParams()
+				this.setState({indexerDataLoaded})
 			})
 
 
@@ -656,9 +659,7 @@ export default class App extends React.Component {
 				break
 			case "rho":
 				this.setState({rho: val},() => {
-					if (Number(val) !== 0) {
-						this.recalcAll();
-					}
+					this.recalcAll();
 				})
 				break
 			case "tau":
@@ -717,7 +718,7 @@ export default class App extends React.Component {
 		let html = [];
 
 
-		if (this.state.monteCarloPoolStats?.delegatorsReward_av) {
+		if (this.state.indexerDataLoaded) {
 			html.push(
 				<div id="curr_adareward">
 					{`${Number(this.state.monteCarloPoolStats?.delegatorsReward_av / this.state.delegatorsStake * this.state.userAmount).toLocaleString("en-US", {maximumFractionDigits: 0})}`}
@@ -752,7 +753,7 @@ export default class App extends React.Component {
 
 		let html = [];
 
-		if (this.state.monteCarloPoolStats?.delegatorsReward_av) {
+		if (this.state.indexerDataLoaded) {
 			html.push(
 				<div id="curr_percreward">
 					{`${(this.state.monteCarloPoolStats?.delegatorsReward_av / this.state.delegatorsStake * 100).toLocaleString("en-US", {maximumFractionDigits: 2})}%`}
@@ -973,7 +974,7 @@ export default class App extends React.Component {
 											// this.setState({stakePoolNSelected: 1})
 
 											 const poolBech32 = this.state.stakePool_1_Stats?.poolBech32
-											 if (poolBech32) {
+											 if (poolBech32 && this.state.stakePoolNSelected !== 1) {
 												 this.setState({selectedPoolBech32: poolBech32, stakePoolNSelected: 1},
 													 () => this.updateSelectedPoolParams().then(() => {}))
 											 }
@@ -1050,7 +1051,7 @@ export default class App extends React.Component {
 											 // this.setState({stakePoolNSelected: 1})
 
 											 const poolBech32 = this.state.stakePool_2_Stats?.poolBech32
-											 if (poolBech32) {
+											 if (poolBech32 && this.state.stakePoolNSelected !== 2) {
 												 this.setState({selectedPoolBech32: poolBech32, stakePoolNSelected: 2},
 													 () => this.updateSelectedPoolParams().then(() => {}))
 											 }
@@ -1123,7 +1124,7 @@ export default class App extends React.Component {
 											 // this.setState({stakePoolNSelected: 1})
 
 											 const poolBech32 = this.state.stakePool_3_Stats?.poolBech32
-											 if (poolBech32) {
+											 if (poolBech32 && this.state.stakePoolNSelected !== 3) {
 												 this.setState({selectedPoolBech32: poolBech32, stakePoolNSelected: 3},
 													 () => this.updateSelectedPoolParams().then(() => {}))
 											 }
@@ -1461,7 +1462,11 @@ export default class App extends React.Component {
 												onChange={this.handleChange}
 												value={this.state.daysInEpoch}
 												fill={true}
-												rightElement={<Tag minimal={true}>1.6</Tag>}
+												rightElement={
+													<div className="flex flex-row content-center">
+														<span className="mt-1.5 mr-1"><InfoHoverComponent>{infoHovers["days_in_epoch"]}</InfoHoverComponent></span>
+													</div>
+												}
 											/>
 
 										</ControlGroup>
@@ -1475,7 +1480,11 @@ export default class App extends React.Component {
 												onChange={this.handleChange}
 												value={this.state.epochsInYear}
 												fill={true}
-												rightElement={<Tag minimal={true}>1.7</Tag>}
+												rightElement={
+													<div className="flex flex-row content-center">
+														<span className="mt-1.5 mr-1"><InfoHoverComponent>{infoHovers["epochs_in_year"]}</InfoHoverComponent></span>
+													</div>
+												}
 											/>
 										</ControlGroup>
 
@@ -1488,7 +1497,11 @@ export default class App extends React.Component {
 												onChange={this.handleChange}
 												value={this.state.slotsInEpoch.toLocaleString("en-US")}
 												fill={true}
-												rightElement={<Tag minimal={true}>1.8</Tag>}
+												rightElement={
+													<div className="flex flex-row content-center">
+														<span className="mt-1.5 mr-1"><InfoHoverComponent>{infoHovers["slots_in_epoch"]}</InfoHoverComponent></span>
+													</div>
+												}
 											/>
 										</ControlGroup>
 
@@ -1503,7 +1516,11 @@ export default class App extends React.Component {
 												// inputRef={"chain-density"}
 												value={this.state.chainDensity}
 												fill={true}
-												rightElement={<Tag minimal={true}>1.9</Tag>}
+												rightElement={
+													<div className="flex flex-row content-center">
+														<span className="mt-1.5 mr-1"><InfoHoverComponent>{infoHovers["chain_density"]}</InfoHoverComponent></span>
+													</div>
+												}
 											/>
 										</ControlGroup>
 
@@ -1516,7 +1533,11 @@ export default class App extends React.Component {
 												onChange={this.handleChange}
 												value={this.state.blocksPerEpoch.toLocaleString("en-US")}
 												fill={true}
-												rightElement={<Tag minimal={true}>1.10</Tag>}
+												rightElement={
+													<div className="flex flex-row content-center">
+														<span className="mt-1.5 mr-1"><InfoHoverComponent>{infoHovers["blocks_in_epoch"]}</InfoHoverComponent></span>
+													</div>
+												}
 											/>
 										</ControlGroup>
 
@@ -1529,7 +1550,11 @@ export default class App extends React.Component {
 												// onChange={this.handleChange}
 												value={this.state.maxAdaSupply.toLocaleString("en-US", {maximumFractionDigits: 0})}
 												fill={true}
-												rightElement={<Tag minimal={true}>1.11</Tag>}
+												rightElement={
+													<div className="flex flex-row content-center">
+														<span className="mt-1.5 mr-1"><InfoHoverComponent>{infoHovers["max_ada_supply"]}</InfoHoverComponent></span>
+													</div>
+												}
 											/>
 										</ControlGroup>
 
@@ -1543,7 +1568,11 @@ export default class App extends React.Component {
 												value={this.state.currentAdaSupply?.toLocaleString("en-US", {maximumFractionDigits: 0})}
 												// defaultValue={this.state.currentAdaSupply.toLocaleString("en-US")}
 												fill={true}
-												rightElement={<Tag minimal={true}>1.12</Tag>}
+												rightElement={
+													<div className="flex flex-row content-center">
+														<span className="mt-1.5 mr-1"><InfoHoverComponent>{infoHovers["current_ada_supply"]}</InfoHoverComponent></span>
+													</div>
+												}
 											/>
 										</ControlGroup>
 
@@ -1556,7 +1585,11 @@ export default class App extends React.Component {
 												// onChange={this.handleChange}
 												value={this.state.reserveAda?.toLocaleString("en-US", {maximumFractionDigits: 0})}
 												fill={true}
-												rightElement={<Tag minimal={true}>1.13</Tag>}
+												rightElement={
+													<div className="flex flex-row content-center">
+														<span className="mt-1.5 mr-1"><InfoHoverComponent>{infoHovers["reserve_ada"]}</InfoHoverComponent></span>
+													</div>
+												}
 											/>
 										</ControlGroup>
 
@@ -1569,7 +1602,11 @@ export default class App extends React.Component {
 												onChange={this.handleChange}
 												value={this.state.totalAdaStaked?.toLocaleString("en-US", {maximumFractionDigits: 0})}
 												fill={true}
-												rightElement={<Tag minimal={true}>1.14</Tag>}
+												rightElement={
+													<div className="flex flex-row content-center">
+														<span className="mt-1.5 mr-1"><InfoHoverComponent>{infoHovers["total_staked_ada"]}</InfoHoverComponent></span>
+													</div>
+												}
 											/>
 										</ControlGroup>
 									</div>
@@ -1593,7 +1630,11 @@ export default class App extends React.Component {
 												onChange={this.handleChange}
 												value={this.state.feesInEpoch?.toLocaleString("en-US", {maximumFractionDigits: 0})}
 												fill={true}
-												rightElement={<Tag minimal={true}>1.15</Tag>}
+												rightElement={
+													<div className="flex flex-row content-center">
+														<span className="mt-1.5 mr-1"><InfoHoverComponent>{infoHovers["fees_in_epoch"]}</InfoHoverComponent></span>
+													</div>
+												}
 											/>
 										</ControlGroup>
 
@@ -1606,7 +1647,11 @@ export default class App extends React.Component {
 												// onChange={this.handleChange}
 												value={this.state.distributionFromReserve?.toLocaleString("en-US", {maximumFractionDigits: 0})}
 												fill={true}
-												rightElement={<Tag minimal={true}>1.16</Tag>}
+												rightElement={
+													<div className="flex flex-row content-center">
+														<span className="mt-1.5 mr-1"><InfoHoverComponent>{infoHovers["distribution_from_reserve"]}</InfoHoverComponent></span>
+													</div>
+												}
 											/>
 										</ControlGroup>
 
@@ -1619,7 +1664,11 @@ export default class App extends React.Component {
 												// onChange={this.handleChange}
 												value={this.state.grossReward?.toLocaleString("en-US", {maximumFractionDigits: 0})}
 												fill={true}
-												rightElement={<Tag minimal={true}>1.17</Tag>}
+												rightElement={
+													<div className="flex flex-row content-center">
+														<span className="mt-1.5 mr-1"><InfoHoverComponent>{infoHovers["gross_rewards"]}</InfoHoverComponent></span>
+													</div>
+												}
 											/>
 										</ControlGroup>
 
@@ -1632,12 +1681,16 @@ export default class App extends React.Component {
 												// onChange={this.handleChange}
 												value={this.state.distributionToTreasury?.toLocaleString("en-US", {maximumFractionDigits: 0})}
 												fill={true}
-												rightElement={<Tag minimal={true}>1.18</Tag>}
+												rightElement={
+													<div className="flex flex-row content-center">
+														<span className="mt-1.5 mr-1"><InfoHoverComponent>{infoHovers["distribution_to_treasury"]}</InfoHoverComponent></span>
+													</div>
+												}
 											/>
 										</ControlGroup>
 
 										<ControlGroup fill={true} vertical={false} style={{width:"90%"}}>
-											<Label htmlFor="reward-to-pools" style={{width:"400px"}}>Net Reward to Pools</Label>
+											<Label htmlFor="reward-to-pools" style={{width:"400px"}}>Net Rewards to Pools</Label>
 											<InputGroup
 												id="reward-to-pools"
 												disabled={true}
@@ -1645,7 +1698,11 @@ export default class App extends React.Component {
 												// onChange={this.handleChange}
 												value={this.state.rewardToPoolOperators?.toLocaleString("en-US", {maximumFractionDigits: 0})}
 												fill={true}
-												rightElement={<Tag minimal={true}>1.19</Tag>}
+												rightElement={
+													<div className="flex flex-row content-center">
+														<span className="mt-1.5 mr-1"><InfoHoverComponent>{infoHovers["net_rewards_to_pools"]}</InfoHoverComponent></span>
+													</div>
+												}
 											/>
 										</ControlGroup>
 									</div>

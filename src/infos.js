@@ -118,5 +118,104 @@ export const infoHovers = {
 		</div>
 	],
 
+	"days_in_epoch": [
+		<div className="space-y-2">
+			<h4 className="text-lg font-medium underline">Days in an Epoch</h4>
+			<p>...</p>
+		</div>
+	],
+
+	"epochs_in_year": [
+		<div className="space-y-2">
+			<h4 className="text-lg font-medium underline">Epochs in a Year</h4>
+			<p>...</p>
+		</div>
+	],
+
+	"slots_in_epoch": [
+		<div className="space-y-2">
+			<h4 className="text-lg font-medium underline">Slots in an Epoch</h4>
+			<p>...</p>
+		</div>
+	],
+
+	"chain_density": [
+		<div className="space-y-2">
+			<h4 className="text-lg font-medium underline">Chain Density</h4>
+			<p>...</p>
+		</div>
+	],
+
+	"blocks_in_epoch": [
+		<div className="space-y-2">
+			<h4 className="text-lg font-medium underline">Blocks in an Epoch</h4>
+			<p>...</p>
+		</div>
+	],
+
+	"max_ada_supply": [
+		<div className="space-y-2">
+			<h4 className="text-lg font-medium underline">Max Ada Supply</h4>
+			<p>...</p>
+		</div>
+	],
+
+	"current_ada_supply": [
+		<div className="space-y-2">
+			<h4 className="text-lg font-medium underline">Current Ada Supply</h4>
+			<p>...</p>
+		</div>
+	],
+
+	"reserve_ada": [
+		<div className="space-y-2">
+			<h4 className="text-lg font-medium underline">Reserve ADA</h4>
+			<p>...</p>
+		</div>
+	],
+
+	"total_staked_ada": [
+		<div className="space-y-2">
+			<h4 className="text-lg font-medium underline">Total Staked ADA</h4>
+			<p>...</p>
+		</div>
+	],
+
+	"fees_in_epoch": [
+		<div className="space-y-2">
+			<h4 className="text-lg font-medium underline">ADA Fees in an Epoch</h4>
+			<p>...</p>
+		</div>
+	],
+
+	"distribution_from_reserve": [
+		<div className="space-y-2">
+			<h4 className="text-lg font-medium underline">ADA Distributed from Reserve</h4>
+			<p>A portion (rho) is distributed from Cardano Reserve to pay for Staking Rewards each Epoch. This number will reduce gradually over time
+				as the amount in the Reserve gets depleted. To maintain the same level of staking rewards the rewards from Fees will need to rise.</p>
+			<p>Change the Rho parameter to see how this affects the total reward to delegators</p>
+		</div>
+	],
+
+	"gross_rewards": [
+		<div className="space-y-2">
+			<h4 className="text-lg font-medium underline">Gross Rewards</h4>
+			<p>...</p>
+		</div>
+	],
+
+	"distribution_to_treasury": [
+		<div className="space-y-2">
+			<h4 className="text-lg font-medium underline">Distribution to Treasury</h4>
+			<p>....</p>
+		</div>
+	],
+
+	"net_rewards_to_pools": [
+		<div className="space-y-2">
+			<h4 className="text-lg font-medium underline">Net Rewards to Pools</h4>
+			<p>...</p>
+		</div>
+	],
 
 }

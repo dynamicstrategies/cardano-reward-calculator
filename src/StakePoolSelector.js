@@ -3,6 +3,8 @@ import { Button, MenuItem } from "@blueprintjs/core";
 import { Select } from "@blueprintjs/select";
 import {shuffleArray} from "./utils";
 
+let prevSelectedPool = {}
+
 function StakePoolSelector(props) {
 
 	const [selectedPool, setSelectedPool] = useState({
@@ -13,6 +15,10 @@ function StakePoolSelector(props) {
 
 	const [allPoolTickers, setAllPoolTickers] = useState([selectedPool])
 
+
+	/**
+	 * Action initial load of all stake pools
+	 */
 	useEffect(() => {
 		// console.log(props.allStakePoolInfo)
 
@@ -31,11 +37,17 @@ function StakePoolSelector(props) {
 		setAllPoolTickers(poolTickers)
 	}, [props.allStakePoolInfo])
 
+
+	/**
+	 * Action pool selection
+	 */
 	useEffect(() => {
+
 		if (selectedPool?.ticker !== "Select ...") {
 			console.log(selectedPool)
 			props.handlePoolSelect(selectedPool)
 		}
+
 	}, [selectedPool])
 
 
