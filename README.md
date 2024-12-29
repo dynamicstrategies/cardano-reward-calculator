@@ -50,6 +50,38 @@ There most of the calculations are reused and NextJS specific boilerplate code a
 
 ...
 
+## Sections
+The application provides options for more
+detailed calculations, including expandable sections that explain the
+reward calculation formula, how various blockchain parameters influence
+rewards, and the role of stake pools in the process.
+
+The reward calculator is organized in 4 sections with increasing detail:
+
+**1. Basic Calculator** Displays the calculator and allow the user to
+input values to determine the expected % annual yield and
+expected ADA return over a year
+
+**2. Stake Pools** Specify up to 3 staking pool
+tickets to replace the representative pool in the first section. By
+adding the staking pool tickets the calculator then shows the
+expected return for these pools.
+
+**3. Stake Pool Parameters** Show the parameters of the selected stake
+pools and let the user change these parameters. The front-end will
+then show how the rewards are expected to change with the new
+parameters for the stake pools (e.g. minimum pool cost, margin,
+stake and pledge).
+
+**4. Blockchain Parameters** Show the static blockchain parameters
+(which can not be changed e.g. total supply of ADA) and the
+dynamic parameters (that can be changed through a governance
+vote and/or CIP e.g. the k and the a0 parameters). The user is
+able to change the dynamic parameters in the front-end and the
+calculator recalculate the new rewards for the
+pools selected in the previous sections. The purpose of this section is to
+inform the users of how blockchain parameters can impact the
+rewards.
 
 ## Methodology
 
@@ -234,39 +266,9 @@ So the code you will need to make requests to the localhost
 
 
 
-## Description
-The application provides options for more
-detailed calculations, including expandable sections that explain the
-reward calculation formula, how various blockchain parameters influence
-rewards, and the role of stake pools in the process.
 
-The reward calculator is organized in 4 sections with increasing detail:
 
-**1. Basic Calculator** Displays the calculator and allow the user to
-   input values to determine the expected % annual yield and
-   expected ADA return over a year
-
-**2. Stake Pools** Specify up to 3 staking pool
-tickets to replace the representative pool in the first section. By
-adding the staking pool tickets the calculator then shows the
-expected return for these pools.
-
-**3. Stake Pool Parameters** Show the parameters of the selected stake
-pools and let the user change these parameters. The front-end will
-then show how the rewards are expected to change with the new
-parameters for the stake pools (e.g. minimum pool cost, margin,
-stake and pledge).
-
-**4. Blockchain Parameters** Show the static blockchain parameters
-(which can not be changed e.g. total supply of ADA) and the
-dynamic parameters (that can be changed through a governance
-vote and/or CIP e.g. the k and the a0 parameters). The user is
-able to change the dynamic parameters in the front-end and the
-calculator recalculate the new rewards for the
-pools selected in the previous sections. The purpose of this section is to
-inform the users of how blockchain parameters can impact the
-rewards.
-
+## Disclaimer
 
 ### Algorithm
 The algorithm and the calculations of the rewards are

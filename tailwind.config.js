@@ -7,7 +7,8 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        "blue-primary": "#0277BD",
+        "blue-primary": "#264BAF",
+        "cardano-blue": "#264BAF",
       }
     },
   },

@@ -17,6 +17,7 @@ import { XCircleIcon, PlusSmIcon, InformationCircleIcon} from '@heroicons/react/
 import StakePoolSelector from "./StakePoolSelector";
 import InfoHoverComponent from "./InfoHoverComponent";
 import {infoHovers} from "./infos";
+import UiSpinner from "./UiSpinner";
 
 
 
@@ -109,6 +110,7 @@ export default class App extends React.Component {
 			 * on how the rewards are calculated can open these accordions
 			 */
 			showHeader: false,
+			uiProgressPerc: 0,
 
 			isUIStakePoolsShown: false,
 			isUIStakeParamsShown: false,
@@ -199,8 +201,9 @@ export default class App extends React.Component {
 	 *
 	 * - Get the Current Ada supply (not all of 45b ADA has been released)
 	 *
+	 * - Gets the basic information on all stake pools. This is then used
+	 * for a user to select more info a particular stake pool
 	 *
-	 * @returns {Promise<void>}
 	 */
 	initData = async () => {
 
@@ -211,15 +214,18 @@ export default class App extends React.Component {
 			const currentEpochN = chainTipObj["epoch_no"]
 			const currentEpochSlot = chainTipObj["epoch_slot"]
 			const currentBlockTime = chainTipObj["block_time"]
+			this.setState({uiProgressPerc: 0.15})
 
 			console.log("--- Getting Current Epoch Info ---")
 			const epochInfoObj_curr = await getEpochInfo(currentEpochN);
 			const totalAdaStaked = epochInfoObj_curr["active_stake"] / 1000000
+			this.setState({uiProgressPerc: 0.30})
 
 			console.log("--- Getting Previous Epoch Info ---")
 			const prevEpochN = currentEpochN - 1;
 			const epochInfoObj_prev = await getEpochInfo(prevEpochN);
 			const feesInEpoch = epochInfoObj_prev["fees"] / 1000000
+			this.setState({uiProgressPerc: 0.45})
 
 			console.log("--- Getting Protocol Parameters ---")
 			const protocolParamsObj = await getProtocolParams();
@@ -227,17 +233,28 @@ export default class App extends React.Component {
 			const tau = protocolParamsObj["treasuryCut"]
 			const k = protocolParamsObj["stakePoolTargetNum"]
 			const a0 = protocolParamsObj["poolPledgeInfluence"]
+			this.setState({uiProgressPerc: 0.60})
 
 			console.log("--- Getting Protocol Reserves ---")
 			const reservesObj = await getReserves(currentEpochN);
 			const currentAdaSupply = reservesObj["supply"] / 1000000
+			this.setState({uiProgressPerc: 0.75})
 
 			console.log("--- Getting Stake Pools Info ---")
 			const spObj = await getStakePoolList();
-			const allStakePoolInfo = spObj.filter(x => x["pool_status"] === "registered" && x["ticker"])
-			console.log("retrieved number of pools: " + allStakePoolInfo?.length)
-			// console.log(allStakePoolInfo)
+			this.setState({uiProgressPerc: 0.90})
 
+			/**
+			 * Retrieves all stake pools., but then only keeps the one that have been registered
+			 * and those that have a ticker. Stake pools without a ticker tend to be private pools
+			 */
+			const allStakePoolInfo = spObj.filter(x => x["pool_status"] === "registered" && x["ticker"])
+			console.log("retrieved live pools that have a ticker: " + allStakePoolInfo?.length)
+
+			/**
+			 * Update state with the retrieved information
+			 * and then recalculate everything
+			 */
 			this.setState({
 				allStakePoolInfo,
 				rho, tau, k, a0,
@@ -247,7 +264,6 @@ export default class App extends React.Component {
 			}, () => {
 				this.updateSelectedPoolParams()
 			})
-
 
 
 		} catch(e) {
@@ -269,8 +285,7 @@ export default class App extends React.Component {
 	 * This then updates the parameters used in the calculator and a
 	 * recalculation is launched + the UI is updated with pool
 	 * parameters
-	 * @param selectedPoolBech32
-	 * @returns {Promise<void>}
+	 *
 	 */
 	updateSelectedPoolParams = async (selectedPoolBech32 = this.state.selectedPoolBech32) => {
 
@@ -697,16 +712,7 @@ export default class App extends React.Component {
 
 		} else {
 			html.push(
-				<div className="flex flex-row">
-					<Spinner
-						aria-label={1 ? `Loading ${0.7 * 100}% complete` : "Loading..."}
-						intent={Intent.NONE}
-						size={25}
-						value={0 ? 0.7 : null}
-					/>
-					<p className="text-base font-normal ml-4">loading stake pools ...</p>
-				</div>
-
+				<UiSpinner progress={this.state.uiProgressPerc}/>
 			)
 		}
 
@@ -714,6 +720,10 @@ export default class App extends React.Component {
 		return html;
 	}
 
+	/**
+	 * Prints spinners that are updated as data is received from the
+	 * blockchain indexer
+	 */
 	printAnnualizedStakingRewardInPerc = () => {
 
 		let html = [];
@@ -735,15 +745,7 @@ export default class App extends React.Component {
 
 		} else {
 			html.push(
-				<div className="flex flex-row">
-					<Spinner
-						aria-label={1 ? `Loading ${0.7 * 100}% complete` : "Loading..."}
-						intent={Intent.NONE}
-						size={25}
-						value={0 ? 0.7 : null}
-					/>
-					<p className="text-base font-normal ml-4">loading stake pools ...</p>
-				</div>
+				<UiSpinner progress={this.state.uiProgressPerc}/>
 			)
 		}
 

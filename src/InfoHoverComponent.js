@@ -18,7 +18,7 @@ function InfoHoverComponent({children}) {
 		<div>
 			<Popover
 				content={
-					<div className="p-4 lg:max-w-xl bg-gray-900 text-white">
+					<div className="p-4 lg:max-w-xl bg-blue-primary text-white">
 						{children}
 					</div>
 				}
