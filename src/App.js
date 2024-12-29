@@ -262,7 +262,8 @@ export default class App extends React.Component {
 
 			/**
 			 * Update state with the retrieved information
-			 * and then recalculate everything
+			 * and then recalculate everything.
+			 * The finally update the state that everything has been loaded
 			 */
 			this.setState({
 				allStakePoolInfo,
