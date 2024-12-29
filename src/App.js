@@ -243,12 +243,19 @@ export default class App extends React.Component {
 			console.log("--- Getting Stake Pools Info ---")
 			const spObj = await getStakePoolList();
 			this.setState({uiProgressPerc: 0.90})
+			// console.log(spObj)
 
 			/**
-			 * Retrieves all stake pools., but then only keeps the one that have been registered
-			 * and those that have a ticker. Stake pools without a ticker tend to be private pools
+			 * Retrieves all stake pools., but then only keeps the one that:
+			 * - have been registered
+			 * - have a ticker. Stake pools without a ticker tend to be private pools
+			 * - have pledged what they promised
 			 */
-			const allStakePoolInfo = spObj.filter(x => x["pool_status"] === "registered" && x["ticker"])
+			const allStakePoolInfo = spObj.filter(
+				x => x["pool_status"] === "registered"
+				&& x["ticker"]
+				// && Number(x["live_pledge"]) >= Number(x["pledge"])
+			)
 			console.log("retrieved live pools that have a ticker: " + allStakePoolInfo?.length)
 
 			/**
@@ -289,54 +296,71 @@ export default class App extends React.Component {
 	 */
 	updateSelectedPoolParams = async (selectedPoolBech32 = this.state.selectedPoolBech32) => {
 
-		const spInfo = await getStakePoolInfo(selectedPoolBech32)
-		const poolPledge = Number(spInfo?.pledge) / 1_000_000;
-		const poolFixedCost = Number(spInfo?.fixed_cost) / 1_000_000;
-		const poolVariableFee = Number(spInfo?.margin) * 100;
-		const poolStake = Number(spInfo?.active_stake) / 1_000_000;
+		try {
+			const spInfo = await getStakePoolInfo(selectedPoolBech32)
+			console.log("--- selected a stake pool ---")
+			console.log(spInfo)
 
-		const activeSinceEpoch = Number(spInfo?.active_epoch_no);
-		const yearsActive = (this.state.currentEpochN - activeSinceEpoch) / this.state.epochsInYear;
-		const lifetimeBlocks = spInfo?.block_count;
-		const nDelegators = spInfo?.live_delegators;
-		const name = spInfo?.meta_json?.name;
-		const description = spInfo?.meta_json?.description;
-		const poolBech32 = selectedPoolBech32;
+			const poolPledge = Number(spInfo?.live_pledge) / 1_000_000;
+			const poolFixedCost = Number(spInfo?.fixed_cost) / 1_000_000;
+			const poolVariableFee = Number(spInfo?.margin) * 100;
+			const poolStake = Number(spInfo?.active_stake) / 1_000_000;
 
-		// update state and recalculate all parameters in the calculator
-		this.setState({poolPledge, poolFixedCost, poolVariableFee, poolStake},
-			() => this.recalcAll())
+			const activeSinceEpoch = Number(spInfo?.active_epoch_no);
+			const yearsActive = (this.state.currentEpochN - activeSinceEpoch) / this.state.epochsInYear;
+			const lifetimeBlocks = spInfo?.block_count;
+			const nDelegators = spInfo?.live_delegators;
+			const name = spInfo?.meta_json?.name;
+			const description = spInfo?.meta_json?.description;
+			const poolBech32 = selectedPoolBech32;
 
-		/**
-		 * Update the state variable that are used in the UI
-		 * depending on which pool has been selected. This information
-		 * is used only used in the UI and does not trigger
-		 * additional calculation
-		 */
-		if (this.state.stakePoolNSelected) {
-			let _poolStats =
-				this.state.stakePoolNSelected === 1 ? this.state.stakePool_1_Stats :
-				this.state.stakePoolNSelected === 2 ? this.state.stakePool_2_Stats :
-				this.state.stakePoolNSelected === 3 ? this.state.stakePool_3_Stats : undefined
+			/**
+			 * The pool is red flagged if it has one of the following conditions:
+			 * - the pool's live pledge is lower than what was promised
+			 */
+			const isRedFlag = Number(spInfo["live_pledge"]) < Number(spInfo["pledge"])
+			// console.log("isRedFlag: " + isRedFlag)
 
-			if (_poolStats) {
-				_poolStats = {
-					..._poolStats,
-					name,
-					poolBech32,
-					description,
-					yearsActive,
-					lifetimeBlocks,
-					nDelegators,
+			// update state and recalculate all parameters in the calculator
+			this.setState({poolPledge, poolFixedCost, poolVariableFee, poolStake},
+				() => this.recalcAll())
+
+			/**
+			 * Update the state variable that are used in the UI
+			 * depending on which pool has been selected. This information
+			 * is used only used in the UI and does not trigger
+			 * additional calculation
+			 */
+			if (this.state.stakePoolNSelected) {
+				let _poolStats =
+					this.state.stakePoolNSelected === 1 ? this.state.stakePool_1_Stats :
+						this.state.stakePoolNSelected === 2 ? this.state.stakePool_2_Stats :
+							this.state.stakePoolNSelected === 3 ? this.state.stakePool_3_Stats : undefined
+
+				if (_poolStats) {
+					_poolStats = {
+						..._poolStats,
+						name,
+						poolBech32,
+						description,
+						yearsActive,
+						lifetimeBlocks,
+						nDelegators,
+						isRedFlag,
+					}
 				}
+
+				const _result =
+					this.state.stakePoolNSelected === 1 ? this.setState({stakePool_1_Stats: _poolStats}) :
+						this.state.stakePoolNSelected === 2 ? this.setState({stakePool_2_Stats: _poolStats}) :
+							this.state.stakePoolNSelected === 3 ? this.setState({stakePool_3_Stats: _poolStats}) : undefined
+
 			}
-
-			const _result =
-				this.state.stakePoolNSelected === 1 ? this.setState({stakePool_1_Stats: _poolStats}) :
-				this.state.stakePoolNSelected === 2 ? this.setState({stakePool_2_Stats: _poolStats}) :
-				this.state.stakePoolNSelected === 3 ? this.setState({stakePool_3_Stats: _poolStats}) : undefined
-
+		} catch(e) {
+			console.error(e)
 		}
+
+
 
 	}
 
@@ -568,7 +592,7 @@ export default class App extends React.Component {
 				}
 			}
 
-			console.log(_poolStats)
+			// console.log(_poolStats)
 
 			const _result =
 				this.state.stakePoolNSelected === 1 ? this.setState({stakePool_1_Stats: _poolStats}) :
@@ -940,7 +964,11 @@ export default class App extends React.Component {
 
 
 
-									<div key="stake-pool-1" className={`flex flex-col bg-gray-700/5 p-4 rounded-xl border-2 ${this.state.stakePoolNSelected === 1 ? "border-blue-primary" : ""}`}
+									<div key="stake-pool-1" className={`
+										flex flex-col p-4 rounded-xl border-2 
+										${this.state.stakePoolNSelected === 1 ? "border-blue-primary" : ""}
+										${this.state.stakePool_1_Stats.isRedFlag ? "bg-red-300" : "bg-gray-700/5"}
+									`}
 										 onClick={() => {
 											// this.setState({stakePoolNSelected: 1})
 
@@ -1199,7 +1227,7 @@ export default class App extends React.Component {
 											disabled={false}
 											leftIcon="plus"
 											onChange={this.handleChange}
-											value={this.state.poolPledge?.toLocaleString("en-US")}
+											value={this.state.poolPledge?.toLocaleString("en-US", {maximumFractionDigits: 0})}
 											fill={true}
 											rightElement={
 											<div className="flex flex-row content-center">

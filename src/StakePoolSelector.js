@@ -17,6 +17,7 @@ function StakePoolSelector(props) {
 		// console.log(props.allStakePoolInfo)
 
 		const allStakePoolInfo = shuffleArray(props.allStakePoolInfo)
+		console.log("--- do the shuffle ---")
 		const stakePoolN = props.stakePoolN
 
 		let poolTickers = []
@@ -28,7 +29,7 @@ function StakePoolSelector(props) {
 		}
 
 		setAllPoolTickers(poolTickers)
-	}, [props])
+	}, [props.allStakePoolInfo])
 
 	useEffect(() => {
 		if (selectedPool?.ticker !== "Select ...") {
