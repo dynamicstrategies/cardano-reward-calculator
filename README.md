@@ -25,7 +25,7 @@ users can enter an ADA balance and calculate their potential rewards
 based on current blockchain parameters and a representative staking pool.
 
 ## Using a single page React App
-We chose the single page React App as it is the siplest form to launch a web project and is well understood
+We chose the single page React App as it is the simplest form to launch a web project and is well understood
 in the developer's community. It is simple, but lacks many features, which can be complemented with
 more complete frameworks, such as NextJS. Transposing the code from this ReactJS repo into a NextJS is straight
 forward.
@@ -48,7 +48,7 @@ As an alternative to ReactJS
 We give an example of how to deploy this code in using NextJS in a separate folder `/nextjs` .
 There most of the calculations are reused and NextJS specific boilerplate code added
 
-...
+... work in progress
 
 ## Sections
 The application provides options for more
@@ -134,7 +134,7 @@ First, the declared costs are subtracted and given to the pool operator. Next, t
 
 #### 3 - How much Goes to Delegators
 The remaining stake pool rewards, that were generated during the epoch, and that do not go to pay for
-stake pool fees, gets distributed evenly amongs the delegators
+stake pool fees, gets distributed evenly amongst the delegators
 
 #### 4 - Examples
 
@@ -148,7 +148,7 @@ If a medium-sized stake pool minted 10 blocks during an epoch
 - total stake pool reward is 4,000 ada for the epoch.
 - If a stake pools fixed fee is 340 ada and variable 2% then the
 - stake pool operator will receive 340 + 2% (4,000 - 340) = 413.2 ada and the 
-- remaining (4,000 - 413.2) = 3586.8 ada will be distributed amongs delegators.
+- remaining (4,000 - 413.2) = 3586.8 ada will be distributed amongst delegators.
 
 So, in this stake pool, the pool
 operator receives 413.2 / 4000 = 10.3% of all rewards and the rest goes to the delegators *
@@ -160,7 +160,7 @@ If a small stake pool minted 1 block during an epoch
 - total stake pool reward is 400 ada for the epoch.
 - If a stake pools fixed fee is 340 ada and variable 2% then the
 - stake pool operator will receive 340 + 2% (400 - 340) = 341.2 ada and the
-- remaining (400 - 341.2) = 58.8 ada will be distributed amongs delegators.
+- remaining (400 - 341.2) = 58.8 ada will be distributed amongst delegators.
 
 So, in this stake pool, the pool
 operator receives 341.2 / 400 = 85.3% of all rewards and the rest goes to the delegators *
@@ -172,7 +172,7 @@ If a large stake pool minted 30 blocks during an epoch
 - total stake pool reward is 12,000 ada for the epoch.
 - If a stake pools fixed fee is 340 ada and variable 2% then the
 - stake pool operator will receive 340 + 2% (12,000 - 340) = 580 ada and the
-- remaining (12,000 - 580) = 11,420 ada will be distributed amongs delegators.
+- remaining (12,000 - 580) = 11,420 ada will be distributed amongst delegators.
 
 So, in this stake pool, the pool
 operator receives 580 / 12,000 = 4.8% of all rewards and the rest goes to the delegators *
@@ -192,7 +192,7 @@ in finance and engineering to estimate a results for which a closed form solutio
 It is also often used to explain to the end user the final results as, if explained clearly, it can be easier to understand
 than a mathematical derivation
 
-We used Monte Carlor in the calculator because:
+We used Monte Carlo in the calculator because:
 - It makes the estimate of the staking reward more accurate
 - It explains why there is difference in reward for stake pools with different saturation
 - It shows the factor that luck plays when delegating to stake pools with a smaller saturation
@@ -219,12 +219,12 @@ and that allowed us to reduce the time taken by a factor of 10x:
 
 ### Frontend vs. Backend
 
-The "Calculator" that the used sees and interacts with is the front end. All the calculation logic
-is coded in the front end and is also available as source code in this repo.
+All the calculation logic of the calculator
+is coded in the front end and is available as source code in this repo.
 
-When the user opens the Frontend, it goes and queries the state of the blockchain from a blockchain
-indexer (that we can call the Backend). We have opted for <a href="https://koios.rest/">Koios</a>
-as our Backend for it being free and maintained by the community
+When the user opens the Frontend, it queries the state of the blockchain from a blockchain
+indexer (that we can call the Backend). We have opted to use <a href="https://koios.rest/">Koios</a>
+as our Backend as it is free and maintained by the community
 
 The following endpoints are used by the Backend:
 
