@@ -16,7 +16,7 @@ import {Calendar, Cube, InfoSign, SeriesAdd, User} from "@blueprintjs/icons";
 import { XCircleIcon, PlusSmIcon, InformationCircleIcon} from '@heroicons/react/24/outline'
 import StakePoolSelector from "./StakePoolSelector";
 import InfoHoverComponent from "./InfoHoverComponent";
-import {infoHovers} from "./infos";
+import {infoHovers, infoSections} from "./infos";
 import UiSpinner from "./UiSpinner";
 
 
@@ -914,7 +914,12 @@ export default class App extends React.Component {
 									<dl className="mt-8 grid grid-cols-1 gap-1 overflow-hidden rounded-2xl text-center sm:grid-cols-2 lg:grid-cols-2">
 
 										<div key="pool-reward-ada" className="flex flex-col bg-gray-700/5 p-8">
-											<dt className="text-sm/6 font-semibold mt-4 text-gray-600">Staking Reward per Year ADA</dt>
+											<div className="flex flex-row gap-2 justify-center mt-4 ">
+												<dt className="text-sm/6 font-semibold text-gray-600">Staking Reward per Year ADA</dt>
+												<span className="mt-0.5">
+													<InfoHoverComponent>{infoHovers["staking_reward_per_year_ada"]}</InfoHoverComponent>
+												</span>
+											</div>
 											<dd className="order-first text-3xl font-semibold tracking-tight text-gray-900 flex flex-row gap-4 justify-center">
 												{
 													this.printStakingRewardPerYearInADA()
@@ -924,7 +929,12 @@ export default class App extends React.Component {
 
 
 										<div key="pool-reward-perc" className="flex flex-col bg-gray-700/5 p-8">
-											<dt className="text-sm/6 font-semibold mt-4 text-gray-600">Annualized Staking Reward</dt>
+											<div className="flex flex-row gap-2 justify-center mt-4 ">
+												<dt className="text-sm/6 font-semibold text-gray-600">Annualized Staking Reward</dt>
+												<span className="mt-0.5">
+													<InfoHoverComponent>{infoHovers["staking_reward_annualized_perc"]}</InfoHoverComponent>
+												</span>
+											</div>
 											<dd className="order-first text-3xl font-semibold tracking-tight text-gray-900 flex flex-row gap-4 justify-center">
 												{
 													this.printAnnualizedStakingRewardInPerc()
@@ -941,7 +951,7 @@ export default class App extends React.Component {
 
 							{/* Row 1, Column 2 */}
 							<div className="border border-gray-300 shadow-md rounded-lg bg-white p-4">
-								<p>Info</p>
+								{infoSections["info_section_1"]}
 							</div>
 
 							{/* Row 2, Column 1 - Stake Pools*/}
@@ -1197,7 +1207,7 @@ export default class App extends React.Component {
 
 							{/* Row 2, Column 2 */}
 							<div className="border border-gray-300 shadow-md rounded-lg bg-white p-4">
-								<p>Info</p>
+								{infoSections["info_section_2"]}
 							</div>
 
 							{/* Row 3, Column 1 */}
@@ -1319,7 +1329,7 @@ export default class App extends React.Component {
 
 							{/* Row 3, Column 2 */}
 							<div className="border border-gray-300 shadow-md rounded-lg bg-white p-4">
-								<p>Info</p>
+								{infoSections["info_section_3"]}
 							</div>
 
 							{/* Row 4, Column 1 */}
@@ -1712,7 +1722,7 @@ export default class App extends React.Component {
 
 							{/* Row 4, Column 2 */}
 							<div className="border border-gray-300 shadow-md rounded-lg bg-white p-4">
-								<p>Info</p>
+								{infoSections["info_section_4"]}
 							</div>
 						</div>
 

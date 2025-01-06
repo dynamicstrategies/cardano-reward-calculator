@@ -242,6 +242,19 @@ blockchain status as an input into the calculator
 
 ## Troubleshooting
 
+### Stake Pools with Insufficient Pledge
+It sometimes happens that the amount of live pledge a pool has deposited on-chain is less than
+what it has declared (promised to its delegators). This can happen as a result of the pool
+operator withdrawing some of the pledge intentionally (e.g. to cover expenses), or
+unintentionally (e.g. declared an incorrect pledge amount).
+
+When the live pledge is less than the declared pledge, then the stake pool will not mint
+blocks and will not generate rewards for its delegators. When selected in the calculator, these pools
+will be shown with a red border
+
+<img src="public/images/redflag_printscreen.png" alt="Stake pool redflag example" width="400">
+
+
 ### CORS issues
 When developing on local computer and connecting to external APIs (such as Koios), 
 the web browser may stop you from making those requests as a security measure.
@@ -265,7 +278,12 @@ So the code you will need to make requests to the localhost
 
 
 
+### Info Sections
+Helper information for the end user is provided in the front-end app is provided via:
+- Clickable "i" icons next each filed which pop-up with a short description of that field
+- Info sections with a longer description / links to external content describing what the purpose of each section
 
+The content for these info sections is stored in html format in the file `infos.js`
 
 
 ## Disclaimer
