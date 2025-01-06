@@ -62,14 +62,14 @@ The reward calculator is organized in 4 sections with increasing detail:
 Displays the calculator and allow the user to input values to determine the expected % annual yield and
 expected ADA return over a year
 
-<img src="public/images/calculator_printscreen.png" alt="Calculator prinstscreen" width="400">
+<img src="public/images/calculator_printscreen.png" alt="Calculator prinstscreen" width="600">
 
 ### 2. Stake Pools
 Specify up to 3 staking pool tickets to replace the representative pool in the first section. By
 adding the staking pool tickets the calculator then shows the
 expected return for these pools.
 
-<img src="public/images/stakepools_printscreen.png" alt="Stake pools prinstscreen" width="400">
+<img src="public/images/stakepools_printscreen.png" alt="Stake pools prinstscreen" width="600">
 
 ### 3. Stake Pool Parameters
 Show the parameters of the selected stake pools and let the user change these parameters. The front-end will
@@ -77,7 +77,7 @@ then show how the rewards are expected to change with the new
 parameters for the stake pools (e.g. minimum pool cost, margin,
 stake and pledge).
 
-<img src="public/images/stakepoolparameters_printscreen.png" alt="Stake pool parameters prinstscreen" width="400">
+<img src="public/images/stakepoolparameters_printscreen.png" alt="Stake pool parameters prinstscreen" width="600">
 
 ### 4. Blockchain Parameters
 Show the static blockchain parameters
@@ -90,7 +90,7 @@ pools selected in the previous sections. The purpose of this section is to
 inform the users of how blockchain parameters can impact the
 rewards.
 
-<img src="public/images/blockchainparameters_printscreen.png" alt="Blockchain parameters prinstscreen" width="400">
+<img src="public/images/blockchainparameters_printscreen.png" alt="Blockchain parameters prinstscreen" width="600">
 
 ## Methodology
 
