@@ -11,15 +11,14 @@ import {
 	getStakePoolList,
 	Quartile
 } from "./utils";
-import {Button, ControlGroup, InputGroup, Intent, Label, Spinner, Tag} from "@blueprintjs/core";
-import {Calendar, Cube, InfoSign, SeriesAdd, User} from "@blueprintjs/icons";
-import { XCircleIcon, PlusSmIcon, InformationCircleIcon} from '@heroicons/react/24/outline'
+import {Button, ControlGroup, InputGroup, Intent, Label, OverlayToaster, Position, Tag} from "@blueprintjs/core";
+import {Calendar, Cube, SeriesAdd, User} from "@blueprintjs/icons";
 import StakePoolSelector from "./StakePoolSelector";
 import InfoHoverComponent from "./InfoHoverComponent";
 import {infoHovers, infoSections} from "./infos";
 import UiSpinner from "./UiSpinner";
 
-
+const errorToaster = await OverlayToaster.createAsync({ position: Position.TOP });
 
 export default class App extends React.Component {
 	constructor(props) {
@@ -124,9 +123,9 @@ export default class App extends React.Component {
 				name: "",
 				poolBech32: "",
 				description: "",
-				yearsActive: 0,
+				yearsActive: undefined,
 				lifetimeBlocks: undefined,
-				nDelegators: 0,
+				nDelegators: undefined,
 				delegatorsReward_lower: 0,
 				delegatorsReward_av: 0,
 				delegatorsReward_upper: 0,
@@ -136,9 +135,9 @@ export default class App extends React.Component {
 				name: "",
 				poolBech32: "",
 				description: "",
-				yearsActive: 0,
+				yearsActive: undefined,
 				lifetimeBlocks: undefined,
-				nDelegators: 0,
+				nDelegators: undefined,
 				delegatorsReward_lower: 0,
 				delegatorsReward_av: 0,
 				delegatorsReward_upper: 0,
@@ -148,9 +147,9 @@ export default class App extends React.Component {
 				name: "",
 				poolBech32: "",
 				description: "",
-				yearsActive: 0,
+				yearsActive: undefined,
 				lifetimeBlocks: undefined,
-				nDelegators: 0,
+				nDelegators: undefined,
 				delegatorsReward_lower: 0,
 				delegatorsReward_av: 0,
 				delegatorsReward_upper: 0,
@@ -234,16 +233,16 @@ export default class App extends React.Component {
 			const tau = protocolParamsObj["treasuryCut"]
 			const k = protocolParamsObj["stakePoolTargetNum"]
 			const a0 = protocolParamsObj["poolPledgeInfluence"]
-			this.setState({uiProgressPerc: 0.60})
+			this.setState({uiProgressPerc: 0.55})
 
 			console.log("--- Getting Protocol Reserves ---")
 			const reservesObj = await getReserves(currentEpochN);
 			const currentAdaSupply = reservesObj["supply"] / 1000000
-			this.setState({uiProgressPerc: 0.75})
+			this.setState({uiProgressPerc: 0.65})
 
 			console.log("--- Getting Stake Pools Info ---")
 			const spObj = await getStakePoolList();
-			this.setState({uiProgressPerc: 0.90})
+			this.setState({uiProgressPerc: 0.80})
 			// console.log(spObj)
 
 			/**
@@ -279,7 +278,23 @@ export default class App extends React.Component {
 
 		} catch(e) {
 			console.error(e)
+			this.showErrorToast("Error syncing with the blockchain. Check your internet connection and try again.")
 		}
+	}
+
+	/**
+	 * Shows an error toastie at the top of the screen
+	 */
+	showErrorToast = (message) => {
+
+		const toastOptions = {
+			message,
+			intent: Intent.DANGER,
+			icon: "warning-sign",
+		}
+
+		errorToaster.show({...toastOptions})
+
 	}
 
 	/**
@@ -362,6 +377,7 @@ export default class App extends React.Component {
 			}
 		} catch(e) {
 			console.error(e)
+			this.showErrorToast("Error retrieving information on the selected Stake pool from the blockchain. Check that you are connected to the internet and try again.")
 		}
 
 
@@ -466,7 +482,7 @@ export default class App extends React.Component {
 				nblocks++;
 			}
 
-			totalBlocks += nblocks;
+			// totalBlocks += nblocks;
 
 			const rewardMultiplier = (nblocks / this.state.blocksPerEpoch) / this.state.blockAssigmentProbability;
 			const epoch_totalReward = this.state.expectedPoolRewardInEpoch * rewardMultiplier;
@@ -817,73 +833,78 @@ export default class App extends React.Component {
 					<div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
 
 
+						<div className="mt-4 bg-yellow-100">
+							<p className="p-4 text-lg font-medium tracking-tight text-gray-950 max-lg:text-center">
+								Testing
+							</p>
+							<div className="flex m-4">
+								<div className="m-2">
+									<Button rightIcon="refresh" intent={Intent.PRIMARY} text="Get Tip" onClick={() => {
+										getChainTip().then(r => {
+											const currentEpochN = r["epoch_no"]
+											const currentEpochSlot = r["epoch_slot"]
+											const currentBlockTime = r["block_time"]
+											this.setState({currentEpochN, currentEpochSlot, currentBlockTime})
+											console.log("--- Chain Tip ---")
+											console.log(r)
+										})
+									}}/>
+								</div>
+								<div className="m-2">
+									<Button rightIcon="refresh" disabled={!this.state.currentEpochN} intent={Intent.PRIMARY} text="Get Epoch Info" onClick={() => {
+										getEpochInfo(this.state.currentEpochN).then(r => {
+											const totalAdaStaked = r["active_stake"]
+											const feesInEpoch = r["fees"]
+											this.setState({totalAdaStaked, feesInEpoch})
+											console.log("--- Current Epoch Info ---")
+											console.log(r)
+										})
+									}}/>
+								</div>
+								<div className="m-2">
+									<Button rightIcon="refresh" disabled={false} intent={Intent.PRIMARY} text="Get Protocol Parameters" onClick={() => {
+										getProtocolParams().then(r => {
+											const rho = r["monetaryExpansion"]
+											const tau = r["treasuryCut"]
+											const k = r["stakePoolTargetNum"]
+											const a0 = r["poolPledgeInfluence"]
+											this.setState({rho, tau, k, a0})
+											console.log("--- Protocol Parameters ---")
+											console.log(r)
+										})
+									}}/>
+								</div>
 
-						{/*<div className="mt-4 bg-yellow-100">*/}
-						{/*	<p className="p-4 text-lg font-medium tracking-tight text-gray-950 max-lg:text-center">*/}
-						{/*		Testing*/}
-						{/*	</p>*/}
-						{/*	<div className="flex m-4">*/}
-						{/*		<div className="m-2">*/}
-						{/*			<Button rightIcon="refresh" intent={Intent.PRIMARY} text="Get Tip" onClick={() => {*/}
-						{/*				getChainTip().then(r => {*/}
-						{/*					const currentEpochN = r["epoch_no"]*/}
-						{/*					const currentEpochSlot = r["epoch_slot"]*/}
-						{/*					const currentBlockTime = r["block_time"]*/}
-						{/*					this.setState({currentEpochN, currentEpochSlot, currentBlockTime})*/}
-						{/*					console.log("--- Chain Tip ---")*/}
-						{/*					console.log(r)*/}
-						{/*				})*/}
-						{/*			}}/>*/}
-						{/*		</div>*/}
-						{/*		<div className="m-2">*/}
-						{/*			<Button rightIcon="refresh" disabled={!this.state.currentEpochN} intent={Intent.PRIMARY} text="Get Epoch Info" onClick={() => {*/}
-						{/*				getEpochInfo(this.state.currentEpochN).then(r => {*/}
-						{/*					const totalAdaStaked = r["active_stake"]*/}
-						{/*					const feesInEpoch = r["fees"]*/}
-						{/*					this.setState({totalAdaStaked, feesInEpoch})*/}
-						{/*					console.log("--- Current Epoch Info ---")*/}
-						{/*					console.log(r)*/}
-						{/*				})*/}
-						{/*			}}/>*/}
-						{/*		</div>*/}
-						{/*		<div className="m-2">*/}
-						{/*			<Button rightIcon="refresh" disabled={false} intent={Intent.PRIMARY} text="Get Protocol Parameters" onClick={() => {*/}
-						{/*				getProtocolParams().then(r => {*/}
-						{/*					const rho = r["monetaryExpansion"]*/}
-						{/*					const tau = r["treasuryCut"]*/}
-						{/*					const k = r["stakePoolTargetNum"]*/}
-						{/*					const a0 = r["poolPledgeInfluence"]*/}
-						{/*					this.setState({rho, tau, k, a0})*/}
-						{/*					console.log("--- Protocol Parameters ---")*/}
-						{/*					console.log(r)*/}
-						{/*				})*/}
-						{/*			}}/>*/}
-						{/*		</div>*/}
+								<div className="m-2">
+									<Button rightIcon="refresh" disabled={!this.state.currentEpochN} intent={Intent.PRIMARY} text="Get Protocol Reserves" onClick={() => {
+										getReserves(this.state.currentEpochN).then(r => {
+											const currentAdaSupply = r["supply"]
+											this.setState({currentAdaSupply})
+											console.log("--- Protocol Reserves ---")
+											console.log(r)
+										})
+									}}/>
+								</div>
 
-						{/*		<div className="m-2">*/}
-						{/*			<Button rightIcon="refresh" disabled={!this.state.currentEpochN} intent={Intent.PRIMARY} text="Get Protocol Reserves" onClick={() => {*/}
-						{/*				getReserves(this.state.currentEpochN).then(r => {*/}
-						{/*					const currentAdaSupply = r["supply"]*/}
-						{/*					this.setState({currentAdaSupply})*/}
-						{/*					console.log("--- Protocol Reserves ---")*/}
-						{/*					console.log(r)*/}
-						{/*				})*/}
-						{/*			}}/>*/}
-						{/*		</div>*/}
+								<div className="m-2">
+									<Button rightIcon="refresh" disabled={false} intent={Intent.PRIMARY} text="Get Stake Pools" onClick={() => {
+										getStakePoolList().then(r => {
+											const livePools = r.filter(x => x["pool_status"] === "registered" && x["ticker"])
+											console.log("registered pools n: " + livePools.length)
+											this.setState({allStakePoolInfo: livePools})
+											// console.log(r)
+										})
+									}}/>
+								</div>
 
-						{/*		<div className="m-2">*/}
-						{/*			<Button rightIcon="refresh" disabled={false} intent={Intent.PRIMARY} text="Get Stake Pools" onClick={() => {*/}
-						{/*				getStakePoolList().then(r => {*/}
-						{/*					const livePools = r.filter(x => x["pool_status"] === "registered" && x["ticker"])*/}
-						{/*					console.log("registered pools n: " + livePools.length)*/}
-						{/*					this.setState({allStakePoolInfo: livePools})*/}
-						{/*					// console.log(r)*/}
-						{/*				})*/}
-						{/*			}}/>*/}
-						{/*		</div>*/}
+								<div className="m-2">
+									<Button rightIcon="refresh" disabled={false} intent={Intent.PRIMARY} text="Show Toast" onClick={() => {
+										this.showErrorToast()
+									}}/>
+								</div>
 
-						{/*	</div>*/}
-						{/*</div>*/}
+							</div>
+						</div>
 
 						<div className="grid lg:grid-cols-3 lg:grid-rows-[auto_auto_auto_auto] gap-4">
 
@@ -1002,7 +1023,7 @@ export default class App extends React.Component {
 										<div className="grid gap-1 grid-cols-3 py-2 text-left border-t border-b border-gray-300">
 											<div className="col-span-2"><Cube size={14} className="mr-2"/> Blocks Minted</div>
 											<div className="text-center">{
-												this.state.stakePool_1_Stats?.lifetimeBlocks
+												this.state.stakePool_1_Stats?.lifetimeBlocks !== undefined
 													?
 												(this.state.stakePool_1_Stats?.lifetimeBlocks).toLocaleString("en-US")
 													:
@@ -1011,7 +1032,7 @@ export default class App extends React.Component {
 
 											<div className="col-span-2"><Calendar size={14} className="mr-2"/> Years Active</div>
 											<div className="text-center">{
-												this.state.stakePool_1_Stats?.yearsActive
+												this.state.stakePool_1_Stats?.yearsActive !== undefined
 													?
 												(this.state.stakePool_1_Stats?.yearsActive).toLocaleString("en-US", {maximumFractionDigits: 1})
 													:
@@ -1020,7 +1041,7 @@ export default class App extends React.Component {
 
 											<div className="col-span-2"><User size={14} className="mr-2"/> # Delegators</div>
 											<div className="text-center">{
-												this.state.stakePool_1_Stats?.nDelegators
+												this.state.stakePool_1_Stats?.nDelegators !== undefined
 													?
 												(this.state.stakePool_1_Stats?.nDelegators).toLocaleString("en-US", {maximumFractionDigits: 0})
 													:
@@ -1079,7 +1100,7 @@ export default class App extends React.Component {
 										<div className="grid gap-1 grid-cols-3 py-2 text-left border-t border-b border-gray-300">
 											<div className="col-span-2"><Cube size={14} className="mr-2"/> Blocks Minted</div>
 											<div className="text-center">{
-												this.state.stakePool_2_Stats?.lifetimeBlocks
+												this.state.stakePool_2_Stats?.lifetimeBlocks !== undefined
 													?
 													(this.state.stakePool_2_Stats?.lifetimeBlocks).toLocaleString("en-US")
 													:
@@ -1088,7 +1109,7 @@ export default class App extends React.Component {
 
 											<div className="col-span-2"><Calendar size={14} className="mr-2"/> Years Active</div>
 											<div className="text-center">{
-												this.state.stakePool_2_Stats?.yearsActive
+												this.state.stakePool_2_Stats?.yearsActive !== undefined
 													?
 													(this.state.stakePool_2_Stats?.yearsActive).toLocaleString("en-US", {maximumFractionDigits: 1})
 													:
@@ -1097,7 +1118,7 @@ export default class App extends React.Component {
 
 											<div className="col-span-2"><User size={14} className="mr-2"/> # Delegators</div>
 											<div className="text-center">{
-												this.state.stakePool_2_Stats?.nDelegators
+												this.state.stakePool_2_Stats?.nDelegators !== undefined
 													?
 													(this.state.stakePool_2_Stats?.nDelegators).toLocaleString("en-US", {maximumFractionDigits: 0})
 													:
@@ -1151,7 +1172,7 @@ export default class App extends React.Component {
 										<div className="grid gap-1 grid-cols-3 py-2 text-left border-t border-b border-gray-300">
 											<div className="col-span-2"><Cube size={14} className="mr-2"/> Blocks Minted</div>
 											<div className="text-center">{
-												this.state.stakePool_3_Stats?.lifetimeBlocks
+												this.state.stakePool_3_Stats?.lifetimeBlocks !== undefined
 													?
 													(this.state.stakePool_3_Stats?.lifetimeBlocks).toLocaleString("en-US")
 													:
@@ -1160,7 +1181,7 @@ export default class App extends React.Component {
 
 											<div className="col-span-2"><Calendar size={14} className="mr-2"/> Years Active</div>
 											<div className="text-center">{
-												this.state.stakePool_3_Stats?.yearsActive
+												this.state.stakePool_3_Stats?.yearsActive !== undefined
 													?
 													(this.state.stakePool_3_Stats?.yearsActive).toLocaleString("en-US", {maximumFractionDigits: 1})
 													:
@@ -1169,7 +1190,7 @@ export default class App extends React.Component {
 
 											<div className="col-span-2"><User size={14} className="mr-2"/> # Delegators</div>
 											<div className="text-center">{
-												this.state.stakePool_3_Stats?.nDelegators
+												this.state.stakePool_3_Stats?.nDelegators !== undefined
 													?
 													(this.state.stakePool_3_Stats?.nDelegators).toLocaleString("en-US", {maximumFractionDigits: 0})
 													:
@@ -1672,7 +1693,6 @@ export default class App extends React.Component {
 												id="equals"
 												disabled={true}
 												leftIcon="equals"
-												// onChange={this.handleChange}
 												value={this.state.grossReward?.toLocaleString("en-US", {maximumFractionDigits: 0})}
 												fill={true}
 												rightElement={
@@ -1689,7 +1709,6 @@ export default class App extends React.Component {
 												id="distribution-to-treasury"
 												disabled={true}
 												leftIcon="minus"
-												// onChange={this.handleChange}
 												value={this.state.distributionToTreasury?.toLocaleString("en-US", {maximumFractionDigits: 0})}
 												fill={true}
 												rightElement={
@@ -1706,7 +1725,6 @@ export default class App extends React.Component {
 												id="reward-to-pools"
 												disabled={true}
 												leftIcon="equals"
-												// onChange={this.handleChange}
 												value={this.state.rewardToPoolOperators?.toLocaleString("en-US", {maximumFractionDigits: 0})}
 												fill={true}
 												rightElement={
