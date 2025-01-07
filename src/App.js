@@ -840,78 +840,78 @@ export default class App extends React.Component {
 					<div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
 
 
-						<div className="mt-4 bg-yellow-100">
-							<p className="p-4 text-lg font-medium tracking-tight text-gray-950 max-lg:text-center">
-								Testing
-							</p>
-							<div className="flex m-4">
-								<div className="m-2">
-									<Button rightIcon="refresh" intent={Intent.PRIMARY} text="Get Tip" onClick={() => {
-										getChainTip().then(r => {
-											const currentEpochN = r["epoch_no"]
-											const currentEpochSlot = r["epoch_slot"]
-											const currentBlockTime = r["block_time"]
-											this.setState({currentEpochN, currentEpochSlot, currentBlockTime})
-											console.log("--- Chain Tip ---")
-											console.log(r)
-										})
-									}}/>
-								</div>
-								<div className="m-2">
-									<Button rightIcon="refresh" disabled={!this.state.currentEpochN} intent={Intent.PRIMARY} text="Get Epoch Info" onClick={() => {
-										getEpochInfo(this.state.currentEpochN).then(r => {
-											const totalAdaStaked = r["active_stake"]
-											const feesInEpoch = r["fees"]
-											this.setState({totalAdaStaked, feesInEpoch})
-											console.log("--- Current Epoch Info ---")
-											console.log(r)
-										})
-									}}/>
-								</div>
-								<div className="m-2">
-									<Button rightIcon="refresh" disabled={false} intent={Intent.PRIMARY} text="Get Protocol Parameters" onClick={() => {
-										getProtocolParams().then(r => {
-											const rho = r["monetaryExpansion"]
-											const tau = r["treasuryCut"]
-											const k = r["stakePoolTargetNum"]
-											const a0 = r["poolPledgeInfluence"]
-											this.setState({rho, tau, k, a0})
-											console.log("--- Protocol Parameters ---")
-											console.log(r)
-										})
-									}}/>
-								</div>
+						{/*<div className="mt-4 bg-yellow-100">*/}
+						{/*	<p className="p-4 text-lg font-medium tracking-tight text-gray-950 max-lg:text-center">*/}
+						{/*		Testing*/}
+						{/*	</p>*/}
+						{/*	<div className="flex m-4">*/}
+						{/*		<div className="m-2">*/}
+						{/*			<Button rightIcon="refresh" intent={Intent.PRIMARY} text="Get Tip" onClick={() => {*/}
+						{/*				getChainTip().then(r => {*/}
+						{/*					const currentEpochN = r["epoch_no"]*/}
+						{/*					const currentEpochSlot = r["epoch_slot"]*/}
+						{/*					const currentBlockTime = r["block_time"]*/}
+						{/*					this.setState({currentEpochN, currentEpochSlot, currentBlockTime})*/}
+						{/*					console.log("--- Chain Tip ---")*/}
+						{/*					console.log(r)*/}
+						{/*				})*/}
+						{/*			}}/>*/}
+						{/*		</div>*/}
+						{/*		<div className="m-2">*/}
+						{/*			<Button rightIcon="refresh" disabled={!this.state.currentEpochN} intent={Intent.PRIMARY} text="Get Epoch Info" onClick={() => {*/}
+						{/*				getEpochInfo(this.state.currentEpochN).then(r => {*/}
+						{/*					const totalAdaStaked = r["active_stake"]*/}
+						{/*					const feesInEpoch = r["fees"]*/}
+						{/*					this.setState({totalAdaStaked, feesInEpoch})*/}
+						{/*					console.log("--- Current Epoch Info ---")*/}
+						{/*					console.log(r)*/}
+						{/*				})*/}
+						{/*			}}/>*/}
+						{/*		</div>*/}
+						{/*		<div className="m-2">*/}
+						{/*			<Button rightIcon="refresh" disabled={false} intent={Intent.PRIMARY} text="Get Protocol Parameters" onClick={() => {*/}
+						{/*				getProtocolParams().then(r => {*/}
+						{/*					const rho = r["monetaryExpansion"]*/}
+						{/*					const tau = r["treasuryCut"]*/}
+						{/*					const k = r["stakePoolTargetNum"]*/}
+						{/*					const a0 = r["poolPledgeInfluence"]*/}
+						{/*					this.setState({rho, tau, k, a0})*/}
+						{/*					console.log("--- Protocol Parameters ---")*/}
+						{/*					console.log(r)*/}
+						{/*				})*/}
+						{/*			}}/>*/}
+						{/*		</div>*/}
 
-								<div className="m-2">
-									<Button rightIcon="refresh" disabled={!this.state.currentEpochN} intent={Intent.PRIMARY} text="Get Protocol Reserves" onClick={() => {
-										getReserves(this.state.currentEpochN).then(r => {
-											const currentAdaSupply = r["supply"]
-											this.setState({currentAdaSupply})
-											console.log("--- Protocol Reserves ---")
-											console.log(r)
-										})
-									}}/>
-								</div>
+						{/*		<div className="m-2">*/}
+						{/*			<Button rightIcon="refresh" disabled={!this.state.currentEpochN} intent={Intent.PRIMARY} text="Get Protocol Reserves" onClick={() => {*/}
+						{/*				getReserves(this.state.currentEpochN).then(r => {*/}
+						{/*					const currentAdaSupply = r["supply"]*/}
+						{/*					this.setState({currentAdaSupply})*/}
+						{/*					console.log("--- Protocol Reserves ---")*/}
+						{/*					console.log(r)*/}
+						{/*				})*/}
+						{/*			}}/>*/}
+						{/*		</div>*/}
 
-								<div className="m-2">
-									<Button rightIcon="refresh" disabled={false} intent={Intent.PRIMARY} text="Get Stake Pools" onClick={() => {
-										getStakePoolList().then(r => {
-											const livePools = r.filter(x => x["pool_status"] === "registered" && x["ticker"])
-											console.log("registered pools n: " + livePools.length)
-											this.setState({allStakePoolInfo: livePools})
-											// console.log(r)
-										})
-									}}/>
-								</div>
+						{/*		<div className="m-2">*/}
+						{/*			<Button rightIcon="refresh" disabled={false} intent={Intent.PRIMARY} text="Get Stake Pools" onClick={() => {*/}
+						{/*				getStakePoolList().then(r => {*/}
+						{/*					const livePools = r.filter(x => x["pool_status"] === "registered" && x["ticker"])*/}
+						{/*					console.log("registered pools n: " + livePools.length)*/}
+						{/*					this.setState({allStakePoolInfo: livePools})*/}
+						{/*					// console.log(r)*/}
+						{/*				})*/}
+						{/*			}}/>*/}
+						{/*		</div>*/}
 
-								<div className="m-2">
-									<Button rightIcon="refresh" disabled={false} intent={Intent.PRIMARY} text="Show Toast" onClick={() => {
-										this.showErrorToast()
-									}}/>
-								</div>
+						{/*		<div className="m-2">*/}
+						{/*			<Button rightIcon="refresh" disabled={false} intent={Intent.PRIMARY} text="Show Toast" onClick={() => {*/}
+						{/*				this.showErrorToast()*/}
+						{/*			}}/>*/}
+						{/*		</div>*/}
 
-							</div>
-						</div>
+						{/*	</div>*/}
+						{/*</div>*/}
 
 						<div className="grid lg:grid-cols-3 lg:grid-rows-[auto_auto_auto_auto] gap-4">
 
