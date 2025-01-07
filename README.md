@@ -1,6 +1,3 @@
-> [!IMPORTANT]  
-> Work in progress
-
 <!-- PROJECT LOGO -->
 <br />
 <div align="center">

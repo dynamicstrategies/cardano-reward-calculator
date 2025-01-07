@@ -18,8 +18,15 @@ import InfoHoverComponent from "./InfoHoverComponent";
 import {infoHovers, infoSections} from "./infos";
 import UiSpinner from "./UiSpinner";
 
+/**
+ * The toaster that shows all the error messages is initialized upfront and then
+ * called to show the error when it occurs
+ */
 const errorToaster = await OverlayToaster.createAsync({ position: Position.TOP });
 
+/**
+ * A React class component that handles all user interactions
+ */
 export default class App extends React.Component {
 	constructor(props) {
 		super(props);
