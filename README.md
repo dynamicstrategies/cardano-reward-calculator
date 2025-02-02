@@ -21,11 +21,11 @@ This is a web interface where
 users can enter an ADA balance and calculate their potential rewards
 based on current blockchain parameters and a representative staking pool.
 
-## Using a single page React App
-We chose the single page React App as it is the simplest form to launch a web project and is well understood
-in the developer's community. It is simple, but lacks many features, which can be complemented with
-more complete frameworks, such as NextJS. Transposing the code from this ReactJS repo into a NextJS is straight
-forward.
+## Using NextJs
+We chose the NextJS framework as it is one of the most common forms to launch a web project and is well understood
+in the developer's community. An example using Create React App is also provided in the separate folder - the create-react-app,
+is being discontinued and does not have the same security updates as NextJS.
+Create React App is not advisable for a production deployment
 
 ### Install and Run
 Clone the repo, install npm packaged and start a local development environment
@@ -34,18 +34,11 @@ Clone the repo, install npm packaged and start a local development environment
 git clone https://github.com/dynamicstrategies/cardano-reward-calculator.git
 cd cardano-reward-calculator
 npm install
-npm start
+npm run dev
 ```
 
 This will launch a rewards calculator on <a href="http://localhost:3000">http://localhost:3000</a>
 
-
-## Using the NextJS framework
-As an alternative to ReactJS 
-We give an example of how to deploy this code in using NextJS in a separate folder `/nextjs` .
-There most of the calculations are reused and NextJS specific boilerplate code added
-
-... work in progress
 
 ## Sections
 The application provides options for more
@@ -88,6 +81,17 @@ inform the users of how blockchain parameters can impact the
 rewards.
 
 <img src="public/images/blockchainparameters_printscreen.png" alt="Blockchain parameters prinstscreen" width="600">
+
+## Multilingual
+The info sections can be translated to other languages.
+The language is controlled by passing a parameter in the url (e.g. lang=jp for Japanese):
+
+`http://localhost:3000/?lang=jp`
+
+The default language is English
+
+The translations to other languages is done in the `./components/infos.js` file. Other languages can be added
+by extending the language dictionary for each of the info sections in that file
 
 ## Methodology
 
@@ -245,6 +249,9 @@ The following endpoints are used by the Backend:
 All the calculator's logic, including the Monte Carlo simulations, is coded in the Frontend, there are no 
 hidden offline calculation derived from the backend. The backend's purpose is to provide the current
 blockchain status as an input into the calculator
+
+
+
 
 ## Troubleshooting
 
