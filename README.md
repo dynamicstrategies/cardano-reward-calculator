@@ -25,7 +25,8 @@ based on current blockchain parameters and a representative staking pool.
 We chose the NextJS framework as it is one of the most common forms to launch a web project and is well understood
 in the developer's community. An example using Create React App is also provided in the separate folder - the create-react-app,
 is being discontinued and does not have the same security updates as NextJS.
-Create React App is not advisable for a production deployment
+Create React App is not advisable for a production deployment. For more info on the choice of framework check the React guidance
+<a href="https://react.dev/learn/start-a-new-react-project">here</a>
 
 ### Install and Run
 Clone the repo, install npm packaged and start a local development environment
@@ -38,6 +39,10 @@ npm run dev
 ```
 
 This will launch a rewards calculator on <a href="http://localhost:3000">http://localhost:3000</a>
+
+### Docker
+...
+
 
 
 ## Sections

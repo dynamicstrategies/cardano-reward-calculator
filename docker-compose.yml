@@ -1,0 +1,11 @@
+version: "3.5"
+
+services:
+  crewardcalculator:
+    image: dynamicstrategiesio/general:crewardcalculator
+    container_name: crewardcalculator
+    restart: always
+    ports:
+      - 127.0.0.1:6077:3000
+    environment:
+      - NEXT_PUBLIC_KOIOS_URL=https://api.koios.rest/api/v1
