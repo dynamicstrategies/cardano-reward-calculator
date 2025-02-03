@@ -21,6 +21,8 @@ This is a web interface where
 users can enter an ADA balance and calculate their potential rewards
 based on current blockchain parameters and a representative staking pool.
 
+A demo is available <a href="https://dynamicstrategies.io/crewardcalculator">here</a>
+
 ## Using NextJs
 We chose the NextJS framework as it is one of the most common forms to launch a web project and is well understood
 in the developer's community. An example using Create React App is also provided in the separate folder - the create-react-app,
@@ -40,10 +42,29 @@ npm run dev
 
 This will launch a rewards calculator on <a href="http://localhost:3000">http://localhost:3000</a>
 
-### Docker
+#### Reverse Proxy
+
+The base path is `/crewardcalculator` and can be changed in the `next.config.mjs`
+This path is useful if you want to launch the calculator as a standalone service in a docker container
+and then have a reverse proxy reroute all the requests from a particular domain path to that
+docker container. 
+
+An example of this code for `nginx` is here
+
+```shell
 ...
+location /crewardcalculator {
+    proxy_pass http://localhost:3000;  # Adjust based on where your docker container is running
+    proxy_set_header Host $host;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto $scheme;
+}
+...
+```
 
-
+### Docker
+A Docker and a docker-compose file are provided in the main folder with an example for an autonomous deployment
 
 ## Sections
 The application provides options for more

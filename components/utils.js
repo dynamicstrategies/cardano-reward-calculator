@@ -2,6 +2,7 @@ import axios from "axios";
 
 // const KOIOS_URL = "http://localhost:7070/proxy"
 const KOIOS_URL = process.env.NEXT_PUBLIC_KOIOS_URL
+const KOIOS_TOKEN = process.env.NEXT_PUBLIC_KOIOS_TOKEN
 /**
  * Gets the blockchain tip with, this gives us the
  * most recent Epoch Number and Slot
@@ -31,7 +32,7 @@ export const getChainTip = async () => {
 			method: 'get',
 			url: '/tip',
 			baseURL: KOIOS_URL,
-			headers: {'accept': 'application/json'},
+			headers: {'accept': 'application/json', 'Authorization': `Bearer ${KOIOS_TOKEN}`},
 
 		})
 
@@ -110,7 +111,7 @@ export const getProtocolParams = async () => {
 			method: 'get',
 			url: '/cli_protocol_params',
 			baseURL: KOIOS_URL,
-			headers: {'accept': 'application/json'},
+			headers: {'accept': 'application/json', 'Authorization': `Bearer ${KOIOS_TOKEN}`},
 
 		})
 
@@ -168,7 +169,7 @@ export const getEpochInfo = async (currentEpochN) => {
 			url: '/epoch_info',
 			baseURL: KOIOS_URL,
 			params: payload,
-			headers: {'accept': 'application/json'},
+			headers: {'accept': 'application/json', 'Authorization': `Bearer ${KOIOS_TOKEN}`},
 
 		})
 
@@ -220,7 +221,7 @@ export const getReserves = async (currentEpochN) => {
 			url: '/totals',
 			baseURL: KOIOS_URL,
 			params: payload,
-			headers: {'accept': 'application/json'},
+			headers: {'accept': 'application/json', 'Authorization': `Bearer ${KOIOS_TOKEN}`},
 
 		})
 
@@ -288,7 +289,7 @@ export const getStakePoolList = async () => {
 				url: '/pool_list',
 				baseURL: KOIOS_URL,
 				params: payload,
-				headers: {'accept': 'application/json'},
+				headers: {'accept': 'application/json', 'Authorization': `Bearer ${KOIOS_TOKEN}`},
 
 			})
 
@@ -387,7 +388,7 @@ export const getStakePoolInfo = async (pool_bech32_id) => {
 			url: '/pool_info',
 			baseURL: KOIOS_URL,
 			data: JSON.stringify(req),
-			headers: {'Content-Type': 'application/json', 'accept': 'application/json'},
+			headers: {'Content-Type': 'application/json', 'accept': 'application/json', 'Authorization': `Bearer ${KOIOS_TOKEN}`},
 
 		})
 
