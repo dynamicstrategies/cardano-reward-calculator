@@ -9,7 +9,7 @@ import {
   getChainTip,
   getEpochInfo,
   getProtocolParams,
-  getReserves,
+  getReserves, getStakePoolActiveSinceEpoch,
   getStakePoolInfo,
   getStakePoolList,
   Quartile
@@ -350,7 +350,8 @@ class RewardCalculator extends React.Component {
       const poolVariableFee = Number(spInfo?.margin) * 100 || 0;
       const poolStake = Number(spInfo?.active_stake) / 1_000_000 || 0;
 
-      const activeSinceEpoch = Number(spInfo?.active_epoch_no);
+      // const activeSinceEpoch = Number(spInfo?.active_epoch_no);
+      const activeSinceEpoch = await getStakePoolActiveSinceEpoch(selectedPoolBech32)
       const yearsActive = (this.state.currentEpochN - activeSinceEpoch) / this.state.epochsInYear;
       const lifetimeBlocks = spInfo?.block_count || 0; // set to 0 if value is null, bo blocks minted
       const nDelegators = spInfo?.live_delegators || 0;

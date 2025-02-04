@@ -406,6 +406,45 @@ export const getStakePoolInfo = async (pool_bech32_id) => {
 
 }
 
+/**
+ * Retrieved the epoch number when the stake pool was
+ * first active
+ */
+export const getStakePoolActiveSinceEpoch = async (pool_bech32_id) => {
+
+	const payload = {
+		_pool_bech32: pool_bech32_id,
+	}
+
+	try {
+
+		const response = await axios({
+			method: 'get',
+			url: '/pool_updates',
+			baseURL: KOIOS_URL,
+			params: payload,
+			headers: {'accept': 'application/json', 'Authorization': `Bearer ${KOIOS_TOKEN}`},
+
+		})
+
+		if (response.status === 200) {
+
+			const data = response.data;
+			// console.log(data)
+			const firstObj = data[data.length - 1]
+			const active_epoch_no = Number(firstObj?.active_epoch_no)
+			return active_epoch_no
+
+		} else {
+			console.error(response)
+		}
+
+	} catch(err) {
+		console.error("Could not retrieve first Active Epoch");
+	}
+
+}
+
 
 /**
  * Helper functions for quick computation of the Binomial CFD
