@@ -21,6 +21,7 @@ import InfoHoverComponent from "../components/InfoHoverComponent";
 import {infoHovers, infoSections} from "@/components/infos";
 import UiSpinner from "../components/UiSpinner";
 import { createRoot } from "react-dom/client";
+import VersionDisplay from "@/components/VersionDisplay";
 
 
 export async function getServerSideProps({ query }) {
@@ -109,13 +110,12 @@ class RewardCalculator extends React.Component {
       annualizedPoolReward: undefined,
 
       /**
-       * User parameters
+       * Default Parameters
        */
       userAmount: 10000,
+      prev_userAmount: 10000,
       selectedPoolBech32: "pool189lsf6c2upyhmrzddyvyfjxxkqnte9pw8aqx7f4cuf85sjxlm02",
       poolStake_plus_userAmount: undefined,
-
-      prev_userAmount: undefined,
 
       /**
        * All stake pools information
@@ -189,6 +189,14 @@ class RewardCalculator extends React.Component {
       },
 
       /**
+       * Top screen total rewards
+       */
+      rewardsPerYearADA: undefined,
+      prev_rewardsPerYearADA: undefined,
+      rewardsPerYearPerc: undefined,
+      prev_rewardsPerYearPerc: undefined,
+
+      /**
        * Plaecholder with Monte Carlo stats
        * Clones the monte carlo object to store the
        * previously simulated results
@@ -210,9 +218,10 @@ class RewardCalculator extends React.Component {
      */
     this.recalcPending = false;
 
+    /**
+     * Placeholder variable for the toast error message
+     */
     this.errorToaster = undefined;
-
-
 
 
   }
@@ -431,7 +440,7 @@ class RewardCalculator extends React.Component {
   /**
    * Recalculates all parameters and the results of the calculator
    */
-  recalcAll = (_prev_userAmount = undefined) => {
+  recalcAll = () => {
 
     const reserveAda = this.state.maxAdaSupply - this.state.currentAdaSupply;
     const blocksPerEpoch = this.state.slotsInEpoch * Number(this.state.chainDensity);
@@ -462,7 +471,7 @@ class RewardCalculator extends React.Component {
      * simulations
      */
     const prev_delegatorsStake = this.state.delegatorsStake;
-    const prev_userAmount = _prev_userAmount || this.state.userAmount
+    // const prev_userAmount = this.state.userAmount;
 
     this.setState({
       reserveAda,
@@ -486,7 +495,7 @@ class RewardCalculator extends React.Component {
       blocksPerEpoch,
       poolPledge,
       poolStake_plus_userAmount,
-      prev_userAmount,
+      // prev_userAmount,
     }, () => {this.runMonteCarlo()})
 
     // all has been recalculated, so now wait for more data to be changes
@@ -633,8 +642,32 @@ class RewardCalculator extends React.Component {
     let prev_monteCarloPoolStats = {}
     Object.assign(prev_monteCarloPoolStats, this.state.monteCarloPoolStats)
 
+
+    /**
+     * Calculate Staking rewards per year in ADA and as a %
+     * for current and previous results
+     */
+    const rewardsPerYearPerc = delegatorsReward_av / delegatorsStake;
+    const prev_rewardsPerYearPerc = prev_monteCarloPoolStats?.delegatorsReward_av / this.state.prev_delegatorsStake;
+    const rewardsPerYearADA = rewardsPerYearPerc * this.state.userAmount;
+    const prev_rewardsPerYearADA = prev_rewardsPerYearPerc * this.state.prev_userAmount;
+
+    /**
+     * Store the user amount as prev_userAmount for next iteration
+     */
+    const prev_userAmount = this.state.userAmount;
+
     // set state
-    this.setState({monetCarloSimul, prev_monteCarloPoolStats, monteCarloPoolStats})
+    this.setState({
+      monetCarloSimul,
+      prev_monteCarloPoolStats,
+      monteCarloPoolStats,
+      rewardsPerYearPerc,
+      prev_rewardsPerYearPerc,
+      rewardsPerYearADA,
+      prev_rewardsPerYearADA,
+      prev_userAmount,
+    })
 
     /**
      * Update the state variable that are used in the UI
@@ -783,7 +816,7 @@ class RewardCalculator extends React.Component {
     if (this.state.indexerDataLoaded && this.state.monteCarloPoolStats?.delegatorsReward_av) {
       html.push(
           <div id="curr_adareward">
-            {`${Number(this.state.monteCarloPoolStats?.delegatorsReward_av / this.state.delegatorsStake * this.state.userAmount).toLocaleString("en-US", {maximumFractionDigits: 0})}`}
+            {`${Number(this.state.rewardsPerYearADA).toLocaleString("en-US", {maximumFractionDigits: 0})}`}
           </div>
       )
 
@@ -791,7 +824,7 @@ class RewardCalculator extends React.Component {
       if (this.state.prev_monteCarloPoolStats?.delegatorsReward_av) {
         html.push(
             <div id="prev_adareward" className="text-gray-300 font-normal">
-              {`${Number(this.state.prev_monteCarloPoolStats?.delegatorsReward_av / this.state.prev_delegatorsStake * this.state.prev_userAmount).toLocaleString("en-US", {maximumFractionDigits: 0})}`}
+              {`${Number(this.state.prev_rewardsPerYearADA).toLocaleString("en-US", {maximumFractionDigits: 0})}`}
             </div>
         )
       }
@@ -818,14 +851,14 @@ class RewardCalculator extends React.Component {
     if (this.state.indexerDataLoaded && this.state.monteCarloPoolStats?.delegatorsReward_av) {
       html.push(
           <div id="curr_percreward">
-            {`${(this.state.monteCarloPoolStats?.delegatorsReward_av / this.state.delegatorsStake * 100).toLocaleString("en-US", {maximumFractionDigits: 2})}%`}
+            {`${(this.state.rewardsPerYearPerc * 100).toLocaleString("en-US", {maximumFractionDigits: 2})}%`}
           </div>
       )
 
       if (this.state.prev_monteCarloPoolStats?.delegatorsReward_av) {
         html.push(
             <div id="prev_percreward" className="text-gray-300 font-normal">
-              {`${(this.state.prev_monteCarloPoolStats?.delegatorsReward_av / this.state.prev_delegatorsStake * 100).toLocaleString("en-US", {maximumFractionDigits: 2})}%`}
+              {`${(this.state.prev_rewardsPerYearPerc * 100).toLocaleString("en-US", {maximumFractionDigits: 2})}%`}
             </div>
         )
       }
@@ -896,7 +929,7 @@ class RewardCalculator extends React.Component {
 
 
           <main className="mx-auto bg-gray-100">
-            <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+            <div className="mx-auto md:max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
 
 
               {/*<div className="mt-4 bg-yellow-100">*/}
@@ -1867,10 +1900,12 @@ class RewardCalculator extends React.Component {
               </div>
 
 
-
+              <VersionDisplay/>
 
             </div>
+
           </main>
+
 
 
 
