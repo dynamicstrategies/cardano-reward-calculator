@@ -203,8 +203,17 @@ class RewardCalculator extends React.Component {
 
     }
 
+    /**
+     * Intermediate state when something has changed, so the app needs
+     * to be recalculated, but the user has not yet finished making changes
+     * so the recalc waits for user to finish editing
+     */
+    this.recalcPending = false;
 
     this.errorToaster = undefined;
+
+
+
 
   }
 
@@ -410,6 +419,14 @@ class RewardCalculator extends React.Component {
 
   }
 
+  /**
+   * Called when  the user finishes editing a field
+   */
+  onFocusOut = () => {
+    if (this.recalcPending) {
+      this.recalcAll()
+    }
+  }
 
   /**
    * Recalculates all parameters and the results of the calculator
@@ -471,6 +488,9 @@ class RewardCalculator extends React.Component {
       poolStake_plus_userAmount,
       prev_userAmount,
     }, () => {this.runMonteCarlo()})
+
+    // all has been recalculated, so now wait for more data to be changes
+    this.recalcPending = false;
 
   }
 
@@ -667,78 +687,77 @@ class RewardCalculator extends React.Component {
          * then update current userAmount
          */
         const prev_userAmount = this.state.userAmount;
-        this.setState({userAmount: val}, () => this.recalcAll(prev_userAmount))
+        // this.setState({userAmount: val}, () => this.recalcAll(prev_userAmount))
+        this.setState({userAmount: val}, () => {this.recalcPending = true})
         break
 
       case "days-in-epoch":
-        this.setState({daysInEpoch: val, epochsInYear: 365/val},() => {this.recalcAll()})
+        this.setState({daysInEpoch: val, epochsInYear: 365/val},() => {this.recalcPending = true})
         break
       case "epochs-in-year":
-        this.setState({daysInEpoch: 365 / val, epochsInYear: val},() => {this.recalcAll()})
+        this.setState({daysInEpoch: 365 / val, epochsInYear: val},() => {this.recalcPending = true})
         break
       case "slots-in-epoch":
-        this.setState({slotsInEpoch: val},() => {this.recalcAll()})
+        this.setState({slotsInEpoch: val},() => {this.recalcPending = true})
         break
       case "chain-density":
         this.setState({chainDensity: val},() => {
           if (Number(val) !== 0) {
-            this.recalcAll();
+            this.recalcPending = true
           }
         })
         break
       case "blocks-per-epoch":
-        this.setState({blocksPerEpoch: val},() => {this.recalcAll()})
+        this.setState({blocksPerEpoch: val},() => {this.recalcPending = true})
         break
       case "current-ada-supply":
-        this.setState({currentAdaSupply: val},() => {this.recalcAll()})
+        this.setState({currentAdaSupply: val},() => {this.recalcPending = true})
         break
       case "total-staked-ada":
         const truncVal = Math.min(this.state.currentAdaSupply, val)
         this.setState({totalAdaStaked: truncVal},() => {
           if (Number(truncVal) !== 0) {
-            this.recalcAll();
+            this.recalcPending = true
           }
         })
         break
       case "rho":
-        this.setState({rho: val},() => {
-          this.recalcAll();
-        })
+        this.setState({rho: val},() => {this.recalcPending = true})
         break
       case "tau":
         this.setState({tau: val},() => {
           if (Number(val) !== 0) {
-            this.recalcAll();
+            this.recalcPending = true
           }
         })
         break
       case "k":
-        this.setState({k: val},() => {this.recalcAll()})
+        this.setState({k: val},() => {this.recalcPending = true})
         break
       case "a0":
-        this.setState({a0: val},() => {this.recalcAll()})
+        this.setState({a0: val},() => {this.recalcPending = true})
         break
 
       case "fees-in-epoch":
-        this.setState({feesInEpoch: val},() => {this.recalcAll()})
+        this.setState({feesInEpoch: val},() => {this.recalcPending = true})
         break
 
       case "pool-pledge":
         const tmp = Math.min(val, this.state.poolStake_plus_userAmount);
-        this.setState({poolPledge: tmp},() => {this.recalcAll()})
+        this.setState({poolPledge: tmp},() => {this.recalcPending = true})
         break
         // case "delegators-stake":
-        // 	this.setState({delegatorsStake: val},() => {this.recalcAll()})
+        // 	this.setState({delegatorsStake: val},() => {this.recalcPending = true})
         // 	break
       case "total-pool-stake":
         const poolStake = val - this.state.userAmount
-        this.setState({poolStake},() => {this.recalcAll()})
+        this.setState({poolStake},() => {this.recalcPending = true})
         break
       case "pool-fixed-costs":
-        this.setState({poolFixedCost: val},() => {this.recalcAll()})
+        this.setState({poolFixedCost: val},() => {this.recalcPending = true})
         break
       case "pool-variable-fee":
-        this.setState({poolVariableFee: val},() => {this.recalcAll()})
+        this.setState({poolVariableFee: val},() => {this.recalcPending = true})
         break
 
       default:
@@ -972,6 +991,10 @@ class RewardCalculator extends React.Component {
                           disabled={false}
                           // leftIcon="filter"
                           onChange={this.handleChange}
+                          onBlur={() => this.onFocusOut()}
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter") this.onFocusOut()
+                          }}
                           value={this.state.userAmount.toLocaleString("en-US")}
                           fill={true}
                           rightElement={<Tag minimal={true}>ADA</Tag>}
@@ -985,8 +1008,8 @@ class RewardCalculator extends React.Component {
                         <div className="flex flex-row gap-2 justify-center mt-4 ">
                           <dt className="text-sm/6 font-semibold text-gray-600">Staking Reward per Year ADA</dt>
                           <span className="mt-0.5">
-													<InfoHoverComponent>{infoHovers["staking_reward_per_year_ada"][this.props.lang]}</InfoHoverComponent>
-												</span>
+                              <InfoHoverComponent>{infoHovers["staking_reward_per_year_ada"][this.props.lang]}</InfoHoverComponent>
+                          </span>
                         </div>
                         <dd className="order-first text-3xl font-semibold tracking-tight text-gray-900 flex flex-row gap-4 justify-center">
                           {
@@ -1000,8 +1023,8 @@ class RewardCalculator extends React.Component {
                         <div className="flex flex-row gap-2 justify-center mt-4 ">
                           <dt className="text-sm/6 font-semibold text-gray-600">Annualized Staking Reward</dt>
                           <span className="mt-0.5">
-													<InfoHoverComponent>{infoHovers["staking_reward_annualized_perc"][this.props.lang]}</InfoHoverComponent>
-												</span>
+                              <InfoHoverComponent>{infoHovers["staking_reward_annualized_perc"][this.props.lang]}</InfoHoverComponent>
+                          </span>
                         </div>
                         <dd className="order-first text-3xl font-semibold tracking-tight text-gray-900 flex flex-row gap-4 justify-center">
                           {
@@ -1309,6 +1332,10 @@ class RewardCalculator extends React.Component {
                           disabled={false}
                           leftIcon="plus"
                           onChange={this.handleChange}
+                          onBlur={() => this.onFocusOut()}
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter") this.onFocusOut()
+                          }}
                           value={this.state.poolPledge?.toLocaleString("en-US", {maximumFractionDigits: 0})}
                           fill={true}
                           rightElement={
@@ -1328,6 +1355,10 @@ class RewardCalculator extends React.Component {
                           disabled={true}
                           leftIcon="plus"
                           onChange={this.handleChange}
+                          onBlur={() => this.onFocusOut()}
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter") this.onFocusOut()
+                          }}
                           value={this.state.delegatorsStake?.toLocaleString("en-US", {maximumFractionDigits: 0})}
                           fill={true}
                           rightElement={
@@ -1346,6 +1377,10 @@ class RewardCalculator extends React.Component {
                           disabled={false}
                           leftIcon="equals"
                           onChange={this.handleChange}
+                          onBlur={() => this.onFocusOut()}
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter") this.onFocusOut()
+                          }}
                           value={this.state.poolStake_plus_userAmount?.toLocaleString("en-US", {maximumFractionDigits: 0})}
                           fill={true}
                           rightElement={
@@ -1364,6 +1399,10 @@ class RewardCalculator extends React.Component {
                           disabled={false}
                           // leftIcon="filter"
                           onChange={this.handleChange}
+                          onBlur={() => this.onFocusOut()}
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter") this.onFocusOut()
+                          }}
                           value={this.state.poolFixedCost?.toLocaleString("en-US")}
                           fill={true}
                           rightElement={
@@ -1383,6 +1422,10 @@ class RewardCalculator extends React.Component {
                           asyncControl={true}
                           // leftIcon="filter"
                           onChange={this.handleChange}
+                          onBlur={() => this.onFocusOut()}
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter") this.onFocusOut()
+                          }}
                           value={this.state.poolVariableFee}
                           fill={true}
                           rightElement={
@@ -1428,21 +1471,30 @@ class RewardCalculator extends React.Component {
                     <div className="cursor-pointer bg-gray-100 px-2 py-1 -mx-2 mt-8 mb-4 text-gray-900" onClick={
                       () => this.setState({isUIDynamicParamsShow: !this.state.isUIDynamicParamsShow})
                     }>
-										<span id="icon" className="font-normal text-gray-900 mr-4">
-											{this.state.isUIDynamicParamsShow ? "-" : "+"}
-										</span>
+                      <span id="icon" className="font-normal text-gray-900 mr-4">
+                          {this.state.isUIDynamicParamsShow ? "-" : "+"}
+                      </span>
                       Dynamic Parameters
                     </div>
 
                     <div className={`${this.state.isUIDynamicParamsShow ? "" : "hidden"}`}>
+
+                      <div className="mb-8">Dynamic blockchain parameters can be adjusted through governance processes.
+                        These parameters can be used to change the operation of the block-producing protocol,
+                        vary transaction fees, define the influence of pledge, etc.
+                        Press the (i) icon to see what each one is responsible for.</div>
+
                       <ControlGroup fill={true} vertical={false} style={{width:"90%"}}>
                         <Label htmlFor="rho" style={{width:"400px"}}>Rho</Label>
                         <InputGroup
                             id="rho"
                             disabled={false}
                             asyncControl={true}
-                            // leftIcon="filter"
                             onChange={this.handleChange}
+                            onBlur={() => this.onFocusOut()}
+                            onKeyDown={(e) => {
+                              if (e.key === "Enter") this.onFocusOut()
+                            }}
                             value={this.state.rho}
                             fill={true}
                             rightElement={
@@ -1459,8 +1511,11 @@ class RewardCalculator extends React.Component {
                             id="tau"
                             disabled={false}
                             asyncControl={true}
-                            // leftIcon="filter"
                             onChange={this.handleChange}
+                            onBlur={() => this.onFocusOut()}
+                            onKeyDown={(e) => {
+                              if (e.key === "Enter") this.onFocusOut()
+                            }}
                             value={this.state.tau}
                             fill={true}
                             rightElement={
@@ -1476,8 +1531,11 @@ class RewardCalculator extends React.Component {
                         <InputGroup
                             id="k"
                             disabled={false}
-                            // leftIcon="filter"
                             onChange={this.handleChange}
+                            onBlur={() => this.onFocusOut()}
+                            onKeyDown={(e) => {
+                              if (e.key === "Enter") this.onFocusOut()
+                            }}
                             value={this.state.k}
                             fill={true}
                             rightElement={
@@ -1494,8 +1552,11 @@ class RewardCalculator extends React.Component {
                             id="a0"
                             disabled={false}
                             asyncControl={true}
-                            // leftIcon="filter"
                             onChange={this.handleChange}
+                            onBlur={() => this.onFocusOut()}
+                            onKeyDown={(e) => {
+                              if (e.key === "Enter") this.onFocusOut()
+                            }}
                             value={this.state.a0}
                             fill={true}
                             rightElement={
@@ -1527,20 +1588,25 @@ class RewardCalculator extends React.Component {
                     <div className="cursor-pointer bg-gray-100 px-2 py-1 -mx-2 mt-8 mb-4 text-gray-900" onClick={
                       () => this.setState({isUIStaticParamsShow: !this.state.isUIStaticParamsShow})
                     }>
-										<span id="icon" className="font-normal text-gray-900 mr-4">
-											{this.state.isUIStaticParamsShow ? "-" : "+"}
-										</span>
+                      <span id="icon" className="font-normal text-gray-900 mr-4">
+                          {this.state.isUIStaticParamsShow ? "-" : "+"}
+                      </span>
                       Static Parameters
                     </div>
 
                     <div className={`${this.state.isUIStaticParamsShow ? "" : "hidden"}`}>
+
+                      <div className="mb-8">Static parameters affect the fundamentals of the Cardano protocol and are stable,
+                        which means that they can not be changed except via a hard fork.
+                        Static parameters include those defining the genesis block or basic security properties, for example.
+                        Some of these parameters may be embedded in the source code or implemented as software.</div>
+
                       <ControlGroup fill={true} vertical={false} style={{width:"90%"}}>
                         <Label htmlFor="days-in-epoch" style={{width:"400px"}}>Days in an Epoch</Label>
                         <InputGroup
                             id="days-in-epoch"
                             disabled={true}
-                            // leftIcon="filter"
-                            onChange={this.handleChange}
+                            // onChange={this.handleChange}
                             value={this.state.daysInEpoch}
                             fill={true}
                             rightElement={
@@ -1557,8 +1623,7 @@ class RewardCalculator extends React.Component {
                         <InputGroup
                             id="epochs-in-year"
                             disabled={true}
-                            // leftIcon="filter"
-                            onChange={this.handleChange}
+                            // onChange={this.handleChange}
                             value={this.state.epochsInYear}
                             fill={true}
                             rightElement={
@@ -1574,8 +1639,7 @@ class RewardCalculator extends React.Component {
                         <InputGroup
                             id="slots-in-epoch"
                             disabled={true}
-                            // leftIcon="filter"
-                            onChange={this.handleChange}
+                            // onChange={this.handleChange}
                             value={this.state.slotsInEpoch.toLocaleString("en-US")}
                             fill={true}
                             rightElement={
@@ -1591,10 +1655,7 @@ class RewardCalculator extends React.Component {
                         <InputGroup
                             id="chain-density"
                             disabled={true}
-                            // asyncControl={true}
-                            // leftIcon="filter"
-                            onChange={this.handleChange}
-                            // inputRef={"chain-density"}
+                            // onChange={this.handleChange}
                             value={this.state.chainDensity}
                             fill={true}
                             rightElement={
@@ -1610,8 +1671,7 @@ class RewardCalculator extends React.Component {
                         <InputGroup
                             id="blocks-per-epoch"
                             disabled={true}
-                            // leftIcon="filter"
-                            onChange={this.handleChange}
+                            // onChange={this.handleChange}
                             value={this.state.blocksPerEpoch.toLocaleString("en-US")}
                             fill={true}
                             rightElement={
@@ -1627,7 +1687,6 @@ class RewardCalculator extends React.Component {
                         <InputGroup
                             id="max-ada-supply"
                             disabled={true}
-                            // leftIcon="filter"
                             // onChange={this.handleChange}
                             value={this.state.maxAdaSupply.toLocaleString("en-US", {maximumFractionDigits: 0})}
                             fill={true}
@@ -1644,10 +1703,12 @@ class RewardCalculator extends React.Component {
                         <InputGroup
                             id="current-ada-supply"
                             disabled={false}
-                            // leftIcon="filter"
                             onChange={this.handleChange}
+                            onBlur={() => this.onFocusOut()}
+                            onKeyDown={(e) => {
+                              if (e.key === "Enter") this.onFocusOut()
+                            }}
                             value={this.state.currentAdaSupply?.toLocaleString("en-US", {maximumFractionDigits: 0})}
-                            // defaultValue={this.state.currentAdaSupply.toLocaleString("en-US")}
                             fill={true}
                             rightElement={
                               <div className="flex flex-row content-center">
@@ -1662,7 +1723,6 @@ class RewardCalculator extends React.Component {
                         <InputGroup
                             id="reserve-ada"
                             disabled={true}
-                            // leftIcon="filter"
                             // onChange={this.handleChange}
                             value={this.state.reserveAda?.toLocaleString("en-US", {maximumFractionDigits: 0})}
                             fill={true}
@@ -1679,8 +1739,11 @@ class RewardCalculator extends React.Component {
                         <InputGroup
                             id="total-staked-ada"
                             disabled={false}
-                            // leftIcon="filter"
                             onChange={this.handleChange}
+                            onBlur={() => this.onFocusOut()}
+                            onKeyDown={(e) => {
+                              if (e.key === "Enter") this.onFocusOut()
+                            }}
                             value={this.state.totalAdaStaked?.toLocaleString("en-US", {maximumFractionDigits: 0})}
                             fill={true}
                             rightElement={
@@ -1695,13 +1758,19 @@ class RewardCalculator extends React.Component {
                     <div className="cursor-pointer bg-gray-100 px-2 py-1 -mx-2 mt-8 mb-4 text-gray-900" onClick={
                       () => this.setState({isUIFeesReservesShow: !this.state.isUIFeesReservesShow})
                     }>
-										<span id="icon" className="font-normal text-gray-900 mr-4">
-											{this.state.isUIFeesReservesShow ? "-" : "+"}
-										</span>
+                      <span id="icon" className="font-normal text-gray-900 mr-4">
+                          {this.state.isUIFeesReservesShow ? "-" : "+"}
+                      </span>
                       Fees & Remaining Reserves
                     </div>
 
                     <div className={`${this.state.isUIFeesReservesShow ? "" : "hidden"}`}>
+
+                      <div className="mb-8">Cardano uses a transaction fee system that covers the processing
+                        and long-term storage cost of transactions. Fees from each epoch are pooled and then
+                        distributed to all pools that created blocks during an epoch. The fees are supplemented
+                      by a distribution of a % (rho) from reserves.</div>
+
                       <ControlGroup fill={true} vertical={false} style={{width:"90%"}}>
                         <Label htmlFor="fees-in-epoch" style={{width:"400px"}}>Fees per Epoch</Label>
                         <InputGroup
@@ -1709,6 +1778,10 @@ class RewardCalculator extends React.Component {
                             disabled={false}
                             leftIcon="plus"
                             onChange={this.handleChange}
+                            onBlur={() => this.onFocusOut()}
+                            onKeyDown={(e) => {
+                              if (e.key === "Enter") this.onFocusOut()
+                            }}
                             value={this.state.feesInEpoch?.toLocaleString("en-US", {maximumFractionDigits: 0})}
                             fill={true}
                             rightElement={

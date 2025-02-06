@@ -270,6 +270,7 @@ The following endpoints are used by the Backend:
 - Cardano Reserves - https://api.koios.rest/#get-/totals
 - List of All Stake Pool - https://api.koios.rest/#get-/pool_list
 - Stake Pool Info - https://api.koios.rest/#post-/pool_info
+- Stake Pool Updates - https://api.koios.rest/#get-/pool_updates
 
 
 All the calculator's logic, including the Monte Carlo simulations, is coded in the Frontend, there are no 
