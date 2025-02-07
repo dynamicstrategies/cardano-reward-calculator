@@ -1356,119 +1356,123 @@ class RewardCalculator extends React.Component {
 
                   <div className={`${this.state.isUIStakeParamsShown ? "" : "hidden"} mt-8`}>
 
-                    <ControlGroup fill={true} vertical={false} style={{width:"90%",display: "flex"}}>
-                      <Label htmlFor="pool-pledge" style={{width:"400px"}}>
-                        <p>Pool Pledge</p>
-                      </Label>
-                      <InputGroup
-                          id="pool-pledge"
-                          disabled={false}
-                          leftIcon="plus"
-                          onChange={this.handleChange}
-                          onBlur={() => this.onFocusOut()}
-                          onKeyDown={(e) => {
-                            if (e.key === "Enter") this.onFocusOut()
-                          }}
-                          value={this.state.poolPledge?.toLocaleString("en-US", {maximumFractionDigits: 0})}
-                          fill={true}
-                          rightElement={
-                            <div className="flex flex-row content-center">
-                              <Tag minimal={true}>ADA</Tag>
-                              <span className="mt-1.5 mr-1"><InfoHoverComponent>{infoHovers["pool_pledge"][this.props.lang]}</InfoHoverComponent></span>
 
-                            </div>
-                          }
-                      />
-                    </ControlGroup>
+                    <div className="grid grid-cols-1 sm:grid-cols-6 gap-2 sm:mr-12">
 
-                    <ControlGroup fill={true} vertical={false} style={{width:"90%"}}>
-                      <Label htmlFor="delegators-stake" style={{width:"400px"}}>Delegators&apos; Stake</Label>
-                      <InputGroup
-                          id="delegators-stake"
-                          disabled={true}
-                          leftIcon="plus"
-                          onChange={this.handleChange}
-                          onBlur={() => this.onFocusOut()}
-                          onKeyDown={(e) => {
-                            if (e.key === "Enter") this.onFocusOut()
-                          }}
-                          value={this.state.delegatorsStake?.toLocaleString("en-US", {maximumFractionDigits: 0})}
-                          fill={true}
-                          rightElement={
-                            <div className="flex flex-row content-center">
-                              <Tag minimal={true}>ADA</Tag>
-                              <span className="mt-1.5 mr-1"><InfoHoverComponent>{infoHovers["delegator_stake"][this.props.lang]}</InfoHoverComponent></span>
-                            </div>
-                          }
-                      />
-                    </ControlGroup>
+                      <div className="col-span-2">Pool Pledge</div>
+                      <div className="col-span-4">
+                        <InputGroup
+                            id="pool-pledge"
+                            disabled={false}
+                            leftIcon="plus"
+                            onChange={this.handleChange}
+                            onBlur={() => this.onFocusOut()}
+                            onKeyDown={(e) => {
+                              if (e.key === "Enter") this.onFocusOut()
+                            }}
+                            value={this.state.poolPledge?.toLocaleString("en-US", {maximumFractionDigits: 0})}
+                            fill={true}
+                            rightElement={
+                              <div className="flex flex-row content-center">
+                                <Tag minimal={true}>ADA</Tag>
+                                <span className="mt-1.5 mr-1"><InfoHoverComponent>{infoHovers["pool_pledge"][this.props.lang]}</InfoHoverComponent></span>
 
-                    <ControlGroup fill={true} vertical={false} style={{width:"90%"}}>
-                      <Label htmlFor="total-pool-stake" style={{width:"400px"}}>Total Pool Stake</Label>
-                      <InputGroup
-                          id="total-pool-stake"
-                          disabled={false}
-                          leftIcon="equals"
-                          onChange={this.handleChange}
-                          onBlur={() => this.onFocusOut()}
-                          onKeyDown={(e) => {
-                            if (e.key === "Enter") this.onFocusOut()
-                          }}
-                          value={this.state.poolStake_plus_userAmount?.toLocaleString("en-US", {maximumFractionDigits: 0})}
-                          fill={true}
-                          rightElement={
-                            <div className="flex flex-row content-center">
-                              <Tag minimal={true}>ADA</Tag>
-                              <span className="mt-1.5 mr-1"><InfoHoverComponent>{infoHovers["total_pool_stake"][this.props.lang]}</InfoHoverComponent></span>
-                            </div>
-                          }
-                      />
-                    </ControlGroup>
+                              </div>
+                            }
+                        />
+                      </div>
 
-                    <ControlGroup fill={true} vertical={false} style={{width:"90%"}}>
-                      <Label htmlFor="pool-fixed-costs" style={{width:"400px"}}>Pool Fixed Costs</Label>
-                      <InputGroup
-                          id="pool-fixed-costs"
-                          disabled={false}
-                          // leftIcon="filter"
-                          onChange={this.handleChange}
-                          onBlur={() => this.onFocusOut()}
-                          onKeyDown={(e) => {
-                            if (e.key === "Enter") this.onFocusOut()
-                          }}
-                          value={this.state.poolFixedCost?.toLocaleString("en-US")}
-                          fill={true}
-                          rightElement={
-                            <div className="flex flex-row content-center">
-                              <Tag minimal={true}>ADA</Tag>
-                              <span className="mt-1.5 mr-1"><InfoHoverComponent>{infoHovers["pool_fixed_costs"][this.props.lang]}</InfoHoverComponent></span>
-                            </div>
-                          }
-                      />
-                    </ControlGroup>
+                      <div className="col-span-2 mt-2 sm:mt-0">Delegators&apos; Stake</div>
+                      <div className="col-span-4">
+                        <InputGroup
+                            id="delegators-stake"
+                            disabled={true}
+                            leftIcon="plus"
+                            onChange={this.handleChange}
+                            onBlur={() => this.onFocusOut()}
+                            onKeyDown={(e) => {
+                              if (e.key === "Enter") this.onFocusOut()
+                            }}
+                            value={this.state.delegatorsStake?.toLocaleString("en-US", {maximumFractionDigits: 0})}
+                            fill={true}
+                            rightElement={
+                              <div className="flex flex-row content-center">
+                                <Tag minimal={true}>ADA</Tag>
+                                <span className="mt-1.5 mr-1"><InfoHoverComponent>{infoHovers["delegator_stake"][this.props.lang]}</InfoHoverComponent></span>
+                              </div>
+                            }
+                        />
+                      </div>
 
-                    <ControlGroup fill={true} vertical={false} style={{width:"90%"}}>
-                      <Label htmlFor="pool-variable-fee" style={{width:"400px"}}>Pool Variable Fee</Label>
-                      <InputGroup
-                          id="pool-variable-fee"
-                          disabled={false}
-                          asyncControl={true}
-                          // leftIcon="filter"
-                          onChange={this.handleChange}
-                          onBlur={() => this.onFocusOut()}
-                          onKeyDown={(e) => {
-                            if (e.key === "Enter") this.onFocusOut()
-                          }}
-                          value={this.state.poolVariableFee}
-                          fill={true}
-                          rightElement={
-                            <div className="flex flex-row content-center">
-                              <Tag minimal={true}>%</Tag>
-                              <span className="mt-1.5 mr-1"><InfoHoverComponent>{infoHovers["pool_variable_fee"][this.props.lang]}</InfoHoverComponent></span>
-                            </div>
-                          }
-                      />
-                    </ControlGroup>
+                      <div className="col-span-2 mt-2 sm:mt-0">Total Pool Stake</div>
+                      <div className="col-span-4">
+                        <InputGroup
+                            id="total-pool-stake"
+                            disabled={false}
+                            leftIcon="equals"
+                            onChange={this.handleChange}
+                            onBlur={() => this.onFocusOut()}
+                            onKeyDown={(e) => {
+                              if (e.key === "Enter") this.onFocusOut()
+                            }}
+                            value={this.state.poolStake_plus_userAmount?.toLocaleString("en-US", {maximumFractionDigits: 0})}
+                            fill={true}
+                            rightElement={
+                              <div className="flex flex-row content-center">
+                                <Tag minimal={true}>ADA</Tag>
+                                <span className="mt-1.5 mr-1"><InfoHoverComponent>{infoHovers["total_pool_stake"][this.props.lang]}</InfoHoverComponent></span>
+                              </div>
+                            }
+                        />
+                      </div>
+
+                      <div className="col-span-2 mt-2 sm:mt-0">Pool Fixed Costs</div>
+                      <div className="col-span-4">
+                        <InputGroup
+                            id="pool-fixed-costs"
+                            disabled={false}
+                            // leftIcon="filter"
+                            onChange={this.handleChange}
+                            onBlur={() => this.onFocusOut()}
+                            onKeyDown={(e) => {
+                              if (e.key === "Enter") this.onFocusOut()
+                            }}
+                            value={this.state.poolFixedCost?.toLocaleString("en-US")}
+                            fill={true}
+                            rightElement={
+                              <div className="flex flex-row content-center">
+                                <Tag minimal={true}>ADA</Tag>
+                                <span className="mt-1.5 mr-1"><InfoHoverComponent>{infoHovers["pool_fixed_costs"][this.props.lang]}</InfoHoverComponent></span>
+                              </div>
+                            }
+                        />
+                      </div>
+
+                      <div className="col-span-2 mt-2 sm:mt-0">Pool Variable Fee</div>
+                      <div className="col-span-4">
+                        <InputGroup
+                            id="pool-variable-fee"
+                            disabled={false}
+                            asyncControl={true}
+                            // leftIcon="filter"
+                            onChange={this.handleChange}
+                            onBlur={() => this.onFocusOut()}
+                            onKeyDown={(e) => {
+                              if (e.key === "Enter") this.onFocusOut()
+                            }}
+                            value={this.state.poolVariableFee}
+                            fill={true}
+                            rightElement={
+                              <div className="flex flex-row content-center">
+                                <Tag minimal={true}>%</Tag>
+                                <span className="mt-1.5 mr-1"><InfoHoverComponent>{infoHovers["pool_variable_fee"][this.props.lang]}</InfoHoverComponent></span>
+                              </div>
+                            }
+                        />
+                      </div>
+
+                    </div>
+
                   </div>
 
                 </div>
@@ -1517,105 +1521,110 @@ class RewardCalculator extends React.Component {
                         vary transaction fees, define the influence of pledge, etc.
                         Press the (i) icon to see what each one is responsible for.</div>
 
-                      <ControlGroup fill={true} vertical={false} style={{width:"90%"}}>
-                        <Label htmlFor="rho" style={{width:"400px"}}>Rho</Label>
-                        <InputGroup
-                            id="rho"
-                            disabled={false}
-                            asyncControl={true}
-                            onChange={this.handleChange}
-                            onBlur={() => this.onFocusOut()}
-                            onKeyDown={(e) => {
-                              if (e.key === "Enter") this.onFocusOut()
-                            }}
-                            value={this.state.rho}
-                            fill={true}
-                            rightElement={
-                              <div className="flex flex-row content-center">
-                                <span className="mt-1.5 mr-1"><InfoHoverComponent>{infoHovers["rho"][this.props.lang]}</InfoHoverComponent></span>
-                              </div>
-                            }
-                        />
-                      </ControlGroup>
+                      <div className="grid grid-cols-1 sm:grid-cols-6 gap-2 sm:mr-12">
 
-                      <ControlGroup fill={true} vertical={false} style={{width:"90%"}}>
-                        <Label htmlFor="tau" style={{width:"400px"}}>Tau</Label>
-                        <InputGroup
-                            id="tau"
-                            disabled={false}
-                            asyncControl={true}
-                            onChange={this.handleChange}
-                            onBlur={() => this.onFocusOut()}
-                            onKeyDown={(e) => {
-                              if (e.key === "Enter") this.onFocusOut()
-                            }}
-                            value={this.state.tau}
-                            fill={true}
-                            rightElement={
-                              <div className="flex flex-row content-center">
-                                <span className="mt-1.5 mr-1"><InfoHoverComponent>{infoHovers["tau"][this.props.lang]}</InfoHoverComponent></span>
-                              </div>
-                            }
-                        />
-                      </ControlGroup>
+                        <div className="col-span-2">Rho</div>
+                        <div className="col-span-4">
+                          <InputGroup
+                              id="rho"
+                              disabled={false}
+                              asyncControl={true}
+                              onChange={this.handleChange}
+                              onBlur={() => this.onFocusOut()}
+                              onKeyDown={(e) => {
+                                if (e.key === "Enter") this.onFocusOut()
+                              }}
+                              value={this.state.rho}
+                              fill={true}
+                              rightElement={
+                                <div className="flex flex-row content-center">
+                                  <span className="mt-1.5 mr-1"><InfoHoverComponent>{infoHovers["rho"][this.props.lang]}</InfoHoverComponent></span>
+                                </div>
+                              }
+                          />
+                        </div>
 
-                      <ControlGroup fill={true} vertical={false} style={{width:"90%"}}>
-                        <Label htmlFor="k" style={{width:"400px"}}>K</Label>
-                        <InputGroup
-                            id="k"
-                            disabled={false}
-                            onChange={this.handleChange}
-                            onBlur={() => this.onFocusOut()}
-                            onKeyDown={(e) => {
-                              if (e.key === "Enter") this.onFocusOut()
-                            }}
-                            value={this.state.k}
-                            fill={true}
-                            rightElement={
-                              <div className="flex flex-row content-center">
-                                <span className="mt-1.5 mr-1"><InfoHoverComponent>{infoHovers["k"][this.props.lang]}</InfoHoverComponent></span>
-                              </div>
-                            }
-                        />
-                      </ControlGroup>
+                        <div className="col-span-2 mt-2 sm:mt-0">Tau</div>
+                        <div className="col-span-4">
+                          <InputGroup
+                              id="tau"
+                              disabled={false}
+                              asyncControl={true}
+                              onChange={this.handleChange}
+                              onBlur={() => this.onFocusOut()}
+                              onKeyDown={(e) => {
+                                if (e.key === "Enter") this.onFocusOut()
+                              }}
+                              value={this.state.tau}
+                              fill={true}
+                              rightElement={
+                                <div className="flex flex-row content-center">
+                                  <span className="mt-1.5 mr-1"><InfoHoverComponent>{infoHovers["tau"][this.props.lang]}</InfoHoverComponent></span>
+                                </div>
+                              }
+                          />
+                        </div>
 
-                      <ControlGroup fill={true} vertical={false} style={{width:"90%"}}>
-                        <Label htmlFor="a0" style={{width:"400px"}}>a0</Label>
-                        <InputGroup
-                            id="a0"
-                            disabled={false}
-                            asyncControl={true}
-                            onChange={this.handleChange}
-                            onBlur={() => this.onFocusOut()}
-                            onKeyDown={(e) => {
-                              if (e.key === "Enter") this.onFocusOut()
-                            }}
-                            value={this.state.a0}
-                            fill={true}
-                            rightElement={
-                              <div className="flex flex-row content-center">
-                                <span className="mt-1.5 mr-1"><InfoHoverComponent>{infoHovers["a0"][this.props.lang]}</InfoHoverComponent></span>
-                              </div>
-                            }
-                        />
-                      </ControlGroup>
+                        <div className="col-span-2 mt-2 sm:mt-0">K</div>
+                        <div className="col-span-4">
+                          <InputGroup
+                              id="k"
+                              disabled={false}
+                              onChange={this.handleChange}
+                              onBlur={() => this.onFocusOut()}
+                              onKeyDown={(e) => {
+                                if (e.key === "Enter") this.onFocusOut()
+                              }}
+                              value={this.state.k}
+                              fill={true}
+                              rightElement={
+                                <div className="flex flex-row content-center">
+                                  <span className="mt-1.5 mr-1"><InfoHoverComponent>{infoHovers["k"][this.props.lang]}</InfoHoverComponent></span>
+                                </div>
+                              }
+                          />
+                        </div>
 
-                      <ControlGroup fill={true} vertical={false} style={{width:"90%"}}>
-                        <Label htmlFor="z0" style={{width:"400px"}}>z0</Label>
-                        <InputGroup
-                            id="z0"
-                            disabled={true}
-                            // leftIcon="filter"
-                            // onChange={this.handleChange}
-                            value={this.state.z0}
-                            fill={true}
-                            rightElement={
-                              <div className="flex flex-row content-center">
-                                <span className="mt-1.5 mr-1"><InfoHoverComponent>{infoHovers["z0"][this.props.lang]}</InfoHoverComponent></span>
-                              </div>
-                            }
-                        />
-                      </ControlGroup>
+                        <div className="col-span-2 mt-2 sm:mt-0">a0</div>
+                        <div className="col-span-4">
+                          <InputGroup
+                              id="a0"
+                              disabled={false}
+                              asyncControl={true}
+                              onChange={this.handleChange}
+                              onBlur={() => this.onFocusOut()}
+                              onKeyDown={(e) => {
+                                if (e.key === "Enter") this.onFocusOut()
+                              }}
+                              value={this.state.a0}
+                              fill={true}
+                              rightElement={
+                                <div className="flex flex-row content-center">
+                                  <span className="mt-1.5 mr-1"><InfoHoverComponent>{infoHovers["a0"][this.props.lang]}</InfoHoverComponent></span>
+                                </div>
+                              }
+                          />
+                        </div>
+
+                        <div className="col-span-2 mt-2 sm:mt-0">z0</div>
+                        <div className="col-span-4">
+                          <InputGroup
+                              id="z0"
+                              disabled={true}
+                              // leftIcon="filter"
+                              // onChange={this.handleChange}
+                              value={this.state.z0}
+                              fill={true}
+                              rightElement={
+                                <div className="flex flex-row content-center">
+                                  <span className="mt-1.5 mr-1"><InfoHoverComponent>{infoHovers["z0"][this.props.lang]}</InfoHoverComponent></span>
+                                </div>
+                              }
+                          />
+                        </div>
+
+                      </div>
+
                     </div>
 
                     <div className="cursor-pointer bg-gray-100 px-2 py-1 -mx-2 mt-8 mb-4 text-gray-900" onClick={
@@ -1634,158 +1643,163 @@ class RewardCalculator extends React.Component {
                         Static parameters include those defining the genesis block or basic security properties, for example.
                         Some of these parameters may be embedded in the source code or implemented as software.</div>
 
-                      <ControlGroup fill={true} vertical={false} style={{width:"90%"}}>
-                        <Label htmlFor="days-in-epoch" style={{width:"400px"}}>Days in an Epoch</Label>
-                        <InputGroup
-                            id="days-in-epoch"
-                            disabled={true}
-                            // onChange={this.handleChange}
-                            value={this.state.daysInEpoch}
-                            fill={true}
-                            rightElement={
-                              <div className="flex flex-row content-center">
-                                <span className="mt-1.5 mr-1"><InfoHoverComponent>{infoHovers["days_in_epoch"][this.props.lang]}</InfoHoverComponent></span>
-                              </div>
-                            }
-                        />
 
-                      </ControlGroup>
+                      <div className="grid grid-cols-1 sm:grid-cols-6 gap-2 sm:mr-12">
 
-                      <ControlGroup fill={true} vertical={false} style={{width:"90%"}}>
-                        <Label htmlFor="epochs-in-year" style={{width:"400px"}}>Epochs in a Year</Label>
-                        <InputGroup
-                            id="epochs-in-year"
-                            disabled={true}
-                            // onChange={this.handleChange}
-                            value={this.state.epochsInYear}
-                            fill={true}
-                            rightElement={
-                              <div className="flex flex-row content-center">
-                                <span className="mt-1.5 mr-1"><InfoHoverComponent>{infoHovers["epochs_in_year"][this.props.lang]}</InfoHoverComponent></span>
-                              </div>
-                            }
-                        />
-                      </ControlGroup>
+                        <div className="col-span-2">Days in an Epoch</div>
+                        <div className="col-span-4">
+                          <InputGroup
+                              id="days-in-epoch"
+                              disabled={true}
+                              // onChange={this.handleChange}
+                              value={this.state.daysInEpoch}
+                              fill={true}
+                              rightElement={
+                                <div className="flex flex-row content-center">
+                                  <span className="mt-1.5 mr-1"><InfoHoverComponent>{infoHovers["days_in_epoch"][this.props.lang]}</InfoHoverComponent></span>
+                                </div>
+                              }
+                          />
+                        </div>
 
-                      <ControlGroup fill={true} vertical={false} style={{width:"90%"}}>
-                        <Label htmlFor="slots-in-epoch" style={{width:"400px"}}>Slots in an Epoch</Label>
-                        <InputGroup
-                            id="slots-in-epoch"
-                            disabled={true}
-                            // onChange={this.handleChange}
-                            value={this.state.slotsInEpoch.toLocaleString("en-US")}
-                            fill={true}
-                            rightElement={
-                              <div className="flex flex-row content-center">
-                                <span className="mt-1.5 mr-1"><InfoHoverComponent>{infoHovers["slots_in_epoch"][this.props.lang]}</InfoHoverComponent></span>
-                              </div>
-                            }
-                        />
-                      </ControlGroup>
+                        <div className="col-span-2 mt-2 sm:mt-0">Epochs in a Year</div>
+                        <div className="col-span-4">
+                          <InputGroup
+                              id="epochs-in-year"
+                              disabled={true}
+                              // onChange={this.handleChange}
+                              value={this.state.epochsInYear}
+                              fill={true}
+                              rightElement={
+                                <div className="flex flex-row content-center">
+                                  <span className="mt-1.5 mr-1"><InfoHoverComponent>{infoHovers["epochs_in_year"][this.props.lang]}</InfoHoverComponent></span>
+                                </div>
+                              }
+                          />
+                        </div>
 
-                      <ControlGroup fill={true} vertical={false} style={{width:"90%"}}>
-                        <Label htmlFor="chain-density" style={{width:"400px"}}>Chain Density</Label>
-                        <InputGroup
-                            id="chain-density"
-                            disabled={true}
-                            // onChange={this.handleChange}
-                            value={this.state.chainDensity}
-                            fill={true}
-                            rightElement={
-                              <div className="flex flex-row content-center">
-                                <span className="mt-1.5 mr-1"><InfoHoverComponent>{infoHovers["chain_density"][this.props.lang]}</InfoHoverComponent></span>
-                              </div>
-                            }
-                        />
-                      </ControlGroup>
+                        <div className="col-span-2 mt-2 sm:mt-0">Slots in an Epoch</div>
+                        <div className="col-span-4">
+                          <InputGroup
+                              id="slots-in-epoch"
+                              disabled={true}
+                              // onChange={this.handleChange}
+                              value={this.state.slotsInEpoch.toLocaleString("en-US")}
+                              fill={true}
+                              rightElement={
+                                <div className="flex flex-row content-center">
+                                  <span className="mt-1.5 mr-1"><InfoHoverComponent>{infoHovers["slots_in_epoch"][this.props.lang]}</InfoHoverComponent></span>
+                                </div>
+                              }
+                          />
+                        </div>
 
-                      <ControlGroup fill={true} vertical={false} style={{width:"90%"}}>
-                        <Label htmlFor="blocks-per-epoch" style={{width:"400px"}}>Blocks per Epoch</Label>
-                        <InputGroup
-                            id="blocks-per-epoch"
-                            disabled={true}
-                            // onChange={this.handleChange}
-                            value={this.state.blocksPerEpoch.toLocaleString("en-US")}
-                            fill={true}
-                            rightElement={
-                              <div className="flex flex-row content-center">
-                                <span className="mt-1.5 mr-1"><InfoHoverComponent>{infoHovers["blocks_in_epoch"][this.props.lang]}</InfoHoverComponent></span>
-                              </div>
-                            }
-                        />
-                      </ControlGroup>
+                        <div className="col-span-2 mt-2 sm:mt-0">Chain Density</div>
+                        <div className="col-span-4">
+                          <InputGroup
+                              id="chain-density"
+                              disabled={true}
+                              // onChange={this.handleChange}
+                              value={this.state.chainDensity}
+                              fill={true}
+                              rightElement={
+                                <div className="flex flex-row content-center">
+                                  <span className="mt-1.5 mr-1"><InfoHoverComponent>{infoHovers["chain_density"][this.props.lang]}</InfoHoverComponent></span>
+                                </div>
+                              }
+                          />
+                        </div>
 
-                      <ControlGroup fill={true} vertical={false} style={{width:"90%"}}>
-                        <Label htmlFor="max-ada-supply" style={{width:"400px"}}>Max ADA Supply</Label>
-                        <InputGroup
-                            id="max-ada-supply"
-                            disabled={true}
-                            // onChange={this.handleChange}
-                            value={this.state.maxAdaSupply.toLocaleString("en-US", {maximumFractionDigits: 0})}
-                            fill={true}
-                            rightElement={
-                              <div className="flex flex-row content-center">
-                                <span className="mt-1.5 mr-1"><InfoHoverComponent>{infoHovers["max_ada_supply"][this.props.lang]}</InfoHoverComponent></span>
-                              </div>
-                            }
-                        />
-                      </ControlGroup>
+                        <div className="col-span-2 mt-2 sm:mt-0">Blocks per Epoch</div>
+                        <div className="col-span-4">
+                          <InputGroup
+                              id="blocks-per-epoch"
+                              disabled={true}
+                              // onChange={this.handleChange}
+                              value={this.state.blocksPerEpoch.toLocaleString("en-US")}
+                              fill={true}
+                              rightElement={
+                                <div className="flex flex-row content-center">
+                                  <span className="mt-1.5 mr-1"><InfoHoverComponent>{infoHovers["blocks_in_epoch"][this.props.lang]}</InfoHoverComponent></span>
+                                </div>
+                              }
+                          />
+                        </div>
 
-                      <ControlGroup fill={true} vertical={false} style={{width:"90%"}}>
-                        <Label htmlFor="current-ada-supply" style={{width:"400px"}}>Current ADA Supply</Label>
-                        <InputGroup
-                            id="current-ada-supply"
-                            disabled={false}
-                            onChange={this.handleChange}
-                            onBlur={() => this.onFocusOut()}
-                            onKeyDown={(e) => {
-                              if (e.key === "Enter") this.onFocusOut()
-                            }}
-                            value={this.state.currentAdaSupply?.toLocaleString("en-US", {maximumFractionDigits: 0})}
-                            fill={true}
-                            rightElement={
-                              <div className="flex flex-row content-center">
-                                <span className="mt-1.5 mr-1"><InfoHoverComponent>{infoHovers["current_ada_supply"][this.props.lang]}</InfoHoverComponent></span>
-                              </div>
-                            }
-                        />
-                      </ControlGroup>
+                        <div className="col-span-2 mt-2 sm:mt-0">Max ADA Supply</div>
+                        <div className="col-span-4">
+                          <InputGroup
+                              id="max-ada-supply"
+                              disabled={true}
+                              // onChange={this.handleChange}
+                              value={this.state.maxAdaSupply.toLocaleString("en-US", {maximumFractionDigits: 0})}
+                              fill={true}
+                              rightElement={
+                                <div className="flex flex-row content-center">
+                                  <span className="mt-1.5 mr-1"><InfoHoverComponent>{infoHovers["max_ada_supply"][this.props.lang]}</InfoHoverComponent></span>
+                                </div>
+                              }
+                          />
+                        </div>
 
-                      <ControlGroup fill={true} vertical={false} style={{width:"90%"}}>
-                        <Label htmlFor="reserve-ada" style={{width:"400px"}}>Reserve ADA</Label>
-                        <InputGroup
-                            id="reserve-ada"
-                            disabled={true}
-                            // onChange={this.handleChange}
-                            value={this.state.reserveAda?.toLocaleString("en-US", {maximumFractionDigits: 0})}
-                            fill={true}
-                            rightElement={
-                              <div className="flex flex-row content-center">
-                                <span className="mt-1.5 mr-1"><InfoHoverComponent>{infoHovers["reserve_ada"][this.props.lang]}</InfoHoverComponent></span>
-                              </div>
-                            }
-                        />
-                      </ControlGroup>
+                        <div className="col-span-2 mt-2 sm:mt-0">Current ADA Supply</div>
+                        <div className="col-span-4">
+                          <InputGroup
+                              id="current-ada-supply"
+                              disabled={false}
+                              onChange={this.handleChange}
+                              onBlur={() => this.onFocusOut()}
+                              onKeyDown={(e) => {
+                                if (e.key === "Enter") this.onFocusOut()
+                              }}
+                              value={this.state.currentAdaSupply?.toLocaleString("en-US", {maximumFractionDigits: 0})}
+                              fill={true}
+                              rightElement={
+                                <div className="flex flex-row content-center">
+                                  <span className="mt-1.5 mr-1"><InfoHoverComponent>{infoHovers["current_ada_supply"][this.props.lang]}</InfoHoverComponent></span>
+                                </div>
+                              }
+                          />
+                        </div>
 
-                      <ControlGroup fill={true} vertical={false} style={{width:"90%"}}>
-                        <Label htmlFor="total-staked-ada" style={{width:"400px"}}>Total Staked ADA</Label>
-                        <InputGroup
-                            id="total-staked-ada"
-                            disabled={false}
-                            onChange={this.handleChange}
-                            onBlur={() => this.onFocusOut()}
-                            onKeyDown={(e) => {
-                              if (e.key === "Enter") this.onFocusOut()
-                            }}
-                            value={this.state.totalAdaStaked?.toLocaleString("en-US", {maximumFractionDigits: 0})}
-                            fill={true}
-                            rightElement={
-                              <div className="flex flex-row content-center">
-                                <span className="mt-1.5 mr-1"><InfoHoverComponent>{infoHovers["total_staked_ada"][this.props.lang]}</InfoHoverComponent></span>
-                              </div>
-                            }
-                        />
-                      </ControlGroup>
+                        <div className="col-span-2 mt-2 sm:mt-0">Reserve ADA</div>
+                        <div className="col-span-4">
+                          <InputGroup
+                              id="reserve-ada"
+                              disabled={true}
+                              // onChange={this.handleChange}
+                              value={this.state.reserveAda?.toLocaleString("en-US", {maximumFractionDigits: 0})}
+                              fill={true}
+                              rightElement={
+                                <div className="flex flex-row content-center">
+                                  <span className="mt-1.5 mr-1"><InfoHoverComponent>{infoHovers["reserve_ada"][this.props.lang]}</InfoHoverComponent></span>
+                                </div>
+                              }
+                          />
+                        </div>
+
+                        <div className="col-span-2 mt-2 sm:mt-0">Total Staked ADA</div>
+                        <div className="col-span-4">
+                          <InputGroup
+                              id="total-staked-ada"
+                              disabled={false}
+                              onChange={this.handleChange}
+                              onBlur={() => this.onFocusOut()}
+                              onKeyDown={(e) => {
+                                if (e.key === "Enter") this.onFocusOut()
+                              }}
+                              value={this.state.totalAdaStaked?.toLocaleString("en-US", {maximumFractionDigits: 0})}
+                              fill={true}
+                              rightElement={
+                                <div className="flex flex-row content-center">
+                                  <span className="mt-1.5 mr-1"><InfoHoverComponent>{infoHovers["total_staked_ada"][this.props.lang]}</InfoHoverComponent></span>
+                                </div>
+                              }
+                          />
+                        </div>
+
+                      </div>
+
                     </div>
 
                     <div className="cursor-pointer bg-gray-100 px-2 py-1 -mx-2 mt-8 mb-4 text-gray-900" onClick={
@@ -1804,91 +1818,97 @@ class RewardCalculator extends React.Component {
                         distributed to all pools that created blocks during an epoch. The fees are supplemented
                       by a distribution of a % (rho) from reserves.</div>
 
-                      <ControlGroup fill={true} vertical={false} style={{width:"90%"}}>
-                        <Label htmlFor="fees-in-epoch" style={{width:"400px"}}>Fees per Epoch</Label>
-                        <InputGroup
-                            id="fees-in-epoch"
-                            disabled={false}
-                            leftIcon="plus"
-                            onChange={this.handleChange}
-                            onBlur={() => this.onFocusOut()}
-                            onKeyDown={(e) => {
-                              if (e.key === "Enter") this.onFocusOut()
-                            }}
-                            value={this.state.feesInEpoch?.toLocaleString("en-US", {maximumFractionDigits: 0})}
-                            fill={true}
-                            rightElement={
-                              <div className="flex flex-row content-center">
-                                <span className="mt-1.5 mr-1"><InfoHoverComponent>{infoHovers["fees_in_epoch"][this.props.lang]}</InfoHoverComponent></span>
-                              </div>
-                            }
-                        />
-                      </ControlGroup>
 
-                      <ControlGroup fill={true} vertical={false} style={{width:"90%"}}>
-                        <Label htmlFor="distribution-from-reserve" style={{width:"400px"}}>Distribution from Reserve</Label>
-                        <InputGroup
-                            id="distribution-from-reserve"
-                            disabled={true}
-                            leftIcon="plus"
-                            // onChange={this.handleChange}
-                            value={this.state.distributionFromReserve?.toLocaleString("en-US", {maximumFractionDigits: 0})}
-                            fill={true}
-                            rightElement={
-                              <div className="flex flex-row content-center">
-                                <span className="mt-1.5 mr-1"><InfoHoverComponent>{infoHovers["distribution_from_reserve"][this.props.lang]}</InfoHoverComponent></span>
-                              </div>
-                            }
-                        />
-                      </ControlGroup>
+                      <div className="grid grid-cols-1 sm:grid-cols-6 gap-2 sm:mr-12">
 
-                      <ControlGroup fill={true} vertical={false} style={{width:"90%"}}>
-                        <Label htmlFor="gross-reward" style={{width:"400px"}}>Gross Reward</Label>
-                        <InputGroup
-                            id="equals"
-                            disabled={true}
-                            leftIcon="equals"
-                            value={this.state.grossReward?.toLocaleString("en-US", {maximumFractionDigits: 0})}
-                            fill={true}
-                            rightElement={
-                              <div className="flex flex-row content-center">
-                                <span className="mt-1.5 mr-1"><InfoHoverComponent>{infoHovers["gross_rewards"][this.props.lang]}</InfoHoverComponent></span>
-                              </div>
-                            }
-                        />
-                      </ControlGroup>
+                        <div className="col-span-2">Fees per Epoch</div>
+                        <div className="col-span-4">
+                          <InputGroup
+                              id="fees-in-epoch"
+                              disabled={false}
+                              leftIcon="plus"
+                              onChange={this.handleChange}
+                              onBlur={() => this.onFocusOut()}
+                              onKeyDown={(e) => {
+                                if (e.key === "Enter") this.onFocusOut()
+                              }}
+                              value={this.state.feesInEpoch?.toLocaleString("en-US", {maximumFractionDigits: 0})}
+                              fill={true}
+                              rightElement={
+                                <div className="flex flex-row content-center">
+                                  <span className="mt-1.5 mr-1"><InfoHoverComponent>{infoHovers["fees_in_epoch"][this.props.lang]}</InfoHoverComponent></span>
+                                </div>
+                              }
+                          />
+                        </div>
 
-                      <ControlGroup fill={true} vertical={false} style={{width:"90%"}}>
-                        <Label htmlFor="distribution-to-treasury" style={{width:"400px"}}>Distribution to Treasury</Label>
-                        <InputGroup
-                            id="distribution-to-treasury"
-                            disabled={true}
-                            leftIcon="minus"
-                            value={this.state.distributionToTreasury?.toLocaleString("en-US", {maximumFractionDigits: 0})}
-                            fill={true}
-                            rightElement={
-                              <div className="flex flex-row content-center">
-                                <span className="mt-1.5 mr-1"><InfoHoverComponent>{infoHovers["distribution_to_treasury"][this.props.lang]}</InfoHoverComponent></span>
-                              </div>
-                            }
-                        />
-                      </ControlGroup>
+                        <div className="col-span-2 mt-2 sm:mt-0">Distribution from Reserve</div>
+                        <div className="col-span-4">
+                          <InputGroup
+                              id="distribution-from-reserve"
+                              disabled={true}
+                              leftIcon="plus"
+                              // onChange={this.handleChange}
+                              value={this.state.distributionFromReserve?.toLocaleString("en-US", {maximumFractionDigits: 0})}
+                              fill={true}
+                              rightElement={
+                                <div className="flex flex-row content-center">
+                                  <span className="mt-1.5 mr-1"><InfoHoverComponent>{infoHovers["distribution_from_reserve"][this.props.lang]}</InfoHoverComponent></span>
+                                </div>
+                              }
+                          />
+                        </div>
 
-                      <ControlGroup fill={true} vertical={false} style={{width:"90%"}}>
-                        <Label htmlFor="reward-to-pools" style={{width:"400px"}}>Net Rewards to Pools</Label>
-                        <InputGroup
-                            id="reward-to-pools"
-                            disabled={true}
-                            leftIcon="equals"
-                            value={this.state.rewardToPoolOperators?.toLocaleString("en-US", {maximumFractionDigits: 0})}
-                            fill={true}
-                            rightElement={
-                              <div className="flex flex-row content-center">
-                                <span className="mt-1.5 mr-1"><InfoHoverComponent>{infoHovers["net_rewards_to_pools"][this.props.lang]}</InfoHoverComponent></span>
-                              </div>
-                            }
-                        />
-                      </ControlGroup>
+                        <div className="col-span-2 mt-2 sm:mt-0">Gross Reward</div>
+                        <div className="col-span-4">
+                          <InputGroup
+                              id="equals"
+                              disabled={true}
+                              leftIcon="equals"
+                              value={this.state.grossReward?.toLocaleString("en-US", {maximumFractionDigits: 0})}
+                              fill={true}
+                              rightElement={
+                                <div className="flex flex-row content-center">
+                                  <span className="mt-1.5 mr-1"><InfoHoverComponent>{infoHovers["gross_rewards"][this.props.lang]}</InfoHoverComponent></span>
+                                </div>
+                              }
+                          />
+                        </div>
+
+                        <div className="col-span-2 mt-2 sm:mt-0">Distribution to Treasury</div>
+                        <div className="col-span-4">
+                          <InputGroup
+                              id="distribution-to-treasury"
+                              disabled={true}
+                              leftIcon="minus"
+                              value={this.state.distributionToTreasury?.toLocaleString("en-US", {maximumFractionDigits: 0})}
+                              fill={true}
+                              rightElement={
+                                <div className="flex flex-row content-center">
+                                  <span className="mt-1.5 mr-1"><InfoHoverComponent>{infoHovers["distribution_to_treasury"][this.props.lang]}</InfoHoverComponent></span>
+                                </div>
+                              }
+                          />
+                        </div>
+
+                        <div className="col-span-2 mt-2 sm:mt-0">Net Rewards to Pools</div>
+                        <div className="col-span-4">
+                          <InputGroup
+                              id="reward-to-pools"
+                              disabled={true}
+                              leftIcon="equals"
+                              value={this.state.rewardToPoolOperators?.toLocaleString("en-US", {maximumFractionDigits: 0})}
+                              fill={true}
+                              rightElement={
+                                <div className="flex flex-row content-center">
+                                  <span className="mt-1.5 mr-1"><InfoHoverComponent>{infoHovers["net_rewards_to_pools"][this.props.lang]}</InfoHoverComponent></span>
+                                </div>
+                              }
+                          />
+                        </div>
+
+                      </div>
+
                     </div>
                   </div>
                 </div>
