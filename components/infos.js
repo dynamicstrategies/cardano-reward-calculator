@@ -24,16 +24,16 @@ export const infoHovers = {
 		"jp": [
 			<div key="monte_carlo_jp" className="space-y-2">
 				<h4 className="text-lg font-medium">期待リターン</h4>
-				<p>期待されるリターンは、分布の平均と裾として表示されます。</p>
+				<p>期待されるリターンは、分布の平均値と尾部（裾）で表示されます。</p>
 				<ul className="list-disc pl-6 font-medium space-y-2">
 					<li>下位 - 10 パーセンタイル</li>
 					<li>平均</li>
 					<li>上位 - 90 パーセンタイル</li>
 				</ul>
 				<p>
-					ブロックはランダムにステークに割り当てられます
-					各エポックでプールが作成され、いくつかの
-					プールは運だけで年間でより多くの（またはより少ない）ブロックを取得します</p>
+					ブロックはエポックごとにランダムにステーキングプールへ割り当てられ、
+					運次第で一部のプールは1年間に多く（あるいは少なく）の
+					ブロックを獲得することがあります。</p>
 			</div>
 		]
 	} ,
@@ -54,7 +54,7 @@ export const infoHovers = {
 		"jp": [
 			<div key="pool_pledge_jp" className="space-y-2">
 				<h4 className="text-lg font-medium">プール誓約 (Pool Pledge)</h4>
-				<p>ステークプール運営者が自分のプールにコミットするADAの量。「リスク共有」の一形態です。</p>
+				<p>ステークプール運営者が自身のプールに対してコミットするADAの量であり、これは「自己出資額」としての役割を果たします</p>
 				<ul className="list-disc pl-6 space-y-2">
 					<li>誓約額が高いプールは、報酬計算式の「a0」パラメータによって、やや高い報酬を得る可能性があります。</li>
 					<li>高い誓約額は、プール運営者の強い資金的コミットメントを示します。</li>
@@ -186,8 +186,8 @@ export const infoHovers = {
 		],
 		"jp": [
 			<div key="tau_jp" className="space-y-2">
-				<h4 className="text-lg font-medium">τ（タウ）- 財務への分配 (Distribution to Treasury)</h4>
-				<p>各エポックで財務（トレジャリー）に割り当てられる報酬の割合（例: 20%）。</p>
+				<h4 className="text-lg font-medium">τ（タウ）- トレジャリーへの分配 (Distribution to Treasury)</h4>
+				<p>各エポックでトレジャリーに割り当てられる報酬の割合（例: 20%）。</p>
 			</div>
 		]
 	} ,
@@ -413,9 +413,9 @@ export const infoHovers = {
 			<div key="distribution_from_reserve_jp" className="space-y-2">
 				<h4 className="text-lg font-medium">リザーブから分配されるADA (ADA Distributed from Reserve)</h4>
 				<p>
-					一部（ρ）がカルダノリザーブから分配され、各エポックのステーキング報酬の支払いに充てられます。
-					この数値は、リザーブ内の残高が減少するにつれて、徐々に減少します。
-					同じレベルのステーキング報酬を維持するためには、手数料からの報酬が増加する必要があります。
+					各エポックごとにカルダノリザーブから一定割合（ρ）がステーキング報酬の支払いに充てられます。
+					リザーブの残高が減少するにつれ、この割合も徐々に減少します。
+					ステーキング報酬を維持するためには、手数料からの報酬を増やす必要があります。
 				</p>
 				<p>
 					Rhoパラメータを変更して、これが委任者への総報酬にどのように影響するかを確認してください。
@@ -448,7 +448,7 @@ export const infoHovers = {
 		],
 		"jp": [
 			<div key="distribution_to_treasury_jp" className="space-y-2">
-				<h4 className="text-lg font-medium">財務への分配 (Distribution to Treasury)</h4>
+				<h4 className="text-lg font-medium">トレジャリーへの分配 (Distribution to Treasury)</h4>
 				<p>....</p>
 			</div>
 		]
@@ -496,7 +496,7 @@ export const infoHovers = {
 		],
 		"jp": [
 			<div key="staking_reward_annualized_perc_jp" className="space-y-2">
-				<h4 className="text-lg font-medium">年間化ステーキング報酬 (Annualized Staking Reward)</h4>
+				<h4 className="text-lg font-medium">年間のステーキング報酬 (Annualized Staking Reward)</h4>
 				<p>ステークされた量に対する年間予想報酬（%で表示）。</p>
 				<p>灰色の数字は、異なるパラメータでのシミュレーション間で比較できるように、前回のシミュレーション結果を示しています。</p>
 			</div>
