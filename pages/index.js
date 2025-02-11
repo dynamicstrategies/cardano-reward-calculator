@@ -12,7 +12,7 @@ import {
   getReserves, getStakePoolActiveSinceEpoch,
   getStakePoolInfo,
   getStakePoolList,
-  Quartile
+  Quartile, shuffleArray
 } from "@/components/utils";
 import {Button, ControlGroup, InputGroup, Intent, Label, OverlayToaster, Position, Tag} from "@blueprintjs/core";
 import {Calendar, Cube, SeriesAdd, User} from "@blueprintjs/icons";
@@ -291,24 +291,29 @@ class RewardCalculator extends React.Component {
        * - have a ticker. Stake pools without a ticker tend to be private pools
        * - have pledged what they promised
        */
-      let allStakePoolInfo = [];
+
+      // split into pools with a ticker and without
+      const poolsWithTicker = []
+      const poolsNoTicker = []
+
       for (const x of spObj) {
         if (x["pool_status"] !== "registered") continue
-        if (!x["ticker"]) x["ticker"] = "no_ticker"
-        allStakePoolInfo.push(x)
 
-        // if (x.pool_id_bech32 === "pool13crd2ljx87988umk22er6ynwadfwdqupdpcq6prc6v59z62kxse") {
-        //   console.log(x)
-        // }
+        if (x["ticker"]) {
+          poolsWithTicker.push(x)
+        } else {
+          x["ticker"] = "no_ticker"
+          poolsNoTicker.push(x)
+        }
       }
 
+      console.log("--- do the shuffle ---") // shuffle the pools with a ticker
+      const poolsWithTicker_shuffled = shuffleArray(poolsWithTicker)
 
-      // const allStakePoolInfo = spObj.filter(
-      //     x => x["pool_status"] === "registered"
-      //         // && x["ticker"]
-      //     // && Number(x["live_pledge"]) >= Number(x["pledge"])
-      // )
-      console.log("retrieved live pools that have a ticker: " + allStakePoolInfo?.length)
+      // append the pools without a ticker to the bottom of the list
+      const allStakePoolInfo = poolsWithTicker_shuffled.concat(poolsNoTicker)
+
+      console.log("retrieved live pools: " + allStakePoolInfo?.length)
       const indexerDataLoaded = true
 
       /**
@@ -1091,402 +1096,406 @@ class RewardCalculator extends React.Component {
                 </div>
 
                 {/* Row 2, Column 1 - Stake Pools*/}
-                <div className={`${this.state.isUIStakePoolsShown ? "bg-white text-gray-900" : "bg-gray-900 text-white"} border border-gray-300 shadow-md rounded-lg p-8 lg:col-span-2`}>
+                <div className="lg:col-span-2">
+                  <div className={`${this.state.isUIStakePoolsShown ? "bg-white text-gray-900" : "bg-gray-900 text-white"} border border-gray-300 shadow-md rounded-lg p-8`}>
 
-                  <div className="cursor-pointer" onClick={
-                    () => this.setState({isUIStakePoolsShown: !this.state.isUIStakePoolsShown})
-                  }>
-                    <h4 className="text-balance text-2xl font-medium tracking-tight">
+                    <div className="cursor-pointer" onClick={
+                      () => this.setState({isUIStakePoolsShown: !this.state.isUIStakePoolsShown})
+                    }>
+                      <h4 className="text-balance text-2xl font-medium tracking-tight">
 									<span id="icon" className="text-3xl font-normal mr-4">
 										{this.state.isUIStakePoolsShown ? "-" : "+"}
 									</span>
-                      Stake Pools
-                    </h4>
+                        Stake Pools
+                      </h4>
 
-                    <p className="mt-2">Compare up to 3 stake pools between themselves. Check how much Staking rewards is expected for the operator and the delegators (you).
-                      Uses a Monte Carlo simulation to account for luck and shows the expected Low, Medium and High reward for each pool.</p>
+                      <p className="mt-2">Compare up to 3 stake pools between themselves. Check how much Staking rewards is expected for the operator and the delegators (you).
+                        Uses a Monte Carlo simulation to account for luck and shows the expected Low, Medium and High reward for each pool.</p>
 
-                  </div>
+                    </div>
 
-                  <div className={`${this.state.isUIStakePoolsShown ? "" : "hidden"} mt-8 grid gap-4 overflow-hidden md:grid-cols-3`}>
+                    <div className={`${this.state.isUIStakePoolsShown ? "" : "hidden"} mt-8 grid gap-4 overflow-hidden md:grid-cols-3`}>
 
 
 
-                    <div key="stake-pool-1" className={`
+                      <div key="stake-pool-1" className={`
 										flex flex-col p-4 rounded-xl border-2 
 										${this.state.stakePoolNSelected === 1 ? "border-blue-primary" : ""}
 										${this.state.stakePool_1_Stats.isRedFlag ? "bg-red-300" : "bg-gray-700/5"}
 									`}
-                         onClick={() => {
-                           // this.setState({stakePoolNSelected: 1})
+                           onClick={() => {
+                             // this.setState({stakePoolNSelected: 1})
 
-                           const poolBech32 = this.state.stakePool_1_Stats?.poolBech32
-                           if (poolBech32 && this.state.stakePoolNSelected !== 1) {
-                             this.setState({selectedPoolBech32: poolBech32, stakePoolNSelected: 1},
-                                 () => this.updateSelectedPoolParams().then(() => {}))
+                             const poolBech32 = this.state.stakePool_1_Stats?.poolBech32
+                             if (poolBech32 && this.state.stakePoolNSelected !== 1) {
+                               this.setState({selectedPoolBech32: poolBech32, stakePoolNSelected: 1},
+                                   () => this.updateSelectedPoolParams().then(() => {}))
+                             }
+
                            }
+                           }>
 
-                         }
-                         }>
+                        <div className="mb-4">
+                          <p className="mb-2">Select a Pool Ticker #1:</p>
+                          <StakePoolSelector stakePoolN={1} allStakePoolInfo={this.state.allStakePoolInfo} handlePoolSelect={this.handlePoolSelect}/>
+                        </div>
 
-                      <div className="mb-4">
-                        <p className="mb-2">Select a Pool Ticker #1:</p>
-                        <StakePoolSelector stakePoolN={1} allStakePoolInfo={this.state.allStakePoolInfo} handlePoolSelect={this.handlePoolSelect}/>
+
+                        <div className="grid gap-1 grid-cols-3 py-2 text-left border-t border-b border-gray-300">
+                          <div className="col-span-2"><Cube size={14} className="mr-2"/> Blocks Minted</div>
+                          <div className="text-center">{
+                            this.state.stakePool_1_Stats?.lifetimeBlocks !== undefined
+                                ?
+                                (this.state.stakePool_1_Stats?.lifetimeBlocks).toLocaleString("en-US")
+                                :
+                                null
+                          }</div>
+
+                          <div className="col-span-2"><Calendar size={14} className="mr-2"/> Years Active</div>
+                          <div className="text-center">{
+                            this.state.stakePool_1_Stats?.yearsActive !== undefined
+                                ?
+                                (this.state.stakePool_1_Stats?.yearsActive).toLocaleString("en-US", {maximumFractionDigits: 1})
+                                :
+                                null
+                          }</div>
+
+                          <div className="col-span-2"><User size={14} className="mr-2"/> # Delegators</div>
+                          <div className="text-center">{
+                            this.state.stakePool_1_Stats?.nDelegators !== undefined
+                                ?
+                                (this.state.stakePool_1_Stats?.nDelegators).toLocaleString("en-US", {maximumFractionDigits: 0})
+                                :
+                                null
+
+                          }</div>
+
+                        </div>
+
+                        <div className="flex flex-row justify-between mt-8">
+                          <p className=""><SeriesAdd size={14} className="mr-2"/> Expected Return</p>
+                          <InfoHoverComponent>{infoHovers["monte_carlo"][this.props.lang]}</InfoHoverComponent>
+                        </div>
+
+
+                        {
+                          // Only show expected return if there is something to show
+                          this.state.stakePool_1_Stats?.delegatorsReward_av
+                              ?
+                              <div>
+                                <div className="grid gap-2 grid-cols-3 bg-gray-900/5 -ml-2 -mr-2 mt-1 py-4 px-2 text-center bg-blue-primary rounded-md">
+                                  <div className="font-medium">Lower</div>
+                                  <div className="font-medium">Average</div>
+                                  <div className="font-medium">Upper</div>
+                                  <div>{`${(this.state.stakePool_1_Stats?.delegatorsReward_lower / this.state.stakePool_1_Stats?.delegatorsStake * 100).toLocaleString("en-US", {maximumFractionDigits: 2})} %`}</div>
+                                  <div>{`${(this.state.stakePool_1_Stats?.delegatorsReward_av / this.state.stakePool_1_Stats?.delegatorsStake * 100).toLocaleString("en-US", {maximumFractionDigits: 2})} %`}</div>
+                                  <div>{`${(this.state.stakePool_1_Stats?.delegatorsReward_upper / this.state.stakePool_1_Stats?.delegatorsStake * 100).toLocaleString("en-US", {maximumFractionDigits: 2})} %`}</div>
+                                </div>
+                                <div className="mt-2 text-xs">Stake pool parameters are shown in the section below</div>
+                              </div>
+
+                              :
+                              null
+                        }
+
                       </div>
 
 
-                      <div className="grid gap-1 grid-cols-3 py-2 text-left border-t border-b border-gray-300">
-                        <div className="col-span-2"><Cube size={14} className="mr-2"/> Blocks Minted</div>
-                        <div className="text-center">{
-                          this.state.stakePool_1_Stats?.lifetimeBlocks !== undefined
+                      <div key="stake-pool-2" className={`flex flex-col bg-gray-700/5 p-4 rounded-xl border-2 ${this.state.stakePoolNSelected === 2 ? "border-blue-primary" : ""}`}
+                           onClick={() => {
+                             // this.setState({stakePoolNSelected: 1})
+
+                             const poolBech32 = this.state.stakePool_2_Stats?.poolBech32
+                             if (poolBech32 && this.state.stakePoolNSelected !== 2) {
+                               this.setState({selectedPoolBech32: poolBech32, stakePoolNSelected: 2},
+                                   () => this.updateSelectedPoolParams().then(() => {}))
+                             }
+
+                           }
+                           }>
+
+                        <div className="mb-4">
+                          <p className="mb-2">Select a Pool Ticker #2:</p>
+                          <StakePoolSelector stakePoolN={2} allStakePoolInfo={this.state.allStakePoolInfo} handlePoolSelect={this.handlePoolSelect}/>
+                        </div>
+
+
+                        <div className="grid gap-1 grid-cols-3 py-2 text-left border-t border-b border-gray-300">
+                          <div className="col-span-2"><Cube size={14} className="mr-2"/> Blocks Minted</div>
+                          <div className="text-center">{
+                            this.state.stakePool_2_Stats?.lifetimeBlocks !== undefined
+                                ?
+                                (this.state.stakePool_2_Stats?.lifetimeBlocks).toLocaleString("en-US")
+                                :
+                                null
+                          }</div>
+
+                          <div className="col-span-2"><Calendar size={14} className="mr-2"/> Years Active</div>
+                          <div className="text-center">{
+                            this.state.stakePool_2_Stats?.yearsActive !== undefined
+                                ?
+                                (this.state.stakePool_2_Stats?.yearsActive).toLocaleString("en-US", {maximumFractionDigits: 1})
+                                :
+                                null
+                          }</div>
+
+                          <div className="col-span-2"><User size={14} className="mr-2"/> # Delegators</div>
+                          <div className="text-center">{
+                            this.state.stakePool_2_Stats?.nDelegators !== undefined
+                                ?
+                                (this.state.stakePool_2_Stats?.nDelegators).toLocaleString("en-US", {maximumFractionDigits: 0})
+                                :
+                                null
+
+                          }</div>
+
+                        </div>
+
+                        <p className="mt-8"><SeriesAdd size={14} className="mr-2"/> Expected Return</p>
+                        {
+                          // Only show expected return if there is something to show
+                          this.state.stakePool_2_Stats?.delegatorsReward_av
                               ?
-                              (this.state.stakePool_1_Stats?.lifetimeBlocks).toLocaleString("en-US")
-                              :
-                              null
-                        }</div>
-
-                        <div className="col-span-2"><Calendar size={14} className="mr-2"/> Years Active</div>
-                        <div className="text-center">{
-                          this.state.stakePool_1_Stats?.yearsActive !== undefined
-                              ?
-                              (this.state.stakePool_1_Stats?.yearsActive).toLocaleString("en-US", {maximumFractionDigits: 1})
-                              :
-                              null
-                        }</div>
-
-                        <div className="col-span-2"><User size={14} className="mr-2"/> # Delegators</div>
-                        <div className="text-center">{
-                          this.state.stakePool_1_Stats?.nDelegators !== undefined
-                              ?
-                              (this.state.stakePool_1_Stats?.nDelegators).toLocaleString("en-US", {maximumFractionDigits: 0})
-                              :
-                              null
-
-                        }</div>
-
-                      </div>
-
-                      <div className="flex flex-row justify-between mt-8">
-                        <p className=""><SeriesAdd size={14} className="mr-2"/> Expected Return</p>
-                        <InfoHoverComponent>{infoHovers["monte_carlo"][this.props.lang]}</InfoHoverComponent>
-                      </div>
-
-
-                      {
-                        // Only show expected return if there is something to show
-                        this.state.stakePool_1_Stats?.delegatorsReward_av
-                            ?
-                            <div>
                               <div className="grid gap-2 grid-cols-3 bg-gray-900/5 -ml-2 -mr-2 mt-1 py-4 px-2 text-center bg-blue-primary rounded-md">
                                 <div className="font-medium">Lower</div>
                                 <div className="font-medium">Average</div>
                                 <div className="font-medium">Upper</div>
-                                <div>{`${(this.state.stakePool_1_Stats?.delegatorsReward_lower / this.state.stakePool_1_Stats?.delegatorsStake * 100).toLocaleString("en-US", {maximumFractionDigits: 2})} %`}</div>
-                                <div>{`${(this.state.stakePool_1_Stats?.delegatorsReward_av / this.state.stakePool_1_Stats?.delegatorsStake * 100).toLocaleString("en-US", {maximumFractionDigits: 2})} %`}</div>
-                                <div>{`${(this.state.stakePool_1_Stats?.delegatorsReward_upper / this.state.stakePool_1_Stats?.delegatorsStake * 100).toLocaleString("en-US", {maximumFractionDigits: 2})} %`}</div>
+                                <div>{`${(this.state.stakePool_2_Stats?.delegatorsReward_lower / this.state.stakePool_2_Stats?.delegatorsStake * 100).toLocaleString("en-US", {maximumFractionDigits: 2})} %`}</div>
+                                <div>{`${(this.state.stakePool_2_Stats?.delegatorsReward_av / this.state.stakePool_2_Stats?.delegatorsStake * 100).toLocaleString("en-US", {maximumFractionDigits: 2})} %`}</div>
+                                <div>{`${(this.state.stakePool_2_Stats?.delegatorsReward_upper / this.state.stakePool_2_Stats?.delegatorsStake * 100).toLocaleString("en-US", {maximumFractionDigits: 2})} %`}</div>
                               </div>
-                              <div className="mt-2 text-xs">Stake pool parameters are shown in the section below</div>
-                            </div>
+                              :
+                              null
+                        }
 
-                            :
-                            null
-                      }
-
-                    </div>
+                      </div>
 
 
-                    <div key="stake-pool-2" className={`flex flex-col bg-gray-700/5 p-4 rounded-xl border-2 ${this.state.stakePoolNSelected === 2 ? "border-blue-primary" : ""}`}
-                         onClick={() => {
-                           // this.setState({stakePoolNSelected: 1})
 
-                           const poolBech32 = this.state.stakePool_2_Stats?.poolBech32
-                           if (poolBech32 && this.state.stakePoolNSelected !== 2) {
-                             this.setState({selectedPoolBech32: poolBech32, stakePoolNSelected: 2},
-                                 () => this.updateSelectedPoolParams().then(() => {}))
+
+
+                      <div key="stake-pool-3" className={`flex flex-col bg-gray-700/5 p-4 rounded-xl border-2 ${this.state.stakePoolNSelected === 3 ? "border-blue-primary" : ""}`}
+                           onClick={() => {
+                             // this.setState({stakePoolNSelected: 1})
+
+                             const poolBech32 = this.state.stakePool_3_Stats?.poolBech32
+                             if (poolBech32 && this.state.stakePoolNSelected !== 3) {
+                               this.setState({selectedPoolBech32: poolBech32, stakePoolNSelected: 3},
+                                   () => this.updateSelectedPoolParams().then(() => {}))
+                             }
+
                            }
+                           }>
 
-                         }
-                         }>
+                        <div className="mb-4">
+                          <p className="mb-2">Select a Pool Ticker #3:</p>
+                          <StakePoolSelector stakePoolN={3} allStakePoolInfo={this.state.allStakePoolInfo} handlePoolSelect={this.handlePoolSelect}/>
+                        </div>
 
-                      <div className="mb-4">
-                        <p className="mb-2">Select a Pool Ticker #2:</p>
-                        <StakePoolSelector stakePoolN={2} allStakePoolInfo={this.state.allStakePoolInfo} handlePoolSelect={this.handlePoolSelect}/>
+                        <div className="grid gap-1 grid-cols-3 py-2 text-left border-t border-b border-gray-300">
+                          <div className="col-span-2"><Cube size={14} className="mr-2"/> Blocks Minted</div>
+                          <div className="text-center">{
+                            this.state.stakePool_3_Stats?.lifetimeBlocks !== undefined
+                                ?
+                                (this.state.stakePool_3_Stats?.lifetimeBlocks).toLocaleString("en-US")
+                                :
+                                null
+                          }</div>
+
+                          <div className="col-span-2"><Calendar size={14} className="mr-2"/> Years Active</div>
+                          <div className="text-center">{
+                            this.state.stakePool_3_Stats?.yearsActive !== undefined
+                                ?
+                                (this.state.stakePool_3_Stats?.yearsActive).toLocaleString("en-US", {maximumFractionDigits: 1})
+                                :
+                                null
+                          }</div>
+
+                          <div className="col-span-2"><User size={14} className="mr-2"/> # Delegators</div>
+                          <div className="text-center">{
+                            this.state.stakePool_3_Stats?.nDelegators !== undefined
+                                ?
+                                (this.state.stakePool_3_Stats?.nDelegators).toLocaleString("en-US", {maximumFractionDigits: 0})
+                                :
+                                null
+
+                          }</div>
+
+                        </div>
+
+                        <p className="mt-8"><SeriesAdd size={14} className="mr-2"/> Expected Return</p>
+                        {
+                          // Only show expected return if there is something to show
+                          this.state.stakePool_3_Stats?.delegatorsReward_av
+                              ?
+                              <div className="grid gap-2 grid-cols-3 bg-gray-900/5 -ml-2 -mr-2 mt-1 py-4 px-2 text-center bg-blue-primary rounded-md">
+                                <div className="font-medium">Lower</div>
+                                <div className="font-medium">Average</div>
+                                <div className="font-medium">Upper</div>
+                                <div>{`${(this.state.stakePool_3_Stats?.delegatorsReward_lower / this.state.stakePool_3_Stats?.delegatorsStake * 100).toLocaleString("en-US", {maximumFractionDigits: 2})} %`}</div>
+                                <div>{`${(this.state.stakePool_3_Stats?.delegatorsReward_av / this.state.stakePool_3_Stats?.delegatorsStake * 100).toLocaleString("en-US", {maximumFractionDigits: 2})} %`}</div>
+                                <div>{`${(this.state.stakePool_3_Stats?.delegatorsReward_upper / this.state.stakePool_3_Stats?.delegatorsStake * 100).toLocaleString("en-US", {maximumFractionDigits: 2})} %`}</div>
+                              </div>
+                              :
+                              null
+                        }
+
                       </div>
 
 
-                      <div className="grid gap-1 grid-cols-3 py-2 text-left border-t border-b border-gray-300">
-                        <div className="col-span-2"><Cube size={14} className="mr-2"/> Blocks Minted</div>
-                        <div className="text-center">{
-                          this.state.stakePool_2_Stats?.lifetimeBlocks !== undefined
-                              ?
-                              (this.state.stakePool_2_Stats?.lifetimeBlocks).toLocaleString("en-US")
-                              :
-                              null
-                        }</div>
 
-                        <div className="col-span-2"><Calendar size={14} className="mr-2"/> Years Active</div>
-                        <div className="text-center">{
-                          this.state.stakePool_2_Stats?.yearsActive !== undefined
-                              ?
-                              (this.state.stakePool_2_Stats?.yearsActive).toLocaleString("en-US", {maximumFractionDigits: 1})
-                              :
-                              null
-                        }</div>
 
-                        <div className="col-span-2"><User size={14} className="mr-2"/> # Delegators</div>
-                        <div className="text-center">{
-                          this.state.stakePool_2_Stats?.nDelegators !== undefined
-                              ?
-                              (this.state.stakePool_2_Stats?.nDelegators).toLocaleString("en-US", {maximumFractionDigits: 0})
-                              :
-                              null
-
-                        }</div>
-
-                      </div>
-
-                      <p className="mt-8"><SeriesAdd size={14} className="mr-2"/> Expected Return</p>
-                      {
-                        // Only show expected return if there is something to show
-                        this.state.stakePool_2_Stats?.delegatorsReward_av
-                            ?
-                            <div className="grid gap-2 grid-cols-3 bg-gray-900/5 -ml-2 -mr-2 mt-1 py-4 px-2 text-center bg-blue-primary rounded-md">
-                              <div className="font-medium">Lower</div>
-                              <div className="font-medium">Average</div>
-                              <div className="font-medium">Upper</div>
-                              <div>{`${(this.state.stakePool_2_Stats?.delegatorsReward_lower / this.state.stakePool_2_Stats?.delegatorsStake * 100).toLocaleString("en-US", {maximumFractionDigits: 2})} %`}</div>
-                              <div>{`${(this.state.stakePool_2_Stats?.delegatorsReward_av / this.state.stakePool_2_Stats?.delegatorsStake * 100).toLocaleString("en-US", {maximumFractionDigits: 2})} %`}</div>
-                              <div>{`${(this.state.stakePool_2_Stats?.delegatorsReward_upper / this.state.stakePool_2_Stats?.delegatorsStake * 100).toLocaleString("en-US", {maximumFractionDigits: 2})} %`}</div>
-                            </div>
-                            :
-                            null
-                      }
 
                     </div>
-
-
-
-
-
-                    <div key="stake-pool-3" className={`flex flex-col bg-gray-700/5 p-4 rounded-xl border-2 ${this.state.stakePoolNSelected === 3 ? "border-blue-primary" : ""}`}
-                         onClick={() => {
-                           // this.setState({stakePoolNSelected: 1})
-
-                           const poolBech32 = this.state.stakePool_3_Stats?.poolBech32
-                           if (poolBech32 && this.state.stakePoolNSelected !== 3) {
-                             this.setState({selectedPoolBech32: poolBech32, stakePoolNSelected: 3},
-                                 () => this.updateSelectedPoolParams().then(() => {}))
-                           }
-
-                         }
-                         }>
-
-                      <div className="mb-4">
-                        <p className="mb-2">Select a Pool Ticker #3:</p>
-                        <StakePoolSelector stakePoolN={3} allStakePoolInfo={this.state.allStakePoolInfo} handlePoolSelect={this.handlePoolSelect}/>
-                      </div>
-
-                      <div className="grid gap-1 grid-cols-3 py-2 text-left border-t border-b border-gray-300">
-                        <div className="col-span-2"><Cube size={14} className="mr-2"/> Blocks Minted</div>
-                        <div className="text-center">{
-                          this.state.stakePool_3_Stats?.lifetimeBlocks !== undefined
-                              ?
-                              (this.state.stakePool_3_Stats?.lifetimeBlocks).toLocaleString("en-US")
-                              :
-                              null
-                        }</div>
-
-                        <div className="col-span-2"><Calendar size={14} className="mr-2"/> Years Active</div>
-                        <div className="text-center">{
-                          this.state.stakePool_3_Stats?.yearsActive !== undefined
-                              ?
-                              (this.state.stakePool_3_Stats?.yearsActive).toLocaleString("en-US", {maximumFractionDigits: 1})
-                              :
-                              null
-                        }</div>
-
-                        <div className="col-span-2"><User size={14} className="mr-2"/> # Delegators</div>
-                        <div className="text-center">{
-                          this.state.stakePool_3_Stats?.nDelegators !== undefined
-                              ?
-                              (this.state.stakePool_3_Stats?.nDelegators).toLocaleString("en-US", {maximumFractionDigits: 0})
-                              :
-                              null
-
-                        }</div>
-
-                      </div>
-
-                      <p className="mt-8"><SeriesAdd size={14} className="mr-2"/> Expected Return</p>
-                      {
-                        // Only show expected return if there is something to show
-                        this.state.stakePool_3_Stats?.delegatorsReward_av
-                            ?
-                            <div className="grid gap-2 grid-cols-3 bg-gray-900/5 -ml-2 -mr-2 mt-1 py-4 px-2 text-center bg-blue-primary rounded-md">
-                              <div className="font-medium">Lower</div>
-                              <div className="font-medium">Average</div>
-                              <div className="font-medium">Upper</div>
-                              <div>{`${(this.state.stakePool_3_Stats?.delegatorsReward_lower / this.state.stakePool_3_Stats?.delegatorsStake * 100).toLocaleString("en-US", {maximumFractionDigits: 2})} %`}</div>
-                              <div>{`${(this.state.stakePool_3_Stats?.delegatorsReward_av / this.state.stakePool_3_Stats?.delegatorsStake * 100).toLocaleString("en-US", {maximumFractionDigits: 2})} %`}</div>
-                              <div>{`${(this.state.stakePool_3_Stats?.delegatorsReward_upper / this.state.stakePool_3_Stats?.delegatorsStake * 100).toLocaleString("en-US", {maximumFractionDigits: 2})} %`}</div>
-                            </div>
-                            :
-                            null
-                      }
-
-                    </div>
-
-
-
-
-
                   </div>
                 </div>
 
                 {/* Row 2, Column 2 */}
-                <div className="border border-gray-300 shadow-md rounded-lg bg-white p-4">
+                <div className="h-full border border-gray-300 shadow-md rounded-lg bg-white p-4">
                   {infoSections["info_section_2"][this.props.lang]}
                 </div>
 
                 {/* Row 3, Column 1 */}
-                <div className={`${this.state.isUIStakeParamsShown ? "bg-white text-gray-900" : "bg-gray-900 text-white"} border border-gray-300 shadow-md rounded-lg p-8 lg:col-span-2`}>
-                  <div className="cursor-pointer" onClick={
-                    () => this.setState({isUIStakeParamsShown: !this.state.isUIStakeParamsShown})
-                  }>
-                    <h4 className="text-balance text-2xl font-medium tracking-tight">
+                <div className="lg:col-span-2">
+                  <div className={`${this.state.isUIStakeParamsShown ? "bg-white text-gray-900" : "bg-gray-900 text-white"} border border-gray-300 shadow-md rounded-lg p-8`}>
+                    <div className="cursor-pointer" onClick={
+                      () => this.setState({isUIStakeParamsShown: !this.state.isUIStakeParamsShown})
+                    }>
+                      <h4 className="text-balance text-2xl font-medium tracking-tight">
 									<span id="icon" className="text-3xl font-normal mr-4">
 										{this.state.isUIStakeParamsShown ? "-" : "+"}
 									</span>
-                      Stake Pool Parameters
-                    </h4>
+                        Stake Pool Parameters
+                      </h4>
 
-                    <p className="mt-2">These parameters are specific to each stake pool and influence how the rewards are distributed between
-                      the operator of the pool and the delegators, and also how many blocks the pool is expected to mint each epoch. Expand to change
-                      these parameters and see impact on rewards</p>
+                      <p className="mt-2">These parameters are specific to each stake pool and influence how the rewards are distributed between
+                        the operator of the pool and the delegators, and also how many blocks the pool is expected to mint each epoch. Expand to change
+                        these parameters and see impact on rewards</p>
 
-                  </div>
+                    </div>
 
-                  <div className={`${this.state.isUIStakeParamsShown ? "" : "hidden"} mt-8`}>
+                    <div className={`${this.state.isUIStakeParamsShown ? "" : "hidden"} mt-8`}>
 
 
-                    <div className="grid grid-cols-1 sm:grid-cols-6 gap-2 sm:mr-12">
+                      <div className="grid grid-cols-1 sm:grid-cols-6 gap-2 sm:mr-12">
 
-                      <div className="col-span-2">Pool Pledge</div>
-                      <div className="col-span-4">
-                        <InputGroup
-                            id="pool-pledge"
-                            disabled={false}
-                            leftIcon="plus"
-                            onChange={this.handleChange}
-                            onBlur={() => this.onFocusOut()}
-                            onKeyDown={(e) => {
-                              if (e.key === "Enter") this.onFocusOut()
-                            }}
-                            value={this.state.poolPledge?.toLocaleString("en-US", {maximumFractionDigits: 0})}
-                            fill={true}
-                            rightElement={
-                              <div className="flex flex-row content-center">
-                                <Tag minimal={true}>ADA</Tag>
-                                <span className="mt-1.5 mr-1"><InfoHoverComponent>{infoHovers["pool_pledge"][this.props.lang]}</InfoHoverComponent></span>
+                        <div className="col-span-2">Pool Pledge</div>
+                        <div className="col-span-4">
+                          <InputGroup
+                              id="pool-pledge"
+                              disabled={false}
+                              leftIcon="plus"
+                              onChange={this.handleChange}
+                              onBlur={() => this.onFocusOut()}
+                              onKeyDown={(e) => {
+                                if (e.key === "Enter") this.onFocusOut()
+                              }}
+                              value={this.state.poolPledge?.toLocaleString("en-US", {maximumFractionDigits: 0})}
+                              fill={true}
+                              rightElement={
+                                <div className="flex flex-row content-center">
+                                  <Tag minimal={true}>ADA</Tag>
+                                  <span className="mt-1.5 mr-1"><InfoHoverComponent>{infoHovers["pool_pledge"][this.props.lang]}</InfoHoverComponent></span>
 
-                              </div>
-                            }
-                        />
-                      </div>
+                                </div>
+                              }
+                          />
+                        </div>
 
-                      <div className="col-span-2 mt-2 sm:mt-0">Delegators&apos; Stake</div>
-                      <div className="col-span-4">
-                        <InputGroup
-                            id="delegators-stake"
-                            disabled={true}
-                            leftIcon="plus"
-                            onChange={this.handleChange}
-                            onBlur={() => this.onFocusOut()}
-                            onKeyDown={(e) => {
-                              if (e.key === "Enter") this.onFocusOut()
-                            }}
-                            value={this.state.delegatorsStake?.toLocaleString("en-US", {maximumFractionDigits: 0})}
-                            fill={true}
-                            rightElement={
-                              <div className="flex flex-row content-center">
-                                <Tag minimal={true}>ADA</Tag>
-                                <span className="mt-1.5 mr-1"><InfoHoverComponent>{infoHovers["delegator_stake"][this.props.lang]}</InfoHoverComponent></span>
-                              </div>
-                            }
-                        />
-                      </div>
+                        <div className="col-span-2 mt-2 sm:mt-0">Delegators&apos; Stake</div>
+                        <div className="col-span-4">
+                          <InputGroup
+                              id="delegators-stake"
+                              disabled={true}
+                              leftIcon="plus"
+                              onChange={this.handleChange}
+                              onBlur={() => this.onFocusOut()}
+                              onKeyDown={(e) => {
+                                if (e.key === "Enter") this.onFocusOut()
+                              }}
+                              value={this.state.delegatorsStake?.toLocaleString("en-US", {maximumFractionDigits: 0})}
+                              fill={true}
+                              rightElement={
+                                <div className="flex flex-row content-center">
+                                  <Tag minimal={true}>ADA</Tag>
+                                  <span className="mt-1.5 mr-1"><InfoHoverComponent>{infoHovers["delegator_stake"][this.props.lang]}</InfoHoverComponent></span>
+                                </div>
+                              }
+                          />
+                        </div>
 
-                      <div className="col-span-2 mt-2 sm:mt-0">Total Pool Stake</div>
-                      <div className="col-span-4">
-                        <InputGroup
-                            id="total-pool-stake"
-                            disabled={false}
-                            leftIcon="equals"
-                            onChange={this.handleChange}
-                            onBlur={() => this.onFocusOut()}
-                            onKeyDown={(e) => {
-                              if (e.key === "Enter") this.onFocusOut()
-                            }}
-                            value={this.state.poolStake_plus_userAmount?.toLocaleString("en-US", {maximumFractionDigits: 0})}
-                            fill={true}
-                            rightElement={
-                              <div className="flex flex-row content-center">
-                                <Tag minimal={true}>ADA</Tag>
-                                <span className="mt-1.5 mr-1"><InfoHoverComponent>{infoHovers["total_pool_stake"][this.props.lang]}</InfoHoverComponent></span>
-                              </div>
-                            }
-                        />
-                      </div>
+                        <div className="col-span-2 mt-2 sm:mt-0">Total Pool Stake</div>
+                        <div className="col-span-4">
+                          <InputGroup
+                              id="total-pool-stake"
+                              disabled={false}
+                              leftIcon="equals"
+                              onChange={this.handleChange}
+                              onBlur={() => this.onFocusOut()}
+                              onKeyDown={(e) => {
+                                if (e.key === "Enter") this.onFocusOut()
+                              }}
+                              value={this.state.poolStake_plus_userAmount?.toLocaleString("en-US", {maximumFractionDigits: 0})}
+                              fill={true}
+                              rightElement={
+                                <div className="flex flex-row content-center">
+                                  <Tag minimal={true}>ADA</Tag>
+                                  <span className="mt-1.5 mr-1"><InfoHoverComponent>{infoHovers["total_pool_stake"][this.props.lang]}</InfoHoverComponent></span>
+                                </div>
+                              }
+                          />
+                        </div>
 
-                      <div className="col-span-2 mt-2 sm:mt-0">Pool Fixed Costs</div>
-                      <div className="col-span-4">
-                        <InputGroup
-                            id="pool-fixed-costs"
-                            disabled={false}
-                            // leftIcon="filter"
-                            onChange={this.handleChange}
-                            onBlur={() => this.onFocusOut()}
-                            onKeyDown={(e) => {
-                              if (e.key === "Enter") this.onFocusOut()
-                            }}
-                            value={this.state.poolFixedCost?.toLocaleString("en-US")}
-                            fill={true}
-                            rightElement={
-                              <div className="flex flex-row content-center">
-                                <Tag minimal={true}>ADA</Tag>
-                                <span className="mt-1.5 mr-1"><InfoHoverComponent>{infoHovers["pool_fixed_costs"][this.props.lang]}</InfoHoverComponent></span>
-                              </div>
-                            }
-                        />
-                      </div>
+                        <div className="col-span-2 mt-2 sm:mt-0">Pool Fixed Costs</div>
+                        <div className="col-span-4">
+                          <InputGroup
+                              id="pool-fixed-costs"
+                              disabled={false}
+                              // leftIcon="filter"
+                              onChange={this.handleChange}
+                              onBlur={() => this.onFocusOut()}
+                              onKeyDown={(e) => {
+                                if (e.key === "Enter") this.onFocusOut()
+                              }}
+                              value={this.state.poolFixedCost?.toLocaleString("en-US")}
+                              fill={true}
+                              rightElement={
+                                <div className="flex flex-row content-center">
+                                  <Tag minimal={true}>ADA</Tag>
+                                  <span className="mt-1.5 mr-1"><InfoHoverComponent>{infoHovers["pool_fixed_costs"][this.props.lang]}</InfoHoverComponent></span>
+                                </div>
+                              }
+                          />
+                        </div>
 
-                      <div className="col-span-2 mt-2 sm:mt-0">Pool Variable Fee</div>
-                      <div className="col-span-4">
-                        <InputGroup
-                            id="pool-variable-fee"
-                            disabled={false}
-                            asyncControl={true}
-                            // leftIcon="filter"
-                            onChange={this.handleChange}
-                            onBlur={() => this.onFocusOut()}
-                            onKeyDown={(e) => {
-                              if (e.key === "Enter") this.onFocusOut()
-                            }}
-                            value={this.state.poolVariableFee}
-                            fill={true}
-                            rightElement={
-                              <div className="flex flex-row content-center">
-                                <Tag minimal={true}>%</Tag>
-                                <span className="mt-1.5 mr-1"><InfoHoverComponent>{infoHovers["pool_variable_fee"][this.props.lang]}</InfoHoverComponent></span>
-                              </div>
-                            }
-                        />
+                        <div className="col-span-2 mt-2 sm:mt-0">Pool Variable Fee</div>
+                        <div className="col-span-4">
+                          <InputGroup
+                              id="pool-variable-fee"
+                              disabled={false}
+                              asyncControl={true}
+                              // leftIcon="filter"
+                              onChange={this.handleChange}
+                              onBlur={() => this.onFocusOut()}
+                              onKeyDown={(e) => {
+                                if (e.key === "Enter") this.onFocusOut()
+                              }}
+                              value={(Math.round(this.state.poolVariableFee * 1_000_000) / 1_000_000).toLocaleString("en-US")}
+                              fill={true}
+                              rightElement={
+                                <div className="flex flex-row content-center">
+                                  <Tag minimal={true}>%</Tag>
+                                  <span className="mt-1.5 mr-1"><InfoHoverComponent>{infoHovers["pool_variable_fee"][this.props.lang]}</InfoHoverComponent></span>
+                                </div>
+                              }
+                          />
+                        </div>
+
                       </div>
 
                     </div>
 
                   </div>
-
                 </div>
 
                 {/* Row 3, Column 2 */}
@@ -1495,432 +1504,434 @@ class RewardCalculator extends React.Component {
                 </div>
 
                 {/* Row 4, Column 1 */}
-                <div className={`${this.state.isUIBlockParamsShown ? "bg-white text-gray-900" : "bg-gray-900 text-white"} border border-gray-300 shadow-md rounded-lg p-8 lg:col-span-2`}>
-                  <div className="cursor-pointer" onClick={
-                    () => this.setState({isUIBlockParamsShown: !this.state.isUIBlockParamsShown})
-                  }>
-                    <h4 className="text-balance text-2xl font-medium tracking-tight">
+                <div className="lg:col-span-2">
+                  <div className={`${this.state.isUIBlockParamsShown ? "bg-white text-gray-900" : "bg-gray-900 text-white"} border border-gray-300 shadow-md rounded-lg p-8`}>
+                    <div className="cursor-pointer" onClick={
+                      () => this.setState({isUIBlockParamsShown: !this.state.isUIBlockParamsShown})
+                    }>
+                      <h4 className="text-balance text-2xl font-medium tracking-tight">
 									<span id="icon" className="text-3xl font-normal mr-4">
 										{this.state.isUIBlockParamsShown ? "-" : "+"}
 									</span>
-                      Blockchain Parameters
-                    </h4>
+                        Blockchain Parameters
+                      </h4>
 
-                    <p className="mt-2">These parameters are specific to the Cardano blockchain and affect the total size of reward &quot;pot&quot; available
-                      for distribution and how it is distributed to different pools. Some parameters can be changed with a community vote (Dynamic Parameters)
-                      and some can&apos;t be changed at all (Static Parameters)</p>
+                      <p className="mt-2">These parameters are specific to the Cardano blockchain and affect the total size of reward &quot;pot&quot; available
+                        for distribution and how it is distributed to different pools. Some parameters can be changed with a community vote (Dynamic Parameters)
+                        and some can&apos;t be changed at all (Static Parameters)</p>
 
-                  </div>
-
-
-
-                  <div className={`${this.state.isUIBlockParamsShown ? "" : "hidden"} mt-8`}>
+                    </div>
 
 
-                    <div className="cursor-pointer bg-gray-100 px-2 py-1 -mx-2 mt-8 mb-4 text-gray-900" onClick={
-                      () => this.setState({isUIDynamicParamsShow: !this.state.isUIDynamicParamsShow})
-                    }>
+
+                    <div className={`${this.state.isUIBlockParamsShown ? "" : "hidden"} mt-8`}>
+
+
+                      <div className="cursor-pointer bg-gray-100 px-2 py-1 -mx-2 mt-8 mb-4 text-gray-900" onClick={
+                        () => this.setState({isUIDynamicParamsShow: !this.state.isUIDynamicParamsShow})
+                      }>
                       <span id="icon" className="font-normal text-gray-900 mr-4">
                           {this.state.isUIDynamicParamsShow ? "-" : "+"}
                       </span>
-                      Dynamic Parameters
-                    </div>
+                        Dynamic Parameters
+                      </div>
 
-                    <div className={`${this.state.isUIDynamicParamsShow ? "" : "hidden"}`}>
+                      <div className={`${this.state.isUIDynamicParamsShow ? "" : "hidden"}`}>
 
-                      <div className="mb-8">Dynamic blockchain parameters can be adjusted through governance processes.
-                        These parameters can be used to change the operation of the block-producing protocol,
-                        vary transaction fees, define the influence of pledge, etc.
-                        Press the (i) icon to see what each one is responsible for.</div>
+                        <div className="mb-8">Dynamic blockchain parameters can be adjusted through governance processes.
+                          These parameters can be used to change the operation of the block-producing protocol,
+                          vary transaction fees, define the influence of pledge, etc.
+                          Press the (i) icon to see what each one is responsible for.</div>
 
-                      <div className="grid grid-cols-1 sm:grid-cols-6 gap-2 sm:mr-12">
+                        <div className="grid grid-cols-1 sm:grid-cols-6 gap-2 sm:mr-12">
 
-                        <div className="col-span-2">Rho</div>
-                        <div className="col-span-4">
-                          <InputGroup
-                              id="rho"
-                              disabled={false}
-                              asyncControl={true}
-                              onChange={this.handleChange}
-                              onBlur={() => this.onFocusOut()}
-                              onKeyDown={(e) => {
-                                if (e.key === "Enter") this.onFocusOut()
-                              }}
-                              value={this.state.rho}
-                              fill={true}
-                              rightElement={
-                                <div className="flex flex-row content-center">
-                                  <span className="mt-1.5 mr-1"><InfoHoverComponent>{infoHovers["rho"][this.props.lang]}</InfoHoverComponent></span>
-                                </div>
-                              }
-                          />
-                        </div>
+                          <div className="col-span-2">Rho</div>
+                          <div className="col-span-4">
+                            <InputGroup
+                                id="rho"
+                                disabled={false}
+                                asyncControl={true}
+                                onChange={this.handleChange}
+                                onBlur={() => this.onFocusOut()}
+                                onKeyDown={(e) => {
+                                  if (e.key === "Enter") this.onFocusOut()
+                                }}
+                                value={this.state.rho}
+                                fill={true}
+                                rightElement={
+                                  <div className="flex flex-row content-center">
+                                    <span className="mt-1.5 mr-1"><InfoHoverComponent>{infoHovers["rho"][this.props.lang]}</InfoHoverComponent></span>
+                                  </div>
+                                }
+                            />
+                          </div>
 
-                        <div className="col-span-2 mt-2 sm:mt-0">Tau</div>
-                        <div className="col-span-4">
-                          <InputGroup
-                              id="tau"
-                              disabled={false}
-                              asyncControl={true}
-                              onChange={this.handleChange}
-                              onBlur={() => this.onFocusOut()}
-                              onKeyDown={(e) => {
-                                if (e.key === "Enter") this.onFocusOut()
-                              }}
-                              value={this.state.tau}
-                              fill={true}
-                              rightElement={
-                                <div className="flex flex-row content-center">
-                                  <span className="mt-1.5 mr-1"><InfoHoverComponent>{infoHovers["tau"][this.props.lang]}</InfoHoverComponent></span>
-                                </div>
-                              }
-                          />
-                        </div>
+                          <div className="col-span-2 mt-2 sm:mt-0">Tau</div>
+                          <div className="col-span-4">
+                            <InputGroup
+                                id="tau"
+                                disabled={false}
+                                asyncControl={true}
+                                onChange={this.handleChange}
+                                onBlur={() => this.onFocusOut()}
+                                onKeyDown={(e) => {
+                                  if (e.key === "Enter") this.onFocusOut()
+                                }}
+                                value={this.state.tau}
+                                fill={true}
+                                rightElement={
+                                  <div className="flex flex-row content-center">
+                                    <span className="mt-1.5 mr-1"><InfoHoverComponent>{infoHovers["tau"][this.props.lang]}</InfoHoverComponent></span>
+                                  </div>
+                                }
+                            />
+                          </div>
 
-                        <div className="col-span-2 mt-2 sm:mt-0">K</div>
-                        <div className="col-span-4">
-                          <InputGroup
-                              id="k"
-                              disabled={false}
-                              onChange={this.handleChange}
-                              onBlur={() => this.onFocusOut()}
-                              onKeyDown={(e) => {
-                                if (e.key === "Enter") this.onFocusOut()
-                              }}
-                              value={this.state.k}
-                              fill={true}
-                              rightElement={
-                                <div className="flex flex-row content-center">
-                                  <span className="mt-1.5 mr-1"><InfoHoverComponent>{infoHovers["k"][this.props.lang]}</InfoHoverComponent></span>
-                                </div>
-                              }
-                          />
-                        </div>
+                          <div className="col-span-2 mt-2 sm:mt-0">K</div>
+                          <div className="col-span-4">
+                            <InputGroup
+                                id="k"
+                                disabled={false}
+                                onChange={this.handleChange}
+                                onBlur={() => this.onFocusOut()}
+                                onKeyDown={(e) => {
+                                  if (e.key === "Enter") this.onFocusOut()
+                                }}
+                                value={this.state.k}
+                                fill={true}
+                                rightElement={
+                                  <div className="flex flex-row content-center">
+                                    <span className="mt-1.5 mr-1"><InfoHoverComponent>{infoHovers["k"][this.props.lang]}</InfoHoverComponent></span>
+                                  </div>
+                                }
+                            />
+                          </div>
 
-                        <div className="col-span-2 mt-2 sm:mt-0">a0</div>
-                        <div className="col-span-4">
-                          <InputGroup
-                              id="a0"
-                              disabled={false}
-                              asyncControl={true}
-                              onChange={this.handleChange}
-                              onBlur={() => this.onFocusOut()}
-                              onKeyDown={(e) => {
-                                if (e.key === "Enter") this.onFocusOut()
-                              }}
-                              value={this.state.a0}
-                              fill={true}
-                              rightElement={
-                                <div className="flex flex-row content-center">
-                                  <span className="mt-1.5 mr-1"><InfoHoverComponent>{infoHovers["a0"][this.props.lang]}</InfoHoverComponent></span>
-                                </div>
-                              }
-                          />
-                        </div>
+                          <div className="col-span-2 mt-2 sm:mt-0">a0</div>
+                          <div className="col-span-4">
+                            <InputGroup
+                                id="a0"
+                                disabled={false}
+                                asyncControl={true}
+                                onChange={this.handleChange}
+                                onBlur={() => this.onFocusOut()}
+                                onKeyDown={(e) => {
+                                  if (e.key === "Enter") this.onFocusOut()
+                                }}
+                                value={this.state.a0}
+                                fill={true}
+                                rightElement={
+                                  <div className="flex flex-row content-center">
+                                    <span className="mt-1.5 mr-1"><InfoHoverComponent>{infoHovers["a0"][this.props.lang]}</InfoHoverComponent></span>
+                                  </div>
+                                }
+                            />
+                          </div>
 
-                        <div className="col-span-2 mt-2 sm:mt-0">z0</div>
-                        <div className="col-span-4">
-                          <InputGroup
-                              id="z0"
-                              disabled={true}
-                              // leftIcon="filter"
-                              // onChange={this.handleChange}
-                              value={this.state.z0}
-                              fill={true}
-                              rightElement={
-                                <div className="flex flex-row content-center">
-                                  <span className="mt-1.5 mr-1"><InfoHoverComponent>{infoHovers["z0"][this.props.lang]}</InfoHoverComponent></span>
-                                </div>
-                              }
-                          />
+                          <div className="col-span-2 mt-2 sm:mt-0">z0</div>
+                          <div className="col-span-4">
+                            <InputGroup
+                                id="z0"
+                                disabled={true}
+                                // leftIcon="filter"
+                                // onChange={this.handleChange}
+                                value={this.state.z0}
+                                fill={true}
+                                rightElement={
+                                  <div className="flex flex-row content-center">
+                                    <span className="mt-1.5 mr-1"><InfoHoverComponent>{infoHovers["z0"][this.props.lang]}</InfoHoverComponent></span>
+                                  </div>
+                                }
+                            />
+                          </div>
+
                         </div>
 
                       </div>
 
-                    </div>
-
-                    <div className="cursor-pointer bg-gray-100 px-2 py-1 -mx-2 mt-8 mb-4 text-gray-900" onClick={
-                      () => this.setState({isUIStaticParamsShow: !this.state.isUIStaticParamsShow})
-                    }>
+                      <div className="cursor-pointer bg-gray-100 px-2 py-1 -mx-2 mt-8 mb-4 text-gray-900" onClick={
+                        () => this.setState({isUIStaticParamsShow: !this.state.isUIStaticParamsShow})
+                      }>
                       <span id="icon" className="font-normal text-gray-900 mr-4">
                           {this.state.isUIStaticParamsShow ? "-" : "+"}
                       </span>
-                      Static Parameters
-                    </div>
+                        Static Parameters
+                      </div>
 
-                    <div className={`${this.state.isUIStaticParamsShow ? "" : "hidden"}`}>
+                      <div className={`${this.state.isUIStaticParamsShow ? "" : "hidden"}`}>
 
-                      <div className="mb-8">Static parameters affect the fundamentals of the Cardano protocol and are stable,
-                        which means that they can not be changed except via a hard fork.
-                        Static parameters include those defining the genesis block or basic security properties, for example.
-                        Some of these parameters may be embedded in the source code or implemented as software.</div>
+                        <div className="mb-8">Static parameters affect the fundamentals of the Cardano protocol and are stable,
+                          which means that they can not be changed except via a hard fork.
+                          Static parameters include those defining the genesis block or basic security properties, for example.
+                          Some of these parameters may be embedded in the source code or implemented as software.</div>
 
 
-                      <div className="grid grid-cols-1 sm:grid-cols-6 gap-2 sm:mr-12">
+                        <div className="grid grid-cols-1 sm:grid-cols-6 gap-2 sm:mr-12">
 
-                        <div className="col-span-2">Days in an Epoch</div>
-                        <div className="col-span-4">
-                          <InputGroup
-                              id="days-in-epoch"
-                              disabled={true}
-                              // onChange={this.handleChange}
-                              value={this.state.daysInEpoch}
-                              fill={true}
-                              rightElement={
-                                <div className="flex flex-row content-center">
-                                  <span className="mt-1.5 mr-1"><InfoHoverComponent>{infoHovers["days_in_epoch"][this.props.lang]}</InfoHoverComponent></span>
-                                </div>
-                              }
-                          />
-                        </div>
+                          <div className="col-span-2">Days in an Epoch</div>
+                          <div className="col-span-4">
+                            <InputGroup
+                                id="days-in-epoch"
+                                disabled={true}
+                                // onChange={this.handleChange}
+                                value={this.state.daysInEpoch}
+                                fill={true}
+                                rightElement={
+                                  <div className="flex flex-row content-center">
+                                    <span className="mt-1.5 mr-1"><InfoHoverComponent>{infoHovers["days_in_epoch"][this.props.lang]}</InfoHoverComponent></span>
+                                  </div>
+                                }
+                            />
+                          </div>
 
-                        <div className="col-span-2 mt-2 sm:mt-0">Epochs in a Year</div>
-                        <div className="col-span-4">
-                          <InputGroup
-                              id="epochs-in-year"
-                              disabled={true}
-                              // onChange={this.handleChange}
-                              value={this.state.epochsInYear}
-                              fill={true}
-                              rightElement={
-                                <div className="flex flex-row content-center">
-                                  <span className="mt-1.5 mr-1"><InfoHoverComponent>{infoHovers["epochs_in_year"][this.props.lang]}</InfoHoverComponent></span>
-                                </div>
-                              }
-                          />
-                        </div>
+                          <div className="col-span-2 mt-2 sm:mt-0">Epochs in a Year</div>
+                          <div className="col-span-4">
+                            <InputGroup
+                                id="epochs-in-year"
+                                disabled={true}
+                                // onChange={this.handleChange}
+                                value={this.state.epochsInYear}
+                                fill={true}
+                                rightElement={
+                                  <div className="flex flex-row content-center">
+                                    <span className="mt-1.5 mr-1"><InfoHoverComponent>{infoHovers["epochs_in_year"][this.props.lang]}</InfoHoverComponent></span>
+                                  </div>
+                                }
+                            />
+                          </div>
 
-                        <div className="col-span-2 mt-2 sm:mt-0">Slots in an Epoch</div>
-                        <div className="col-span-4">
-                          <InputGroup
-                              id="slots-in-epoch"
-                              disabled={true}
-                              // onChange={this.handleChange}
-                              value={this.state.slotsInEpoch.toLocaleString("en-US")}
-                              fill={true}
-                              rightElement={
-                                <div className="flex flex-row content-center">
-                                  <span className="mt-1.5 mr-1"><InfoHoverComponent>{infoHovers["slots_in_epoch"][this.props.lang]}</InfoHoverComponent></span>
-                                </div>
-                              }
-                          />
-                        </div>
+                          <div className="col-span-2 mt-2 sm:mt-0">Slots in an Epoch</div>
+                          <div className="col-span-4">
+                            <InputGroup
+                                id="slots-in-epoch"
+                                disabled={true}
+                                // onChange={this.handleChange}
+                                value={this.state.slotsInEpoch.toLocaleString("en-US")}
+                                fill={true}
+                                rightElement={
+                                  <div className="flex flex-row content-center">
+                                    <span className="mt-1.5 mr-1"><InfoHoverComponent>{infoHovers["slots_in_epoch"][this.props.lang]}</InfoHoverComponent></span>
+                                  </div>
+                                }
+                            />
+                          </div>
 
-                        <div className="col-span-2 mt-2 sm:mt-0">Chain Density</div>
-                        <div className="col-span-4">
-                          <InputGroup
-                              id="chain-density"
-                              disabled={true}
-                              // onChange={this.handleChange}
-                              value={this.state.chainDensity}
-                              fill={true}
-                              rightElement={
-                                <div className="flex flex-row content-center">
-                                  <span className="mt-1.5 mr-1"><InfoHoverComponent>{infoHovers["chain_density"][this.props.lang]}</InfoHoverComponent></span>
-                                </div>
-                              }
-                          />
-                        </div>
+                          <div className="col-span-2 mt-2 sm:mt-0">Chain Density</div>
+                          <div className="col-span-4">
+                            <InputGroup
+                                id="chain-density"
+                                disabled={true}
+                                // onChange={this.handleChange}
+                                value={this.state.chainDensity}
+                                fill={true}
+                                rightElement={
+                                  <div className="flex flex-row content-center">
+                                    <span className="mt-1.5 mr-1"><InfoHoverComponent>{infoHovers["chain_density"][this.props.lang]}</InfoHoverComponent></span>
+                                  </div>
+                                }
+                            />
+                          </div>
 
-                        <div className="col-span-2 mt-2 sm:mt-0">Blocks per Epoch</div>
-                        <div className="col-span-4">
-                          <InputGroup
-                              id="blocks-per-epoch"
-                              disabled={true}
-                              // onChange={this.handleChange}
-                              value={this.state.blocksPerEpoch.toLocaleString("en-US")}
-                              fill={true}
-                              rightElement={
-                                <div className="flex flex-row content-center">
-                                  <span className="mt-1.5 mr-1"><InfoHoverComponent>{infoHovers["blocks_in_epoch"][this.props.lang]}</InfoHoverComponent></span>
-                                </div>
-                              }
-                          />
-                        </div>
+                          <div className="col-span-2 mt-2 sm:mt-0">Blocks per Epoch</div>
+                          <div className="col-span-4">
+                            <InputGroup
+                                id="blocks-per-epoch"
+                                disabled={true}
+                                // onChange={this.handleChange}
+                                value={this.state.blocksPerEpoch.toLocaleString("en-US")}
+                                fill={true}
+                                rightElement={
+                                  <div className="flex flex-row content-center">
+                                    <span className="mt-1.5 mr-1"><InfoHoverComponent>{infoHovers["blocks_in_epoch"][this.props.lang]}</InfoHoverComponent></span>
+                                  </div>
+                                }
+                            />
+                          </div>
 
-                        <div className="col-span-2 mt-2 sm:mt-0">Max ADA Supply</div>
-                        <div className="col-span-4">
-                          <InputGroup
-                              id="max-ada-supply"
-                              disabled={true}
-                              // onChange={this.handleChange}
-                              value={this.state.maxAdaSupply.toLocaleString("en-US", {maximumFractionDigits: 0})}
-                              fill={true}
-                              rightElement={
-                                <div className="flex flex-row content-center">
-                                  <span className="mt-1.5 mr-1"><InfoHoverComponent>{infoHovers["max_ada_supply"][this.props.lang]}</InfoHoverComponent></span>
-                                </div>
-                              }
-                          />
-                        </div>
+                          <div className="col-span-2 mt-2 sm:mt-0">Max ADA Supply</div>
+                          <div className="col-span-4">
+                            <InputGroup
+                                id="max-ada-supply"
+                                disabled={true}
+                                // onChange={this.handleChange}
+                                value={this.state.maxAdaSupply.toLocaleString("en-US", {maximumFractionDigits: 0})}
+                                fill={true}
+                                rightElement={
+                                  <div className="flex flex-row content-center">
+                                    <span className="mt-1.5 mr-1"><InfoHoverComponent>{infoHovers["max_ada_supply"][this.props.lang]}</InfoHoverComponent></span>
+                                  </div>
+                                }
+                            />
+                          </div>
 
-                        <div className="col-span-2 mt-2 sm:mt-0">Current ADA Supply</div>
-                        <div className="col-span-4">
-                          <InputGroup
-                              id="current-ada-supply"
-                              disabled={false}
-                              onChange={this.handleChange}
-                              onBlur={() => this.onFocusOut()}
-                              onKeyDown={(e) => {
-                                if (e.key === "Enter") this.onFocusOut()
-                              }}
-                              value={this.state.currentAdaSupply?.toLocaleString("en-US", {maximumFractionDigits: 0})}
-                              fill={true}
-                              rightElement={
-                                <div className="flex flex-row content-center">
-                                  <span className="mt-1.5 mr-1"><InfoHoverComponent>{infoHovers["current_ada_supply"][this.props.lang]}</InfoHoverComponent></span>
-                                </div>
-                              }
-                          />
-                        </div>
+                          <div className="col-span-2 mt-2 sm:mt-0">Current ADA Supply</div>
+                          <div className="col-span-4">
+                            <InputGroup
+                                id="current-ada-supply"
+                                disabled={false}
+                                onChange={this.handleChange}
+                                onBlur={() => this.onFocusOut()}
+                                onKeyDown={(e) => {
+                                  if (e.key === "Enter") this.onFocusOut()
+                                }}
+                                value={this.state.currentAdaSupply?.toLocaleString("en-US", {maximumFractionDigits: 0})}
+                                fill={true}
+                                rightElement={
+                                  <div className="flex flex-row content-center">
+                                    <span className="mt-1.5 mr-1"><InfoHoverComponent>{infoHovers["current_ada_supply"][this.props.lang]}</InfoHoverComponent></span>
+                                  </div>
+                                }
+                            />
+                          </div>
 
-                        <div className="col-span-2 mt-2 sm:mt-0">Reserve ADA</div>
-                        <div className="col-span-4">
-                          <InputGroup
-                              id="reserve-ada"
-                              disabled={true}
-                              // onChange={this.handleChange}
-                              value={this.state.reserveAda?.toLocaleString("en-US", {maximumFractionDigits: 0})}
-                              fill={true}
-                              rightElement={
-                                <div className="flex flex-row content-center">
-                                  <span className="mt-1.5 mr-1"><InfoHoverComponent>{infoHovers["reserve_ada"][this.props.lang]}</InfoHoverComponent></span>
-                                </div>
-                              }
-                          />
-                        </div>
+                          <div className="col-span-2 mt-2 sm:mt-0">Reserve ADA</div>
+                          <div className="col-span-4">
+                            <InputGroup
+                                id="reserve-ada"
+                                disabled={true}
+                                // onChange={this.handleChange}
+                                value={this.state.reserveAda?.toLocaleString("en-US", {maximumFractionDigits: 0})}
+                                fill={true}
+                                rightElement={
+                                  <div className="flex flex-row content-center">
+                                    <span className="mt-1.5 mr-1"><InfoHoverComponent>{infoHovers["reserve_ada"][this.props.lang]}</InfoHoverComponent></span>
+                                  </div>
+                                }
+                            />
+                          </div>
 
-                        <div className="col-span-2 mt-2 sm:mt-0">Total Staked ADA</div>
-                        <div className="col-span-4">
-                          <InputGroup
-                              id="total-staked-ada"
-                              disabled={false}
-                              onChange={this.handleChange}
-                              onBlur={() => this.onFocusOut()}
-                              onKeyDown={(e) => {
-                                if (e.key === "Enter") this.onFocusOut()
-                              }}
-                              value={this.state.totalAdaStaked?.toLocaleString("en-US", {maximumFractionDigits: 0})}
-                              fill={true}
-                              rightElement={
-                                <div className="flex flex-row content-center">
-                                  <span className="mt-1.5 mr-1"><InfoHoverComponent>{infoHovers["total_staked_ada"][this.props.lang]}</InfoHoverComponent></span>
-                                </div>
-                              }
-                          />
+                          <div className="col-span-2 mt-2 sm:mt-0">Total Staked ADA</div>
+                          <div className="col-span-4">
+                            <InputGroup
+                                id="total-staked-ada"
+                                disabled={false}
+                                onChange={this.handleChange}
+                                onBlur={() => this.onFocusOut()}
+                                onKeyDown={(e) => {
+                                  if (e.key === "Enter") this.onFocusOut()
+                                }}
+                                value={this.state.totalAdaStaked?.toLocaleString("en-US", {maximumFractionDigits: 0})}
+                                fill={true}
+                                rightElement={
+                                  <div className="flex flex-row content-center">
+                                    <span className="mt-1.5 mr-1"><InfoHoverComponent>{infoHovers["total_staked_ada"][this.props.lang]}</InfoHoverComponent></span>
+                                  </div>
+                                }
+                            />
+                          </div>
+
                         </div>
 
                       </div>
 
-                    </div>
-
-                    <div className="cursor-pointer bg-gray-100 px-2 py-1 -mx-2 mt-8 mb-4 text-gray-900" onClick={
-                      () => this.setState({isUIFeesReservesShow: !this.state.isUIFeesReservesShow})
-                    }>
+                      <div className="cursor-pointer bg-gray-100 px-2 py-1 -mx-2 mt-8 mb-4 text-gray-900" onClick={
+                        () => this.setState({isUIFeesReservesShow: !this.state.isUIFeesReservesShow})
+                      }>
                       <span id="icon" className="font-normal text-gray-900 mr-4">
                           {this.state.isUIFeesReservesShow ? "-" : "+"}
                       </span>
-                      Fees & Remaining Reserves
-                    </div>
+                        Fees & Remaining Reserves
+                      </div>
 
-                    <div className={`${this.state.isUIFeesReservesShow ? "" : "hidden"}`}>
+                      <div className={`${this.state.isUIFeesReservesShow ? "" : "hidden"}`}>
 
-                      <div className="mb-8">Cardano uses a transaction fee system that covers the processing
-                        and long-term storage cost of transactions. Fees from each epoch are pooled and then
-                        distributed to all pools that created blocks during an epoch. The fees are supplemented
-                      by a distribution of a % (rho) from reserves.</div>
+                        <div className="mb-8">Cardano uses a transaction fee system that covers the processing
+                          and long-term storage cost of transactions. Fees from each epoch are pooled and then
+                          distributed to all pools that created blocks during an epoch. The fees are supplemented
+                          by a distribution of a % (rho) from reserves.</div>
 
 
-                      <div className="grid grid-cols-1 sm:grid-cols-6 gap-2 sm:mr-12">
+                        <div className="grid grid-cols-1 sm:grid-cols-6 gap-2 sm:mr-12">
 
-                        <div className="col-span-2">Fees per Epoch</div>
-                        <div className="col-span-4">
-                          <InputGroup
-                              id="fees-in-epoch"
-                              disabled={false}
-                              leftIcon="plus"
-                              onChange={this.handleChange}
-                              onBlur={() => this.onFocusOut()}
-                              onKeyDown={(e) => {
-                                if (e.key === "Enter") this.onFocusOut()
-                              }}
-                              value={this.state.feesInEpoch?.toLocaleString("en-US", {maximumFractionDigits: 0})}
-                              fill={true}
-                              rightElement={
-                                <div className="flex flex-row content-center">
-                                  <span className="mt-1.5 mr-1"><InfoHoverComponent>{infoHovers["fees_in_epoch"][this.props.lang]}</InfoHoverComponent></span>
-                                </div>
-                              }
-                          />
-                        </div>
+                          <div className="col-span-2">Fees per Epoch</div>
+                          <div className="col-span-4">
+                            <InputGroup
+                                id="fees-in-epoch"
+                                disabled={false}
+                                leftIcon="plus"
+                                onChange={this.handleChange}
+                                onBlur={() => this.onFocusOut()}
+                                onKeyDown={(e) => {
+                                  if (e.key === "Enter") this.onFocusOut()
+                                }}
+                                value={this.state.feesInEpoch?.toLocaleString("en-US", {maximumFractionDigits: 0})}
+                                fill={true}
+                                rightElement={
+                                  <div className="flex flex-row content-center">
+                                    <span className="mt-1.5 mr-1"><InfoHoverComponent>{infoHovers["fees_in_epoch"][this.props.lang]}</InfoHoverComponent></span>
+                                  </div>
+                                }
+                            />
+                          </div>
 
-                        <div className="col-span-2 mt-2 sm:mt-0">Distribution from Reserve</div>
-                        <div className="col-span-4">
-                          <InputGroup
-                              id="distribution-from-reserve"
-                              disabled={true}
-                              leftIcon="plus"
-                              // onChange={this.handleChange}
-                              value={this.state.distributionFromReserve?.toLocaleString("en-US", {maximumFractionDigits: 0})}
-                              fill={true}
-                              rightElement={
-                                <div className="flex flex-row content-center">
-                                  <span className="mt-1.5 mr-1"><InfoHoverComponent>{infoHovers["distribution_from_reserve"][this.props.lang]}</InfoHoverComponent></span>
-                                </div>
-                              }
-                          />
-                        </div>
+                          <div className="col-span-2 mt-2 sm:mt-0">Distribution from Reserve</div>
+                          <div className="col-span-4">
+                            <InputGroup
+                                id="distribution-from-reserve"
+                                disabled={true}
+                                leftIcon="plus"
+                                // onChange={this.handleChange}
+                                value={this.state.distributionFromReserve?.toLocaleString("en-US", {maximumFractionDigits: 0})}
+                                fill={true}
+                                rightElement={
+                                  <div className="flex flex-row content-center">
+                                    <span className="mt-1.5 mr-1"><InfoHoverComponent>{infoHovers["distribution_from_reserve"][this.props.lang]}</InfoHoverComponent></span>
+                                  </div>
+                                }
+                            />
+                          </div>
 
-                        <div className="col-span-2 mt-2 sm:mt-0">Gross Reward</div>
-                        <div className="col-span-4">
-                          <InputGroup
-                              id="equals"
-                              disabled={true}
-                              leftIcon="equals"
-                              value={this.state.grossReward?.toLocaleString("en-US", {maximumFractionDigits: 0})}
-                              fill={true}
-                              rightElement={
-                                <div className="flex flex-row content-center">
-                                  <span className="mt-1.5 mr-1"><InfoHoverComponent>{infoHovers["gross_rewards"][this.props.lang]}</InfoHoverComponent></span>
-                                </div>
-                              }
-                          />
-                        </div>
+                          <div className="col-span-2 mt-2 sm:mt-0">Gross Reward</div>
+                          <div className="col-span-4">
+                            <InputGroup
+                                id="equals"
+                                disabled={true}
+                                leftIcon="equals"
+                                value={this.state.grossReward?.toLocaleString("en-US", {maximumFractionDigits: 0})}
+                                fill={true}
+                                rightElement={
+                                  <div className="flex flex-row content-center">
+                                    <span className="mt-1.5 mr-1"><InfoHoverComponent>{infoHovers["gross_rewards"][this.props.lang]}</InfoHoverComponent></span>
+                                  </div>
+                                }
+                            />
+                          </div>
 
-                        <div className="col-span-2 mt-2 sm:mt-0">Distribution to Treasury</div>
-                        <div className="col-span-4">
-                          <InputGroup
-                              id="distribution-to-treasury"
-                              disabled={true}
-                              leftIcon="minus"
-                              value={this.state.distributionToTreasury?.toLocaleString("en-US", {maximumFractionDigits: 0})}
-                              fill={true}
-                              rightElement={
-                                <div className="flex flex-row content-center">
-                                  <span className="mt-1.5 mr-1"><InfoHoverComponent>{infoHovers["distribution_to_treasury"][this.props.lang]}</InfoHoverComponent></span>
-                                </div>
-                              }
-                          />
-                        </div>
+                          <div className="col-span-2 mt-2 sm:mt-0">Distribution to Treasury</div>
+                          <div className="col-span-4">
+                            <InputGroup
+                                id="distribution-to-treasury"
+                                disabled={true}
+                                leftIcon="minus"
+                                value={this.state.distributionToTreasury?.toLocaleString("en-US", {maximumFractionDigits: 0})}
+                                fill={true}
+                                rightElement={
+                                  <div className="flex flex-row content-center">
+                                    <span className="mt-1.5 mr-1"><InfoHoverComponent>{infoHovers["distribution_to_treasury"][this.props.lang]}</InfoHoverComponent></span>
+                                  </div>
+                                }
+                            />
+                          </div>
 
-                        <div className="col-span-2 mt-2 sm:mt-0">Net Rewards to Pools</div>
-                        <div className="col-span-4">
-                          <InputGroup
-                              id="reward-to-pools"
-                              disabled={true}
-                              leftIcon="equals"
-                              value={this.state.rewardToPoolOperators?.toLocaleString("en-US", {maximumFractionDigits: 0})}
-                              fill={true}
-                              rightElement={
-                                <div className="flex flex-row content-center">
-                                  <span className="mt-1.5 mr-1"><InfoHoverComponent>{infoHovers["net_rewards_to_pools"][this.props.lang]}</InfoHoverComponent></span>
-                                </div>
-                              }
-                          />
+                          <div className="col-span-2 mt-2 sm:mt-0">Net Rewards to Pools</div>
+                          <div className="col-span-4">
+                            <InputGroup
+                                id="reward-to-pools"
+                                disabled={true}
+                                leftIcon="equals"
+                                value={this.state.rewardToPoolOperators?.toLocaleString("en-US", {maximumFractionDigits: 0})}
+                                fill={true}
+                                rightElement={
+                                  <div className="flex flex-row content-center">
+                                    <span className="mt-1.5 mr-1"><InfoHoverComponent>{infoHovers["net_rewards_to_pools"][this.props.lang]}</InfoHoverComponent></span>
+                                  </div>
+                                }
+                            />
+                          </div>
+
                         </div>
 
                       </div>
-
                     </div>
                   </div>
                 </div>

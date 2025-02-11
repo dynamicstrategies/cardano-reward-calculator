@@ -535,6 +535,15 @@ export const infoSections = {
 			<div key="info_section_2_en" className="space-y-2">
 				<h4 className="text-md font-medium">Info</h4>
 				<p>...</p>
+				<p>...</p>
+				<p>...</p>
+				<p>...</p>
+				<p>...</p>
+				<p>...</p>
+				<p>...</p>
+				<p>...</p>
+				<p>...</p>
+				<p>...</p>
 			</div>
 		],
 		"jp": [
@@ -550,6 +559,16 @@ export const infoSections = {
 			<div key="info_section_3_en" className="space-y-2">
 				<h4 className="text-md font-medium">Info</h4>
 				<p>...</p>
+				<p>...</p>
+				<p>...</p>
+				<p>...</p>
+				<p>...</p>
+				<p>...</p>
+				<p>...</p>
+				<p>...</p>
+				<p>...</p>
+				<p>...</p>
+				<p>...</p>
 			</div>
 		],
 		"jp": [
@@ -564,6 +583,16 @@ export const infoSections = {
 		"en": [
 			<div key="info_section_4_en" className="space-y-2">
 				<h4 className="text-md font-medium">Info</h4>
+				<p>...</p>
+				<p>...</p>
+				<p>...</p>
+				<p>...</p>
+				<p>...</p>
+				<p>...</p>
+				<p>...</p>
+				<p>...</p>
+				<p>...</p>
+				<p>...</p>
 				<p>...</p>
 			</div>
 		],

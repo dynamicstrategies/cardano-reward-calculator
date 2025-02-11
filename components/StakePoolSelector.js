@@ -21,14 +21,27 @@ function StakePoolSelector({stakePoolN, allStakePoolInfo, handlePoolSelect}) {
 	 * Action initial load of all stake pools
 	 */
 	useEffect(() => {
-		// console.log(props.allStakePoolInfo)
 
-		const allStakePoolInfo_shuffled = shuffleArray(allStakePoolInfo)
-		console.log("--- do the shuffle ---")
-		// const stakePoolN = stakePoolN
+		// split into pools with a ticker and without
+		// const poolsWithTicker = []
+		// const poolsNoTicker = []
+		//
+		// for (const x of allStakePoolInfo) {
+		// 	if (x["ticker"]) {
+		// 		poolsWithTicker.push(x)
+		// 	} else {
+		// 		x["ticker"] = "no_ticker"
+		// 		poolsNoTicker.push(x)
+		// 	}
+		// }
+		//
+		// console.log("--- do the shuffle ---")
+		// const poolsWithTicker_shuffled = shuffleArray(poolsWithTicker)
+		//
+		// const allStakePoolInfo_shuffled = poolsWithTicker_shuffled.concat(poolsNoTicker)
 
 		let poolTickers = []
-		for (const x of allStakePoolInfo_shuffled) {
+		for (const x of allStakePoolInfo) {
 			const ticker = x?.ticker;
 			const pool_id_bech32 = x?.pool_id_bech32;
 			const poolDict = {ticker, pool_id_bech32, stakePoolN}
@@ -93,6 +106,12 @@ function StakePoolSelector({stakePoolN, allStakePoolInfo, handlePoolSelect}) {
 			// onItemSelect={p => props.handlePoolSelect(p)}
 			placeholder="Select a Pool"
 			noResults={<MenuItem disabled={true} text="No results." roleStructure="listoption" />}
+			menuProps={{
+				style: {
+					maxHeight: "300px",  // Limit the dropdown height
+					overflowY: "auto",   // Enable vertical scrolling
+				},
+			}}
 		>
 			<Button text={selectedPool?.ticker} rightIcon="double-caret-vertical" fill={true} placeholder="Select a Stake Pool" />
 		</Select>
