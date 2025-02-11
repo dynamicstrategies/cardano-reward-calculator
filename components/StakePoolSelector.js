@@ -59,7 +59,8 @@ function StakePoolSelector({stakePoolN, allStakePoolInfo, handlePoolSelect}) {
 			items={allPoolTickers}
 			// selectedItems={items}
 			itemPredicate = {(query, val, _index, exactMatch) => {
-				const normalizedTitle = val.ticker.toLowerCase();
+				// const normalizedTitle = val.ticker.toLowerCase();
+				const normalizedTitle = `${val.ticker.padEnd("12", ".")} ${val.pool_id_bech32}`.toLowerCase();
 				const normalizedQuery = query.toLowerCase();
 
 				if (exactMatch) {

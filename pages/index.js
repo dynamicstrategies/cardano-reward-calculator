@@ -291,11 +291,23 @@ class RewardCalculator extends React.Component {
        * - have a ticker. Stake pools without a ticker tend to be private pools
        * - have pledged what they promised
        */
-      const allStakePoolInfo = spObj.filter(
-          x => x["pool_status"] === "registered"
-              && x["ticker"]
-          // && Number(x["live_pledge"]) >= Number(x["pledge"])
-      )
+      let allStakePoolInfo = [];
+      for (const x of spObj) {
+        if (x["pool_status"] !== "registered") continue
+        if (!x["ticker"]) x["ticker"] = "no_ticker"
+        allStakePoolInfo.push(x)
+
+        // if (x.pool_id_bech32 === "pool13crd2ljx87988umk22er6ynwadfwdqupdpcq6prc6v59z62kxse") {
+        //   console.log(x)
+        // }
+      }
+
+
+      // const allStakePoolInfo = spObj.filter(
+      //     x => x["pool_status"] === "registered"
+      //         // && x["ticker"]
+      //     // && Number(x["live_pledge"]) >= Number(x["pledge"])
+      // )
       console.log("retrieved live pools that have a ticker: " + allStakePoolInfo?.length)
       const indexerDataLoaded = true
 
