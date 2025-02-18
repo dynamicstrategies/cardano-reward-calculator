@@ -5,7 +5,7 @@ const app = express();
 const PORT = 3000;
 
 // Serve static files from the 'out' directory
-app.use('/reward-calculator', express.static(path.join(__dirname, 'out')));
+app.use('/crewardcalculator', express.static(path.join(__dirname, 'out')));
 
 app.listen(PORT, () => {
 	console.log(`Express Server listening on port ${PORT}`)

@@ -3,7 +3,7 @@
 const nextConfig = {
   reactStrictMode: true,
   output: 'export',
-  basePath: '/reward-calculator',
+  basePath: '/crewardcalculator',
   images: {unoptimized: true}
 };
 

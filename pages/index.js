@@ -15,7 +15,7 @@ import {
   Quartile, shuffleArray
 } from "@/components/utils";
 import {Button, ControlGroup, InputGroup, Intent, Label, OverlayToaster, Position, Tag} from "@blueprintjs/core";
-import {Calendar, Cube, SeriesAdd, User} from "@blueprintjs/icons";
+import {Calendar, Cube, SeriesAdd, User, Percentage, BankAccount} from "@blueprintjs/icons";
 import StakePoolSelector from "../components/StakePoolSelector";
 import InfoHoverComponent from "../components/InfoHoverComponent";
 import {infoHovers, infoSections, uiText} from "@/components/infos";
@@ -152,6 +152,8 @@ class RewardCalculator extends React.Component {
         yearsActive: undefined,
         lifetimeBlocks: undefined,
         nDelegators: undefined,
+        marginPerc: undefined,
+        minFee: undefined,
         delegatorsReward_lower: 0,
         delegatorsReward_av: 0,
         delegatorsReward_upper: 0,
@@ -164,6 +166,8 @@ class RewardCalculator extends React.Component {
         yearsActive: undefined,
         lifetimeBlocks: undefined,
         nDelegators: undefined,
+        marginPerc: undefined,
+        minFee: undefined,
         delegatorsReward_lower: 0,
         delegatorsReward_av: 0,
         delegatorsReward_upper: 0,
@@ -176,6 +180,8 @@ class RewardCalculator extends React.Component {
         yearsActive: undefined,
         lifetimeBlocks: undefined,
         nDelegators: undefined,
+        marginPerc: undefined,
+        minFee: undefined,
         delegatorsReward_lower: 0,
         delegatorsReward_av: 0,
         delegatorsReward_upper: 0,
@@ -1193,8 +1199,28 @@ class RewardCalculator extends React.Component {
                                 (this.state.stakePool_1_Stats?.nDelegators).toLocaleString("en-US", {maximumFractionDigits: 0})
                                 :
                                 null
+                            }
+                          </div>
 
-                          }</div>
+                          <div className="col-span-2"><Percentage size={14} className="mr-2"/> Margin</div>
+                          <div className="text-center">{
+                            this.state.stakePool_1_Stats?.nDelegators !== undefined
+                                ?
+                                (this.state.stakePool_1_Stats?.nDelegators).toLocaleString("en-US", {maximumFractionDigits: 0})
+                                :
+                                null
+                          }
+                          </div>
+
+                          <div className="col-span-2"><BankAccount size={14} className="mr-2"/> Min Fee</div>
+                          <div className="text-center">{
+                            this.state.stakePool_1_Stats?.nDelegators !== undefined
+                                ?
+                                (this.state.stakePool_1_Stats?.nDelegators).toLocaleString("en-US", {maximumFractionDigits: 0})
+                                :
+                                null
+                          }
+                          </div>
 
                         </div>
 
