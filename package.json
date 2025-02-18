@@ -1,6 +1,6 @@
 {
   "name": "cardano_reward_calculator",
-  "version": "25.02.2",
+  "version": "25.02.3",
   "private": true,
   "scripts": {
     "dev": "next dev",

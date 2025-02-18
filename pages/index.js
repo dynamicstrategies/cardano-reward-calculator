@@ -18,23 +18,23 @@ import {Button, ControlGroup, InputGroup, Intent, Label, OverlayToaster, Positio
 import {Calendar, Cube, SeriesAdd, User} from "@blueprintjs/icons";
 import StakePoolSelector from "../components/StakePoolSelector";
 import InfoHoverComponent from "../components/InfoHoverComponent";
-import {infoHovers, infoSections} from "@/components/infos";
+import {infoHovers, infoSections, uiText} from "@/components/infos";
 import UiSpinner from "../components/UiSpinner";
 import { createRoot } from "react-dom/client";
 import VersionDisplay from "@/components/VersionDisplay";
 
 
-export async function getServerSideProps({ query }) {
-
-  const lang = query.lang || "en";
-  console.log(`language: ${lang}`)
-
-  return {
-    props: {
-      lang
-    },
-  };
-}
+// export async function getServerSideProps({ query }) {
+//
+//   const lang = query.lang || "en";
+//   console.log(`language: ${lang}`)
+//
+//   return {
+//     props: {
+//       lang
+//     },
+//   };
+// }
 
 /**
  * A React class component that handles all user interactions
@@ -45,6 +45,13 @@ class RewardCalculator extends React.Component {
     super(props);
 
     this.state = {
+
+      /**
+       * Language of the front end
+       * default is English
+       */
+      lang: "en",
+
 
       /**
        * Cardano Static Parameters
@@ -849,7 +856,7 @@ class RewardCalculator extends React.Component {
 
     } else {
       html.push(
-          <UiSpinner progress={this.state.uiProgressPerc}/>
+          <UiSpinner progress={this.state.uiProgressPerc} lang={this.state.lang}/>
       )
     }
 
@@ -882,7 +889,7 @@ class RewardCalculator extends React.Component {
 
     } else {
       html.push(
-          <UiSpinner progress={this.state.uiProgressPerc}/>
+          <UiSpinner progress={this.state.uiProgressPerc} lang={this.state.lang}/>
       )
     }
 
@@ -892,12 +899,24 @@ class RewardCalculator extends React.Component {
 
 
   async componentDidMount() {
+
+    // Extract the language parameter from the URL
+    const params = new URLSearchParams(window.location.search);
+    const lang = params.get('lang');
+
+    if (lang) {
+      this.setState({ lang });
+    }
+
+    console.log(`language: ${lang}`)
+
+
     await this.initData()
     this.errorToaster = await OverlayToaster.createAsync({ position: Position.TOP }, {
       // Use createRoot() instead of ReactDOM.render() to comply with React 18
       domRenderer: (toaster, containerElement) => createRoot(containerElement).render(toaster),
     });
-    // this.errorToaster = await OverlayToaster.createAsync({ position: Position.TOP });
+
   }
 
   componentWillUnmount() {
@@ -1027,10 +1046,12 @@ class RewardCalculator extends React.Component {
                 {/* Row 1, Column 1 */}
                 <div className="border border-gray-300 shadow-md rounded-lg bg-white p-8 lg:col-span-2">
                   <h4 className="text-balance text-2xl font-medium tracking-tight text-gray-900">
-                    Amount of ADA to Stake
+                    {uiText["amount_ada_to_stake"][this.state.lang]}
                   </h4>
 
-                  <p className="mt-2">Input the amount of ADA that you are looking to stake</p>
+                  <div className="mt-2">
+                    {uiText["amount_ada_to_stake_desc"][this.state.lang]}
+                  </div>
 
                   <div className="mt-8 grid gap-4 overflow-hidden text-center">
 
@@ -1056,9 +1077,11 @@ class RewardCalculator extends React.Component {
 
                       <div key="pool-reward-ada" className="flex flex-col bg-gray-700/5 p-8">
                         <div className="flex flex-row gap-2 justify-center mt-4 ">
-                          <dt className="text-sm/6 font-semibold text-gray-600">Staking Reward per Year ADA</dt>
+                          <dt className="text-sm/6 font-semibold text-gray-600">
+                            {uiText["staking_rewards_per_year_ada_label"][this.state.lang]}
+                          </dt>
                           <span className="mt-0.5">
-                              <InfoHoverComponent>{infoHovers["staking_reward_per_year_ada"][this.props.lang]}</InfoHoverComponent>
+                              <InfoHoverComponent>{infoHovers["staking_reward_per_year_ada"][this.state.lang]}</InfoHoverComponent>
                           </span>
                         </div>
                         <dd className="order-first text-3xl font-semibold tracking-tight text-gray-900 flex flex-row gap-4 justify-center">
@@ -1071,9 +1094,11 @@ class RewardCalculator extends React.Component {
 
                       <div key="pool-reward-perc" className="flex flex-col bg-gray-700/5 p-8">
                         <div className="flex flex-row gap-2 justify-center mt-4 ">
-                          <dt className="text-sm/6 font-semibold text-gray-600">Annualized Staking Reward</dt>
+                          <dt className="text-sm/6 font-semibold text-gray-600">
+                            {uiText["annualized_staking_reward_label"][this.state.lang]}
+                          </dt>
                           <span className="mt-0.5">
-                              <InfoHoverComponent>{infoHovers["staking_reward_annualized_perc"][this.props.lang]}</InfoHoverComponent>
+                              <InfoHoverComponent>{infoHovers["staking_reward_annualized_perc"][this.state.lang]}</InfoHoverComponent>
                           </span>
                         </div>
                         <dd className="order-first text-3xl font-semibold tracking-tight text-gray-900 flex flex-row gap-4 justify-center">
@@ -1092,7 +1117,7 @@ class RewardCalculator extends React.Component {
 
                 {/* Row 1, Column 2 */}
                 <div className="border border-gray-300 shadow-md rounded-lg bg-white p-4">
-                  {infoSections["info_section_1"][this.props.lang]}
+                  {infoSections["info_section_1"][this.state.lang]}
                 </div>
 
                 {/* Row 2, Column 1 - Stake Pools*/}
@@ -1102,15 +1127,16 @@ class RewardCalculator extends React.Component {
                     <div className="cursor-pointer" onClick={
                       () => this.setState({isUIStakePoolsShown: !this.state.isUIStakePoolsShown})
                     }>
-                      <h4 className="text-balance text-2xl font-medium tracking-tight">
-									<span id="icon" className="text-3xl font-normal mr-4">
-										{this.state.isUIStakePoolsShown ? "-" : "+"}
-									</span>
-                        Stake Pools
+                      <h4 className="flex text-balance items-center text-2xl font-medium tracking-tight">
+                        <span id="icon" className="-mt-0.5 text-3xl font-normal mr-4">
+                            {this.state.isUIStakePoolsShown ? "-" : "+"}
+                        </span>
+                        {uiText["stake_pool_section_title"][this.state.lang]}
                       </h4>
 
-                      <p className="mt-2">Compare up to 3 stake pools between themselves. Check how much Staking rewards is expected for the operator and the delegators (you).
-                        Uses a Monte Carlo simulation to account for luck and shows the expected Low, Medium and High reward for each pool.</p>
+                      <div className="mt-2">
+                        {uiText["stake_pool_section_desc"][this.state.lang]}
+                      </div>
 
                     </div>
 
@@ -1174,7 +1200,7 @@ class RewardCalculator extends React.Component {
 
                         <div className="flex flex-row justify-between mt-8">
                           <p className=""><SeriesAdd size={14} className="mr-2"/> Expected Return</p>
-                          <InfoHoverComponent>{infoHovers["monte_carlo"][this.props.lang]}</InfoHoverComponent>
+                          <InfoHoverComponent>{infoHovers["monte_carlo"][this.state.lang]}</InfoHoverComponent>
                         </div>
 
 
@@ -1352,7 +1378,7 @@ class RewardCalculator extends React.Component {
 
                 {/* Row 2, Column 2 */}
                 <div className="h-full border border-gray-300 shadow-md rounded-lg bg-white p-4">
-                  {infoSections["info_section_2"][this.props.lang]}
+                  {infoSections["info_section_2"][this.state.lang]}
                 </div>
 
                 {/* Row 3, Column 1 */}
@@ -1361,16 +1387,16 @@ class RewardCalculator extends React.Component {
                     <div className="cursor-pointer" onClick={
                       () => this.setState({isUIStakeParamsShown: !this.state.isUIStakeParamsShown})
                     }>
-                      <h4 className="text-balance text-2xl font-medium tracking-tight">
-									<span id="icon" className="text-3xl font-normal mr-4">
-										{this.state.isUIStakeParamsShown ? "-" : "+"}
-									</span>
-                        Stake Pool Parameters
+                      <h4 className="flex items-center text-balance text-2xl font-medium tracking-tight">
+                        <span id="icon" className="-mt-0.5 text-3xl font-normal mr-4">
+                            {this.state.isUIStakeParamsShown ? "-" : "+"}
+                        </span>
+                        {uiText["stake_pool_parameters_section_title"][this.state.lang]}
                       </h4>
 
-                      <p className="mt-2">These parameters are specific to each stake pool and influence how the rewards are distributed between
-                        the operator of the pool and the delegators, and also how many blocks the pool is expected to mint each epoch. Expand to change
-                        these parameters and see impact on rewards</p>
+                      <div className="mt-2">
+                        {uiText["stake_pool_parameters_section_desc"][this.state.lang]}
+                      </div>
 
                     </div>
 
@@ -1395,7 +1421,7 @@ class RewardCalculator extends React.Component {
                               rightElement={
                                 <div className="flex flex-row content-center">
                                   <Tag minimal={true}>ADA</Tag>
-                                  <span className="mt-1.5 mr-1"><InfoHoverComponent>{infoHovers["pool_pledge"][this.props.lang]}</InfoHoverComponent></span>
+                                  <span className="mt-1.5 mr-1"><InfoHoverComponent>{infoHovers["pool_pledge"][this.state.lang]}</InfoHoverComponent></span>
 
                                 </div>
                               }
@@ -1418,7 +1444,7 @@ class RewardCalculator extends React.Component {
                               rightElement={
                                 <div className="flex flex-row content-center">
                                   <Tag minimal={true}>ADA</Tag>
-                                  <span className="mt-1.5 mr-1"><InfoHoverComponent>{infoHovers["delegator_stake"][this.props.lang]}</InfoHoverComponent></span>
+                                  <span className="mt-1.5 mr-1"><InfoHoverComponent>{infoHovers["delegator_stake"][this.state.lang]}</InfoHoverComponent></span>
                                 </div>
                               }
                           />
@@ -1440,7 +1466,7 @@ class RewardCalculator extends React.Component {
                               rightElement={
                                 <div className="flex flex-row content-center">
                                   <Tag minimal={true}>ADA</Tag>
-                                  <span className="mt-1.5 mr-1"><InfoHoverComponent>{infoHovers["total_pool_stake"][this.props.lang]}</InfoHoverComponent></span>
+                                  <span className="mt-1.5 mr-1"><InfoHoverComponent>{infoHovers["total_pool_stake"][this.state.lang]}</InfoHoverComponent></span>
                                 </div>
                               }
                           />
@@ -1462,7 +1488,7 @@ class RewardCalculator extends React.Component {
                               rightElement={
                                 <div className="flex flex-row content-center">
                                   <Tag minimal={true}>ADA</Tag>
-                                  <span className="mt-1.5 mr-1"><InfoHoverComponent>{infoHovers["pool_fixed_costs"][this.props.lang]}</InfoHoverComponent></span>
+                                  <span className="mt-1.5 mr-1"><InfoHoverComponent>{infoHovers["pool_fixed_costs"][this.state.lang]}</InfoHoverComponent></span>
                                 </div>
                               }
                           />
@@ -1485,7 +1511,7 @@ class RewardCalculator extends React.Component {
                               rightElement={
                                 <div className="flex flex-row content-center">
                                   <Tag minimal={true}>%</Tag>
-                                  <span className="mt-1.5 mr-1"><InfoHoverComponent>{infoHovers["pool_variable_fee"][this.props.lang]}</InfoHoverComponent></span>
+                                  <span className="mt-1.5 mr-1"><InfoHoverComponent>{infoHovers["pool_variable_fee"][this.state.lang]}</InfoHoverComponent></span>
                                 </div>
                               }
                           />
@@ -1500,7 +1526,7 @@ class RewardCalculator extends React.Component {
 
                 {/* Row 3, Column 2 */}
                 <div className="border border-gray-300 shadow-md rounded-lg bg-white p-4">
-                  {infoSections["info_section_3"][this.props.lang]}
+                  {infoSections["info_section_3"][this.state.lang]}
                 </div>
 
                 {/* Row 4, Column 1 */}
@@ -1509,16 +1535,16 @@ class RewardCalculator extends React.Component {
                     <div className="cursor-pointer" onClick={
                       () => this.setState({isUIBlockParamsShown: !this.state.isUIBlockParamsShown})
                     }>
-                      <h4 className="text-balance text-2xl font-medium tracking-tight">
-									<span id="icon" className="text-3xl font-normal mr-4">
-										{this.state.isUIBlockParamsShown ? "-" : "+"}
-									</span>
-                        Blockchain Parameters
+                      <h4 className="flex text-balance items-center text-2xl font-medium tracking-tight">
+                        <span id="icon" className="-mt-0.5 text-3xl font-normal mr-4">
+                            {this.state.isUIBlockParamsShown ? "-" : "+"}
+                        </span>
+                        {uiText["blockchain_params_section_title"][this.state.lang]}
                       </h4>
 
-                      <p className="mt-2">These parameters are specific to the Cardano blockchain and affect the total size of reward &quot;pot&quot; available
-                        for distribution and how it is distributed to different pools. Some parameters can be changed with a community vote (Dynamic Parameters)
-                        and some can&apos;t be changed at all (Static Parameters)</p>
+                      <div className="mt-2">
+                        {uiText["blockchain_params_section_desc"][this.state.lang]}
+                      </div>
 
                     </div>
 
@@ -1527,21 +1553,20 @@ class RewardCalculator extends React.Component {
                     <div className={`${this.state.isUIBlockParamsShown ? "" : "hidden"} mt-8`}>
 
 
-                      <div className="cursor-pointer bg-gray-100 px-2 py-1 -mx-2 mt-8 mb-4 text-gray-900" onClick={
+                      <div className="flex items-center cursor-pointer bg-gray-100 px-2 py-1 -mx-2 mt-8 mb-4 text-gray-900" onClick={
                         () => this.setState({isUIDynamicParamsShow: !this.state.isUIDynamicParamsShow})
                       }>
-                      <span id="icon" className="font-normal text-gray-900 mr-4">
-                          {this.state.isUIDynamicParamsShow ? "-" : "+"}
-                      </span>
-                        Dynamic Parameters
+                        <span id="icon" className="font-normal text-gray-900 mr-4">
+                            {this.state.isUIDynamicParamsShow ? "-" : "+"}
+                        </span>
+                        {uiText["dynamic_params_section_title"][this.state.lang]}
                       </div>
 
                       <div className={`${this.state.isUIDynamicParamsShow ? "" : "hidden"}`}>
 
-                        <div className="mb-8">Dynamic blockchain parameters can be adjusted through governance processes.
-                          These parameters can be used to change the operation of the block-producing protocol,
-                          vary transaction fees, define the influence of pledge, etc.
-                          Press the (i) icon to see what each one is responsible for.</div>
+                        <div className="mb-8">
+                          {uiText["dynamic_params_section_desc"][this.state.lang]}
+                        </div>
 
                         <div className="grid grid-cols-1 sm:grid-cols-6 gap-2 sm:mr-12">
 
@@ -1560,7 +1585,7 @@ class RewardCalculator extends React.Component {
                                 fill={true}
                                 rightElement={
                                   <div className="flex flex-row content-center">
-                                    <span className="mt-1.5 mr-1"><InfoHoverComponent>{infoHovers["rho"][this.props.lang]}</InfoHoverComponent></span>
+                                    <span className="mt-1.5 mr-1"><InfoHoverComponent>{infoHovers["rho"][this.state.lang]}</InfoHoverComponent></span>
                                   </div>
                                 }
                             />
@@ -1581,7 +1606,7 @@ class RewardCalculator extends React.Component {
                                 fill={true}
                                 rightElement={
                                   <div className="flex flex-row content-center">
-                                    <span className="mt-1.5 mr-1"><InfoHoverComponent>{infoHovers["tau"][this.props.lang]}</InfoHoverComponent></span>
+                                    <span className="mt-1.5 mr-1"><InfoHoverComponent>{infoHovers["tau"][this.state.lang]}</InfoHoverComponent></span>
                                   </div>
                                 }
                             />
@@ -1601,7 +1626,7 @@ class RewardCalculator extends React.Component {
                                 fill={true}
                                 rightElement={
                                   <div className="flex flex-row content-center">
-                                    <span className="mt-1.5 mr-1"><InfoHoverComponent>{infoHovers["k"][this.props.lang]}</InfoHoverComponent></span>
+                                    <span className="mt-1.5 mr-1"><InfoHoverComponent>{infoHovers["k"][this.state.lang]}</InfoHoverComponent></span>
                                   </div>
                                 }
                             />
@@ -1622,7 +1647,7 @@ class RewardCalculator extends React.Component {
                                 fill={true}
                                 rightElement={
                                   <div className="flex flex-row content-center">
-                                    <span className="mt-1.5 mr-1"><InfoHoverComponent>{infoHovers["a0"][this.props.lang]}</InfoHoverComponent></span>
+                                    <span className="mt-1.5 mr-1"><InfoHoverComponent>{infoHovers["a0"][this.state.lang]}</InfoHoverComponent></span>
                                   </div>
                                 }
                             />
@@ -1639,7 +1664,7 @@ class RewardCalculator extends React.Component {
                                 fill={true}
                                 rightElement={
                                   <div className="flex flex-row content-center">
-                                    <span className="mt-1.5 mr-1"><InfoHoverComponent>{infoHovers["z0"][this.props.lang]}</InfoHoverComponent></span>
+                                    <span className="mt-1.5 mr-1"><InfoHoverComponent>{infoHovers["z0"][this.state.lang]}</InfoHoverComponent></span>
                                   </div>
                                 }
                             />
@@ -1649,21 +1674,20 @@ class RewardCalculator extends React.Component {
 
                       </div>
 
-                      <div className="cursor-pointer bg-gray-100 px-2 py-1 -mx-2 mt-8 mb-4 text-gray-900" onClick={
+                      <div className="flex items-center cursor-pointer bg-gray-100 px-2 py-1 -mx-2 mt-8 mb-4 text-gray-900" onClick={
                         () => this.setState({isUIStaticParamsShow: !this.state.isUIStaticParamsShow})
                       }>
-                      <span id="icon" className="font-normal text-gray-900 mr-4">
-                          {this.state.isUIStaticParamsShow ? "-" : "+"}
-                      </span>
-                        Static Parameters
+                        <span id="icon" className="font-normal text-gray-900 mr-4">
+                            {this.state.isUIStaticParamsShow ? "-" : "+"}
+                        </span>
+                        {uiText["static_params_section_title"][this.state.lang]}
                       </div>
 
                       <div className={`${this.state.isUIStaticParamsShow ? "" : "hidden"}`}>
 
-                        <div className="mb-8">Static parameters affect the fundamentals of the Cardano protocol and are stable,
-                          which means that they can not be changed except via a hard fork.
-                          Static parameters include those defining the genesis block or basic security properties, for example.
-                          Some of these parameters may be embedded in the source code or implemented as software.</div>
+                        <div className="mb-8">
+                          {uiText["static_params_section_desc"][this.state.lang]}
+                        </div>
 
 
                         <div className="grid grid-cols-1 sm:grid-cols-6 gap-2 sm:mr-12">
@@ -1678,7 +1702,7 @@ class RewardCalculator extends React.Component {
                                 fill={true}
                                 rightElement={
                                   <div className="flex flex-row content-center">
-                                    <span className="mt-1.5 mr-1"><InfoHoverComponent>{infoHovers["days_in_epoch"][this.props.lang]}</InfoHoverComponent></span>
+                                    <span className="mt-1.5 mr-1"><InfoHoverComponent>{infoHovers["days_in_epoch"][this.state.lang]}</InfoHoverComponent></span>
                                   </div>
                                 }
                             />
@@ -1694,7 +1718,7 @@ class RewardCalculator extends React.Component {
                                 fill={true}
                                 rightElement={
                                   <div className="flex flex-row content-center">
-                                    <span className="mt-1.5 mr-1"><InfoHoverComponent>{infoHovers["epochs_in_year"][this.props.lang]}</InfoHoverComponent></span>
+                                    <span className="mt-1.5 mr-1"><InfoHoverComponent>{infoHovers["epochs_in_year"][this.state.lang]}</InfoHoverComponent></span>
                                   </div>
                                 }
                             />
@@ -1710,7 +1734,7 @@ class RewardCalculator extends React.Component {
                                 fill={true}
                                 rightElement={
                                   <div className="flex flex-row content-center">
-                                    <span className="mt-1.5 mr-1"><InfoHoverComponent>{infoHovers["slots_in_epoch"][this.props.lang]}</InfoHoverComponent></span>
+                                    <span className="mt-1.5 mr-1"><InfoHoverComponent>{infoHovers["slots_in_epoch"][this.state.lang]}</InfoHoverComponent></span>
                                   </div>
                                 }
                             />
@@ -1726,7 +1750,7 @@ class RewardCalculator extends React.Component {
                                 fill={true}
                                 rightElement={
                                   <div className="flex flex-row content-center">
-                                    <span className="mt-1.5 mr-1"><InfoHoverComponent>{infoHovers["chain_density"][this.props.lang]}</InfoHoverComponent></span>
+                                    <span className="mt-1.5 mr-1"><InfoHoverComponent>{infoHovers["chain_density"][this.state.lang]}</InfoHoverComponent></span>
                                   </div>
                                 }
                             />
@@ -1742,7 +1766,7 @@ class RewardCalculator extends React.Component {
                                 fill={true}
                                 rightElement={
                                   <div className="flex flex-row content-center">
-                                    <span className="mt-1.5 mr-1"><InfoHoverComponent>{infoHovers["blocks_in_epoch"][this.props.lang]}</InfoHoverComponent></span>
+                                    <span className="mt-1.5 mr-1"><InfoHoverComponent>{infoHovers["blocks_in_epoch"][this.state.lang]}</InfoHoverComponent></span>
                                   </div>
                                 }
                             />
@@ -1758,7 +1782,7 @@ class RewardCalculator extends React.Component {
                                 fill={true}
                                 rightElement={
                                   <div className="flex flex-row content-center">
-                                    <span className="mt-1.5 mr-1"><InfoHoverComponent>{infoHovers["max_ada_supply"][this.props.lang]}</InfoHoverComponent></span>
+                                    <span className="mt-1.5 mr-1"><InfoHoverComponent>{infoHovers["max_ada_supply"][this.state.lang]}</InfoHoverComponent></span>
                                   </div>
                                 }
                             />
@@ -1778,7 +1802,7 @@ class RewardCalculator extends React.Component {
                                 fill={true}
                                 rightElement={
                                   <div className="flex flex-row content-center">
-                                    <span className="mt-1.5 mr-1"><InfoHoverComponent>{infoHovers["current_ada_supply"][this.props.lang]}</InfoHoverComponent></span>
+                                    <span className="mt-1.5 mr-1"><InfoHoverComponent>{infoHovers["current_ada_supply"][this.state.lang]}</InfoHoverComponent></span>
                                   </div>
                                 }
                             />
@@ -1794,7 +1818,7 @@ class RewardCalculator extends React.Component {
                                 fill={true}
                                 rightElement={
                                   <div className="flex flex-row content-center">
-                                    <span className="mt-1.5 mr-1"><InfoHoverComponent>{infoHovers["reserve_ada"][this.props.lang]}</InfoHoverComponent></span>
+                                    <span className="mt-1.5 mr-1"><InfoHoverComponent>{infoHovers["reserve_ada"][this.state.lang]}</InfoHoverComponent></span>
                                   </div>
                                 }
                             />
@@ -1814,7 +1838,7 @@ class RewardCalculator extends React.Component {
                                 fill={true}
                                 rightElement={
                                   <div className="flex flex-row content-center">
-                                    <span className="mt-1.5 mr-1"><InfoHoverComponent>{infoHovers["total_staked_ada"][this.props.lang]}</InfoHoverComponent></span>
+                                    <span className="mt-1.5 mr-1"><InfoHoverComponent>{infoHovers["total_staked_ada"][this.state.lang]}</InfoHoverComponent></span>
                                   </div>
                                 }
                             />
@@ -1824,21 +1848,20 @@ class RewardCalculator extends React.Component {
 
                       </div>
 
-                      <div className="cursor-pointer bg-gray-100 px-2 py-1 -mx-2 mt-8 mb-4 text-gray-900" onClick={
+                      <div className="flex items-center cursor-pointer bg-gray-100 px-2 py-1 -mx-2 mt-8 mb-4 text-gray-900" onClick={
                         () => this.setState({isUIFeesReservesShow: !this.state.isUIFeesReservesShow})
                       }>
-                      <span id="icon" className="font-normal text-gray-900 mr-4">
-                          {this.state.isUIFeesReservesShow ? "-" : "+"}
-                      </span>
-                        Fees & Remaining Reserves
+                        <span id="icon" className="font-normal text-gray-900 mr-4">
+                            {this.state.isUIFeesReservesShow ? "-" : "+"}
+                        </span>
+                        {uiText["fees_section_title"][this.state.lang]}
                       </div>
 
                       <div className={`${this.state.isUIFeesReservesShow ? "" : "hidden"}`}>
 
-                        <div className="mb-8">Cardano uses a transaction fee system that covers the processing
-                          and long-term storage cost of transactions. Fees from each epoch are pooled and then
-                          distributed to all pools that created blocks during an epoch. The fees are supplemented
-                          by a distribution of a % (rho) from reserves.</div>
+                        <div className="mb-8">
+                          {uiText["fees_section_desc"][this.state.lang]}
+                        </div>
 
 
                         <div className="grid grid-cols-1 sm:grid-cols-6 gap-2 sm:mr-12">
@@ -1858,7 +1881,7 @@ class RewardCalculator extends React.Component {
                                 fill={true}
                                 rightElement={
                                   <div className="flex flex-row content-center">
-                                    <span className="mt-1.5 mr-1"><InfoHoverComponent>{infoHovers["fees_in_epoch"][this.props.lang]}</InfoHoverComponent></span>
+                                    <span className="mt-1.5 mr-1"><InfoHoverComponent>{infoHovers["fees_in_epoch"][this.state.lang]}</InfoHoverComponent></span>
                                   </div>
                                 }
                             />
@@ -1875,7 +1898,7 @@ class RewardCalculator extends React.Component {
                                 fill={true}
                                 rightElement={
                                   <div className="flex flex-row content-center">
-                                    <span className="mt-1.5 mr-1"><InfoHoverComponent>{infoHovers["distribution_from_reserve"][this.props.lang]}</InfoHoverComponent></span>
+                                    <span className="mt-1.5 mr-1"><InfoHoverComponent>{infoHovers["distribution_from_reserve"][this.state.lang]}</InfoHoverComponent></span>
                                   </div>
                                 }
                             />
@@ -1891,7 +1914,7 @@ class RewardCalculator extends React.Component {
                                 fill={true}
                                 rightElement={
                                   <div className="flex flex-row content-center">
-                                    <span className="mt-1.5 mr-1"><InfoHoverComponent>{infoHovers["gross_rewards"][this.props.lang]}</InfoHoverComponent></span>
+                                    <span className="mt-1.5 mr-1"><InfoHoverComponent>{infoHovers["gross_rewards"][this.state.lang]}</InfoHoverComponent></span>
                                   </div>
                                 }
                             />
@@ -1907,7 +1930,7 @@ class RewardCalculator extends React.Component {
                                 fill={true}
                                 rightElement={
                                   <div className="flex flex-row content-center">
-                                    <span className="mt-1.5 mr-1"><InfoHoverComponent>{infoHovers["distribution_to_treasury"][this.props.lang]}</InfoHoverComponent></span>
+                                    <span className="mt-1.5 mr-1"><InfoHoverComponent>{infoHovers["distribution_to_treasury"][this.state.lang]}</InfoHoverComponent></span>
                                   </div>
                                 }
                             />
@@ -1923,7 +1946,7 @@ class RewardCalculator extends React.Component {
                                 fill={true}
                                 rightElement={
                                   <div className="flex flex-row content-center">
-                                    <span className="mt-1.5 mr-1"><InfoHoverComponent>{infoHovers["net_rewards_to_pools"][this.props.lang]}</InfoHoverComponent></span>
+                                    <span className="mt-1.5 mr-1"><InfoHoverComponent>{infoHovers["net_rewards_to_pools"][this.state.lang]}</InfoHoverComponent></span>
                                   </div>
                                 }
                             />
@@ -1938,7 +1961,7 @@ class RewardCalculator extends React.Component {
 
                 {/* Row 4, Column 2 */}
                 <div className="border border-gray-300 shadow-md rounded-lg bg-white p-4">
-                  {infoSections["info_section_4"][this.props.lang]}
+                  {infoSections["info_section_4"][this.state.lang]}
                 </div>
               </div>
 

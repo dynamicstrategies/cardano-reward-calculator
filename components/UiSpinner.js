@@ -1,5 +1,6 @@
 import React from "react";
 import {Spinner, Intent} from "@blueprintjs/core";
+import {uiText} from "@/components/infos";
 
 function UiSpinner(props) {
 
@@ -13,7 +14,9 @@ function UiSpinner(props) {
 				size={25}
 				value={props.progress}
 			/>
-			<p className="text-base font-normal ml-4">loading stake pools ...</p>
+			<div className="text-base font-normal ml-4">
+				{uiText["loading_stake_pools_label"][props.lang]}
+			</div>
 		</div>
 
 	);

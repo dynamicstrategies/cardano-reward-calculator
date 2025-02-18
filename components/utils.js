@@ -32,7 +32,8 @@ export const getChainTip = async () => {
 			method: 'get',
 			url: '/tip',
 			baseURL: KOIOS_URL,
-			headers: {'accept': 'application/json', 'Authorization': `Bearer ${KOIOS_TOKEN}`},
+			headers: {'accept': 'application/json'},
+			// headers: {'accept': 'application/json', 'Authorization': `Bearer ${KOIOS_TOKEN}`},
 
 		})
 
@@ -111,7 +112,8 @@ export const getProtocolParams = async () => {
 			method: 'get',
 			url: '/cli_protocol_params',
 			baseURL: KOIOS_URL,
-			headers: {'accept': 'application/json', 'Authorization': `Bearer ${KOIOS_TOKEN}`},
+			headers: {'accept': 'application/json'},
+			// headers: {'accept': 'application/json', 'Authorization': `Bearer ${KOIOS_TOKEN}`},
 
 		})
 
@@ -169,7 +171,8 @@ export const getEpochInfo = async (currentEpochN) => {
 			url: '/epoch_info',
 			baseURL: KOIOS_URL,
 			params: payload,
-			headers: {'accept': 'application/json', 'Authorization': `Bearer ${KOIOS_TOKEN}`},
+			headers: {'accept': 'application/json'},
+			// headers: {'accept': 'application/json', 'Authorization': `Bearer ${KOIOS_TOKEN}`},
 
 		})
 
@@ -221,7 +224,8 @@ export const getReserves = async (currentEpochN) => {
 			url: '/totals',
 			baseURL: KOIOS_URL,
 			params: payload,
-			headers: {'accept': 'application/json', 'Authorization': `Bearer ${KOIOS_TOKEN}`},
+			headers: {'accept': 'application/json'},
+			// headers: {'accept': 'application/json', 'Authorization': `Bearer ${KOIOS_TOKEN}`},
 
 		})
 
@@ -289,7 +293,8 @@ export const getStakePoolList = async () => {
 				url: '/pool_list',
 				baseURL: KOIOS_URL,
 				params: payload,
-				headers: {'accept': 'application/json', 'Authorization': `Bearer ${KOIOS_TOKEN}`},
+				headers: {'accept': 'application/json'},
+				// headers: {'accept': 'application/json', 'Authorization': `Bearer ${KOIOS_TOKEN}`},
 
 			})
 
@@ -388,7 +393,8 @@ export const getStakePoolInfo = async (pool_bech32_id) => {
 			url: '/pool_info',
 			baseURL: KOIOS_URL,
 			data: JSON.stringify(req),
-			headers: {'Content-Type': 'application/json', 'accept': 'application/json', 'Authorization': `Bearer ${KOIOS_TOKEN}`},
+			headers: {'Content-Type': 'application/json', 'accept': 'application/json'},
+			// headers: {'Content-Type': 'application/json', 'accept': 'application/json', 'Authorization': `Bearer ${KOIOS_TOKEN}`},
 
 		})
 
@@ -423,7 +429,8 @@ export const getStakePoolActiveSinceEpoch = async (pool_bech32_id) => {
 			url: '/pool_updates',
 			baseURL: KOIOS_URL,
 			params: payload,
-			headers: {'accept': 'application/json', 'Authorization': `Bearer ${KOIOS_TOKEN}`},
+			headers: {'accept': 'application/json'},
+			// headers: {'accept': 'application/json', 'Authorization': `Bearer ${KOIOS_TOKEN}`},
 
 		})
 

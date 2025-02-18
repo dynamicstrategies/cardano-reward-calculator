@@ -4,6 +4,267 @@
  * icons next to fields in the calculator
  */
 
+export const uiText = {
+	"amount_ada_to_stake": {
+		"en": [
+			<div key="amount_ada_to_stake_en">
+				Amount of ADA to Stake
+			</div>
+		],
+		"jp": [
+			<div key="amount_ada_to_stake_jp">
+				ステークするADAの量
+			</div>
+		]
+	} ,
+
+	"amount_ada_to_stake_desc": {
+		"en": [
+			<div key="amount_ada_to_stake_desc_en">
+				Input the amount of ADA that you are looking to stake
+			</div>
+		],
+		"jp": [
+			<div key="amount_ada_to_stake_desc_jp">
+				ステークしたいADAの金額を入力してください。
+			</div>
+		]
+	} ,
+
+	"loading_stake_pools_label": {
+		"en": [
+			<div key="loading_stake_pools_label_en">
+				loading stake pools ...
+			</div>
+		],
+		"jp": [
+			<div key="loading_stake_pools_label_jp">
+				ステークプールを読み込み中...
+			</div>
+		]
+	} ,
+
+	"staking_rewards_per_year_ada_label": {
+		"en": [
+			<div key="staking_rewards_per_year_ada_label_en">
+				Staking Reward per Year ADA
+			</div>
+		],
+		"jp": [
+			<div key="staking_rewards_per_year_ada_label_jp">
+				年間ステーキング報酬 ADA
+			</div>
+		]
+	} ,
+
+	"annualized_staking_reward_label": {
+		"en": [
+			<div key="annualized_staking_reward_label_en">
+				Annualized Staking Reward
+			</div>
+		],
+		"jp": [
+			<div key="annualized_staking_reward_label_jp">
+				年間ステーキング報酬
+			</div>
+		]
+	} ,
+
+	"stake_pool_section_title": {
+		"en": [
+			<div key="stake_pool_section_title_en">
+				Staking Pools
+			</div>
+		],
+		"jp": [
+			<div key="stake_pool_section_title_jp">
+				ステーキングプール
+			</div>
+		]
+	} ,
+
+	"stake_pool_section_desc": {
+		"en": [
+			<div key="stake_pool_section_desc_en">
+				Compare up to 3 stake pools between themselves.
+				Check how much Staking rewards is expected for the operator and the delegators (you).
+				Uses a Monte Carlo simulation to account for luck and shows the expected Low,
+				Medium and High reward for each pool.
+			</div>
+		],
+		"jp": [
+			<div key="stake_pool_section_desc_jp">
+				最大3つのステークプールを比較できます。
+				オペレーターおよびデリゲーター（あなた）のステーキング報酬の予測額を確認できます。
+				モンテカルロシミュレーションを使用して運の要素を考慮し、それぞれのプールの予想される低・中・高の報酬を表示します。
+			</div>
+		]
+	} ,
+
+	"stake_pool_parameters_section_title": {
+		"en": [
+			<div key="stake_pool_parameters_section_title_en">
+				Stake Pool Parameters
+			</div>
+		],
+		"jp": [
+			<div key="stake_pool_parameters_section_title_jp">
+				ステークプールのパラメータ
+			</div>
+		]
+	} ,
+
+	"stake_pool_parameters_section_desc": {
+		"en": [
+			<div key="stake_pool_parameters_section_desc_en">
+				These parameters are specific to each stake pool and influence
+				how the rewards are distributed between
+				the operator of the pool and the delegators, and also how many blocks
+				the pool is expected to mint each epoch. Expand to change
+				these parameters and see impact on rewards
+			</div>
+		],
+		"jp": [
+			<div key="stake_pool_parameters_section_desc_jp">
+				これらのパラメーターは各ステークプールに固有のものであり、プールの運営者とデリゲーター
+				（委任者）の間で報酬がどのように分配されるか、また各エポックでプールがどれだけのブロックを生成するかに影響を与えます。
+				パラメーターを変更して、報酬への影響を確認してください。
+			</div>
+		]
+	} ,
+
+
+	"blockchain_params_section_title": {
+		"en": [
+			<div key="blockchain_params_section_title_en">
+				Blockchain Parameters
+			</div>
+		],
+		"jp": [
+			<div key="blockchain_params_section_title_jp">
+				ブロックチェーンパラメーター
+			</div>
+		]
+	} ,
+
+	"blockchain_params_section_desc": {
+		"en": [
+			<div key="blockchain_params_section_desc_en">
+				These parameters are specific to the Cardano blockchain and affect the total
+				size of reward &quot;pot&quot; available
+				for distribution and how it is distributed to different pools.
+				Some parameters can be changed with a community vote (Dynamic Parameters)
+				and some can&apos;t be changed at all (Static Parameters)
+			</div>
+		],
+		"jp": [
+			<div key="blockchain_params_section_desc_jp">
+				これらのパラメーターはCardanoブロックチェーンに特有のものであり、配布可能な報酬の「ポット」
+				の総額や、それが異なるプールにどのように分配されるかに影響を与えます。
+				一部のパラメーターはコミュニティの投票によって変更可能（ダイナミックパラメーター）
+				ですが、一部のパラメーターは全く変更できません（スタティックパラメーター）
+			</div>
+		]
+	} ,
+
+	"dynamic_params_section_title": {
+		"en": [
+			<div key="dynamic_params_section_title_en">
+				Dynamic Parameters
+			</div>
+		],
+		"jp": [
+			<div key="dynamic_params_section_title_jp">
+				動的パラメーター
+			</div>
+		]
+	} ,
+
+	"dynamic_params_section_desc": {
+		"en": [
+			<div key="dynamic_params_section_desc_en">
+				Dynamic blockchain parameters can be adjusted through governance processes.
+				These parameters can be used to change the operation of the block-producing protocol,
+				vary transaction fees, define the influence of pledge, etc.
+				Press the (i) icon to see what each one is responsible for.
+			</div>
+		],
+		"jp": [
+			<div key="dynamic_params_section_desc_jp">
+				動的なブロックチェーンパラメーターは、ガバナンスプロセスを通じて調整できます。
+				これらのパラメーターは、ブロック生成プロトコルの動作を変更したり、取引手数料を調整したり、
+				ステークの影響度を定義したりするために使用できます。
+				各パラメーターの役割を確認するには、(i) アイコンを押してください。
+			</div>
+		]
+	} ,
+
+	"static_params_section_title": {
+		"en": [
+			<div key="static_params_section_title_en">
+				Static Parameters
+			</div>
+		],
+		"jp": [
+			<div key="static_params_section_title_jp">
+				静的パラメーター
+			</div>
+		]
+	} ,
+
+	"static_params_section_desc": {
+		"en": [
+			<div key="static_params_section_desc_en">
+				Static parameters affect the fundamentals of the Cardano protocol and are stable,
+				which means that they can not be changed except via a hard fork.
+				Static parameters include those defining the genesis block or basic security properties, for example.
+				Some of these parameters may be embedded in the source code or implemented as software.
+			</div>
+		],
+		"jp": [
+			<div key="static_params_section_desc_jp">
+				静的パラメータはCardanoプロトコルの基本に影響を与え、安定しており、ハードフォークを通じてのみ変更可能です。
+				静的パラメータには、ジェネシスブロックや基本的なセキュリティ特性を定義するものが含まれます。
+				これらのパラメータのいくつかは、ソースコードに埋め込まれているか、ソフトウェアとして実装されています。
+			</div>
+		]
+	} ,
+
+	"fees_section_title": {
+		"en": [
+			<div key="fees_section_title_en">
+				Fees & Remaining Reserves
+			</div>
+		],
+		"jp": [
+			<div key="fees_section_title_jp">
+				料金と残りの予備
+			</div>
+		]
+	} ,
+
+	"fees_section_desc": {
+		"en": [
+			<div key="fees_section_desc_en">
+				Cardano uses a transaction fee system that covers the processing
+				and long-term storage cost of transactions. Fees from each epoch are pooled and then
+				distributed to all pools that created blocks during an epoch. The fees are supplemented
+				by a distribution of a % (rho) from reserves.
+			</div>
+		],
+		"jp": [
+			<div key="fees_section_desc_jp">
+				カルダノは、取引の処理および長期保存費用をカバーする取引手数料システムを使用しています。
+				各エポックの手数料はプールされ、その後、エポック中にブロックを作成したすべてのプールに分配されます。
+				手数料は、準備金からの一定の割合（ρ）の分配によって補完されます。
+			</div>
+		]
+	} ,
+
+
+}
+
+
 export const infoHovers = {
 
 	"monte_carlo": {
