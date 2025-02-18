@@ -1074,7 +1074,7 @@ class RewardCalculator extends React.Component {
                           }}
                           value={this.state.userAmount.toLocaleString("en-US")}
                           fill={true}
-                          rightElement={<Tag minimal={true}>ADA</Tag>}
+                          rightElement={<Tag minimal={true}>ada</Tag>}
                       />
                     </ControlGroup>
 
@@ -1446,7 +1446,7 @@ class RewardCalculator extends React.Component {
                               fill={true}
                               rightElement={
                                 <div className="flex flex-row content-center">
-                                  <Tag minimal={true}>ADA</Tag>
+                                  <Tag minimal={true}>ada</Tag>
                                   <span className="mt-1.5 mr-1"><InfoHoverComponent>{infoHovers["pool_pledge"][this.state.lang]}</InfoHoverComponent></span>
 
                                 </div>
@@ -1469,7 +1469,7 @@ class RewardCalculator extends React.Component {
                               fill={true}
                               rightElement={
                                 <div className="flex flex-row content-center">
-                                  <Tag minimal={true}>ADA</Tag>
+                                  <Tag minimal={true}>ada</Tag>
                                   <span className="mt-1.5 mr-1"><InfoHoverComponent>{infoHovers["delegator_stake"][this.state.lang]}</InfoHoverComponent></span>
                                 </div>
                               }
@@ -1491,7 +1491,7 @@ class RewardCalculator extends React.Component {
                               fill={true}
                               rightElement={
                                 <div className="flex flex-row content-center">
-                                  <Tag minimal={true}>ADA</Tag>
+                                  <Tag minimal={true}>ada</Tag>
                                   <span className="mt-1.5 mr-1"><InfoHoverComponent>{infoHovers["total_pool_stake"][this.state.lang]}</InfoHoverComponent></span>
                                 </div>
                               }
@@ -1513,7 +1513,7 @@ class RewardCalculator extends React.Component {
                               fill={true}
                               rightElement={
                                 <div className="flex flex-row content-center">
-                                  <Tag minimal={true}>ADA</Tag>
+                                  <Tag minimal={true}>ada</Tag>
                                   <span className="mt-1.5 mr-1"><InfoHoverComponent>{infoHovers["pool_fixed_costs"][this.state.lang]}</InfoHoverComponent></span>
                                 </div>
                               }
@@ -1798,7 +1798,7 @@ class RewardCalculator extends React.Component {
                             />
                           </div>
 
-                          <div className="col-span-2 mt-2 sm:mt-0">Max ADA Supply</div>
+                          <div className="col-span-2 mt-2 sm:mt-0">Max Ada Supply</div>
                           <div className="col-span-4">
                             <InputGroup
                                 id="max-ada-supply"
@@ -1814,7 +1814,7 @@ class RewardCalculator extends React.Component {
                             />
                           </div>
 
-                          <div className="col-span-2 mt-2 sm:mt-0">Current ADA Supply</div>
+                          <div className="col-span-2 mt-2 sm:mt-0">Current Ada Supply</div>
                           <div className="col-span-4">
                             <InputGroup
                                 id="current-ada-supply"
@@ -1834,7 +1834,7 @@ class RewardCalculator extends React.Component {
                             />
                           </div>
 
-                          <div className="col-span-2 mt-2 sm:mt-0">Reserve ADA</div>
+                          <div className="col-span-2 mt-2 sm:mt-0">Reserve Ada</div>
                           <div className="col-span-4">
                             <InputGroup
                                 id="reserve-ada"
@@ -1850,7 +1850,7 @@ class RewardCalculator extends React.Component {
                             />
                           </div>
 
-                          <div className="col-span-2 mt-2 sm:mt-0">Total Staked ADA</div>
+                          <div className="col-span-2 mt-2 sm:mt-0">Total Staked Ada</div>
                           <div className="col-span-4">
                             <InputGroup
                                 id="total-staked-ada"

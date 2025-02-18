@@ -18,7 +18,7 @@ Major frameworks/libraries used in this project.
 
 # Cardano Reward Calculator
 This is a web interface where
-users can enter an ADA balance and calculate their potential rewards
+users can enter an ada balance and calculate their potential rewards
 based on current blockchain parameters and a representative staking pool.
 
 A demo is available <a href="https://dynamicstrategies.io/crewardcalculator">here</a>
@@ -76,7 +76,7 @@ The reward calculator is organized in 4 sections with increasing detail:
 
 ### 1. Basic Calculator
 Displays the calculator and allow the user to input values to determine the expected % annual yield and
-expected ADA return over a year
+expected ada return over a year
 
 <img src="public/images/calculator_printscreen.png" alt="Calculator prinstscreen" width="600">
 
@@ -97,7 +97,7 @@ stake and pledge).
 
 ### 4. Blockchain Parameters
 Show the static blockchain parameters
-(which can not be changed e.g. total supply of ADA) and the
+(which can not be changed e.g. total supply of ada) and the
 dynamic parameters (that can be changed through a governance
 vote and/or CIP e.g. the k and the a0 parameters). The user is
 able to change the dynamic parameters in the front-end and the
@@ -177,7 +177,7 @@ stake pool fees, gets distributed evenly amongst the delegators
 A few example might help understand the importance of stake pool size on the economics for
 stake pool operators and delegators
 
-**A medium-sized stake pool (10 to 20mn ADA stake)**
+**A medium-sized stake pool (10 to 20mn ada stake)**
 
 If a medium-sized stake pool minted 10 blocks during an epoch
 - each block is worth ~400 ada, then the 
@@ -189,7 +189,7 @@ If a medium-sized stake pool minted 10 blocks during an epoch
 So, in this stake pool, the pool
 operator receives 413.2 / 4000 = 10.3% of all rewards and the rest goes to the delegators *
 
-**A small stake pool ( <1mn ADA stake)**
+**A small stake pool ( <1mn ada stake)**
 
 If a small stake pool minted 1 block during an epoch
 - each block is worth ~400 ada, then the
@@ -201,7 +201,7 @@ If a small stake pool minted 1 block during an epoch
 So, in this stake pool, the pool
 operator receives 341.2 / 400 = 85.3% of all rewards and the rest goes to the delegators *
 
-**A large stake pool (>30mn ADA stake)**
+**A large stake pool (>30mn ada stake)**
 
 If a large stake pool minted 30 blocks during an epoch
 - each block is worth ~400 ada, then the

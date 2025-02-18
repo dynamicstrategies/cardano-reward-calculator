@@ -206,7 +206,7 @@ export default class App extends React.Component {
 	 * - Gets the Blockchain protocol parameters (rho - monetaryExpansion;
 	 * tau - treasuryCut; k - stakePoolTargetNum; a0 - poolPledgeInfluence)
 	 *
-	 * - Get the Current Ada supply (not all of 45b ADA has been released)
+	 * - Get the Current Ada supply (not all of 45b ada has been released)
 	 *
 	 * - Gets the basic information on all stake pools. This is then used
 	 * for a user to select more info a particular stake pool
@@ -918,10 +918,10 @@ export default class App extends React.Component {
 							{/* Row 1, Column 1 */}
 							<div className="border border-gray-300 shadow-md rounded-lg bg-white p-8 lg:col-span-2">
 								<h4 className="text-balance text-2xl font-medium tracking-tight text-gray-900">
-									Amount of ADA to Stake
+									Amount of ada to Stake
 								</h4>
 
-								<p className="mt-2">Input the amount of ADA that you are looking to stake</p>
+								<p className="mt-2">Input the amount of ada that you are looking to stake</p>
 
 								<div className="mt-8 grid gap-4 overflow-hidden text-center">
 
@@ -934,7 +934,7 @@ export default class App extends React.Component {
 											onChange={this.handleChange}
 											value={this.state.userAmount.toLocaleString("en-US")}
 											fill={true}
-											rightElement={<Tag minimal={true}>ADA</Tag>}
+											rightElement={<Tag minimal={true}>ada</Tag>}
 										/>
 									</ControlGroup>
 
@@ -943,7 +943,7 @@ export default class App extends React.Component {
 
 										<div key="pool-reward-ada" className="flex flex-col bg-gray-700/5 p-8">
 											<div className="flex flex-row gap-2 justify-center mt-4 ">
-												<dt className="text-sm/6 font-semibold text-gray-600">Staking Reward per Year ADA</dt>
+												<dt className="text-sm/6 font-semibold text-gray-600">Staking Reward per Year Ada</dt>
 												<span className="mt-0.5">
 													<InfoHoverComponent>{infoHovers["staking_reward_per_year_ada"]}</InfoHoverComponent>
 												</span>
@@ -1271,7 +1271,7 @@ export default class App extends React.Component {
 											fill={true}
 											rightElement={
 											<div className="flex flex-row content-center">
-												<Tag minimal={true}>ADA</Tag>
+												<Tag minimal={true}>ada</Tag>
 												<span className="mt-1.5 mr-1"><InfoHoverComponent>{infoHovers["pool_pledge"]}</InfoHoverComponent></span>
 
 											</div>
@@ -1290,7 +1290,7 @@ export default class App extends React.Component {
 											fill={true}
 											rightElement={
 												<div className="flex flex-row content-center">
-													<Tag minimal={true}>ADA</Tag>
+													<Tag minimal={true}>ada</Tag>
 													<span className="mt-1.5 mr-1"><InfoHoverComponent>{infoHovers["delegator_stake"]}</InfoHoverComponent></span>
 												</div>
 											}
@@ -1308,7 +1308,7 @@ export default class App extends React.Component {
 											fill={true}
 											rightElement={
 												<div className="flex flex-row content-center">
-													<Tag minimal={true}>ADA</Tag>
+													<Tag minimal={true}>ada</Tag>
 													<span className="mt-1.5 mr-1"><InfoHoverComponent>{infoHovers["total_pool_stake"]}</InfoHoverComponent></span>
 												</div>
 											}
@@ -1326,7 +1326,7 @@ export default class App extends React.Component {
 											fill={true}
 											rightElement={
 												<div className="flex flex-row content-center">
-													<Tag minimal={true}>ADA</Tag>
+													<Tag minimal={true}>ada</Tag>
 													<span className="mt-1.5 mr-1"><InfoHoverComponent>{infoHovers["pool_fixed_costs"]}</InfoHoverComponent></span>
 												</div>
 											}
@@ -1581,7 +1581,7 @@ export default class App extends React.Component {
 										</ControlGroup>
 
 										<ControlGroup fill={true} vertical={false} style={{width:"90%"}}>
-											<Label htmlFor="max-ada-supply" style={{width:"400px"}}>Max ADA Supply</Label>
+											<Label htmlFor="max-ada-supply" style={{width:"400px"}}>Max Ada Supply</Label>
 											<InputGroup
 												id="max-ada-supply"
 												disabled={true}
@@ -1598,7 +1598,7 @@ export default class App extends React.Component {
 										</ControlGroup>
 
 										<ControlGroup fill={true} vertical={false} style={{width:"90%"}}>
-											<Label htmlFor="current-ada-supply" style={{width:"400px"}}>Current ADA Supply</Label>
+											<Label htmlFor="current-ada-supply" style={{width:"400px"}}>Current Ada Supply</Label>
 											<InputGroup
 												id="current-ada-supply"
 												disabled={false}
@@ -1616,7 +1616,7 @@ export default class App extends React.Component {
 										</ControlGroup>
 
 										<ControlGroup fill={true} vertical={false} style={{width:"90%"}}>
-											<Label htmlFor="reserve-ada" style={{width:"400px"}}>Reserve ADA</Label>
+											<Label htmlFor="reserve-ada" style={{width:"400px"}}>Reserve Ada</Label>
 											<InputGroup
 												id="reserve-ada"
 												disabled={true}

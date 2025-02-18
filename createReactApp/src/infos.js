@@ -26,7 +26,7 @@ export const infoHovers = {
 	"pool_pledge": [
 		<div className="space-y-2">
 			<h4 className="text-lg font-medium">Pool Pledge</h4>
-			<p>The amount of ADA the stake pool operator commits to their own pool as a form of "skin in the game".</p>
+			<p>The amount of ada the stake pool operator commits to their own pool as a form of "skin in the game".</p>
 			<ul className="list-disc pl-6 space-y-2">
 				<li>Pools with higher pledges potentially earn slightly higher rewards through the "a0" parameter in the reward formula</li>
 				<li>Higher pledges show higher monetary commitments from the pool operator</li>
@@ -38,9 +38,9 @@ export const infoHovers = {
 	"delegator_stake": [
 		<div className="space-y-2">
 			<h4 className="text-lg font-medium">Delegators' Stake</h4>
-			<p>The total amount of ADA that other users (delegators) have staked to this pool.</p>
+			<p>The total amount of ada that other users (delegators) have staked to this pool.</p>
 			<ul className="list-disc pl-6 space-y-2">
-				<li>The more ADA staked by delegators, the higher the pool’s likelihood of being selected to produce blocks and earning rewards.</li>
+				<li>The more ada staked by delegators, the higher the pool’s likelihood of being selected to produce blocks and earning rewards.</li>
 				<li>Pools with higher delegated stake tend to produce more blocks and generate more rewards, but this needs to be weighted aginst
 				the fees that they charge</li>
 			</ul>
@@ -50,8 +50,8 @@ export const infoHovers = {
 	"total_pool_stake": [
 		<div className="space-y-2">
 			<h4 className="text-lg font-medium">Total Pool Stake</h4>
-			<p>The combined amount of ADA in the pool, including the operator's pledge and the delegators' stake.
-				This is the total ADA that the pool uses to participate in block production and earn rewards.</p>
+			<p>The combined amount of ada in the pool, including the operator's pledge and the delegators' stake.
+				This is the total ada that the pool uses to participate in block production and earn rewards.</p>
 			<p>Pools with higher stake will get to mint more blocks and receive more fees. These fees will need to be
 			split between the pool operator and all the delegators.</p>
 		</div>
@@ -106,7 +106,7 @@ export const infoHovers = {
 		<div className="space-y-2">
 			<h4 className="text-lg font-medium">a0 - Pledge Influence Factor</h4>
 			<p>Determines how much the size of a stake pool's pledge influences the rewards distribution.
-				It serves as an incentive mechanism to encourage stake pool operators to pledge more ADA to their pools.</p>
+				It serves as an incentive mechanism to encourage stake pool operators to pledge more ada to their pools.</p>
 		</div>
 	],
 
@@ -168,28 +168,28 @@ export const infoHovers = {
 
 	"reserve_ada": [
 		<div className="space-y-2">
-			<h4 className="text-lg font-medium">Reserve ADA</h4>
+			<h4 className="text-lg font-medium">Reserve Ada</h4>
 			<p>...</p>
 		</div>
 	],
 
 	"total_staked_ada": [
 		<div className="space-y-2">
-			<h4 className="text-lg font-medium">Total Staked ADA</h4>
+			<h4 className="text-lg font-medium">Total Staked Ada</h4>
 			<p>...</p>
 		</div>
 	],
 
 	"fees_in_epoch": [
 		<div className="space-y-2">
-			<h4 className="text-lg font-medium">ADA Fees in an Epoch</h4>
+			<h4 className="text-lg font-medium">Ada Fees in an Epoch</h4>
 			<p>...</p>
 		</div>
 	],
 
 	"distribution_from_reserve": [
 		<div className="space-y-2">
-			<h4 className="text-lg font-medium">ADA Distributed from Reserve</h4>
+			<h4 className="text-lg font-medium">Ada Distributed from Reserve</h4>
 			<p>A portion (rho) is distributed from Cardano Reserve to pay for Staking Rewards each Epoch. This number will reduce gradually over time
 				as the amount in the Reserve gets depleted. To maintain the same level of staking rewards the rewards from Fees will need to rise.</p>
 			<p>Change the Rho parameter to see how this affects the total reward to delegators</p>
@@ -219,8 +219,8 @@ export const infoHovers = {
 
 	"staking_reward_per_year_ada": [
 		<div className="space-y-2">
-			<h4 className="text-lg font-medium">Staking Reward per Year ADA</h4>
-			<p>Expected reward in ADA per year for the amount staked.</p>
+			<h4 className="text-lg font-medium">Staking Reward per Year Ada</h4>
+			<p>Expected reward in ada per year for the amount staked.</p>
 			<p>Number in grey shows the result from the previous simulation, for comparability between simulations with different parameters</p>
 		</div>
 	],
@@ -237,7 +237,7 @@ export const infoHovers = {
 
 /**
  * These are the info boxes placed next to the large sections of the calculator
- * - Amount of ADA to sake (section 1)
+ * - Amount of ada to sake (section 1)
  * - Stake Pools (section 2)
  * - Stake Pool Parameters (section 3)
  * - Blockchain Parameters (section 4)
