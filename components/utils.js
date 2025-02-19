@@ -286,7 +286,8 @@ export const getStakePoolList = async () => {
 			const payload = {
 				offset,
 				limit: stepSize,
-				select: "pool_id_bech32,ticker,pool_status"
+				select: "pool_id_bech32,ticker,pool_status",
+				pool_status: "in.(registered,retiring)"
 			}
 
 			const response = await axios({
