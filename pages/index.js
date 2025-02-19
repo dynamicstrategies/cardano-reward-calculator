@@ -145,6 +145,7 @@ class RewardCalculator extends React.Component {
       isUIStaticParamsShow: false,
       isUIFeesReservesShow: false,
       stakePoolNSelected: undefined,
+
       stakePool_1_Stats: {
         name: "",
         poolBech32: "",
@@ -152,10 +153,10 @@ class RewardCalculator extends React.Component {
         yearsActive: undefined,
         lifetimeBlocks: undefined,
         nDelegators: undefined,
-        marginPerc: undefined,
-        minFee: undefined,
+        poolVariableFee: undefined,
+        poolFixedCost: undefined,
         delegatorsReward_lower: 0,
-        delegatorsReward_av: 0,
+        delegatorsReward_av: undefined,
         delegatorsReward_upper: 0,
         delegatorsStake: 0,
       },
@@ -166,10 +167,10 @@ class RewardCalculator extends React.Component {
         yearsActive: undefined,
         lifetimeBlocks: undefined,
         nDelegators: undefined,
-        marginPerc: undefined,
-        minFee: undefined,
+        poolVariableFee: undefined,
+        poolFixedCost: undefined,
         delegatorsReward_lower: 0,
-        delegatorsReward_av: 0,
+        delegatorsReward_av: undefined,
         delegatorsReward_upper: 0,
         delegatorsStake: 0,
       },
@@ -180,10 +181,10 @@ class RewardCalculator extends React.Component {
         yearsActive: undefined,
         lifetimeBlocks: undefined,
         nDelegators: undefined,
-        marginPerc: undefined,
-        minFee: undefined,
+        poolVariableFee: undefined,
+        poolFixedCost: undefined,
         delegatorsReward_lower: 0,
-        delegatorsReward_av: 0,
+        delegatorsReward_av: undefined,
         delegatorsReward_upper: 0,
         delegatorsStake: 0,
       },
@@ -439,6 +440,8 @@ class RewardCalculator extends React.Component {
             yearsActive,
             lifetimeBlocks,
             nDelegators,
+            poolVariableFee,
+            poolFixedCost,
             isRedFlag,
           }
         }
@@ -1152,7 +1155,7 @@ class RewardCalculator extends React.Component {
 
                       <div key="stake-pool-1" className={`
 										flex flex-col p-4 rounded-xl border-2 
-										${this.state.stakePoolNSelected === 1 ? "border-blue-primary" : ""}
+										${this.state.stakePoolNSelected === 1 ? "border-gray-700" : ""}
 										${this.state.stakePool_1_Stats.isRedFlag ? "bg-red-300" : "bg-gray-700/5"}
 									`}
                            onClick={() => {
@@ -1204,9 +1207,9 @@ class RewardCalculator extends React.Component {
 
                           <div className="col-span-2"><Percentage size={14} className="mr-2"/> Margin</div>
                           <div className="text-center">{
-                            this.state.stakePool_1_Stats?.nDelegators !== undefined
+                            this.state.stakePool_1_Stats?.poolVariableFee !== undefined
                                 ?
-                                (this.state.stakePool_1_Stats?.nDelegators).toLocaleString("en-US", {maximumFractionDigits: 0})
+                                (this.state.stakePool_1_Stats?.poolVariableFee).toLocaleString("en-US", {maximumFractionDigits: 1})
                                 :
                                 null
                           }
@@ -1214,9 +1217,9 @@ class RewardCalculator extends React.Component {
 
                           <div className="col-span-2"><BankAccount size={14} className="mr-2"/> Min Fee</div>
                           <div className="text-center">{
-                            this.state.stakePool_1_Stats?.nDelegators !== undefined
+                            this.state.stakePool_1_Stats?.poolFixedCost !== undefined
                                 ?
-                                (this.state.stakePool_1_Stats?.nDelegators).toLocaleString("en-US", {maximumFractionDigits: 0})
+                                (this.state.stakePool_1_Stats?.poolFixedCost).toLocaleString("en-US", {maximumFractionDigits: 0})
                                 :
                                 null
                           }
@@ -1232,7 +1235,7 @@ class RewardCalculator extends React.Component {
 
                         {
                           // Only show expected return if there is something to show
-                          this.state.stakePool_1_Stats?.delegatorsReward_av
+                          this.state.stakePool_1_Stats?.delegatorsReward_av !== undefined
                               ?
                               <div>
                                 <div className="grid gap-2 grid-cols-3 bg-gray-900/5 -ml-2 -mr-2 mt-1 py-4 px-2 text-center bg-blue-primary rounded-md">
@@ -1253,7 +1256,11 @@ class RewardCalculator extends React.Component {
                       </div>
 
 
-                      <div key="stake-pool-2" className={`flex flex-col bg-gray-700/5 p-4 rounded-xl border-2 ${this.state.stakePoolNSelected === 2 ? "border-blue-primary" : ""}`}
+                      <div key="stake-pool-2" className={
+                        `flex flex-col bg-gray-700/5 p-4 rounded-xl border-2 
+                        ${this.state.stakePoolNSelected === 2 ? "border-gray-700" : ""}
+                        ${this.state.stakePool_2_Stats.isRedFlag ? "bg-red-300" : "bg-gray-700/5"}
+                        `}
                            onClick={() => {
                              // this.setState({stakePoolNSelected: 1})
 
@@ -1301,12 +1308,32 @@ class RewardCalculator extends React.Component {
 
                           }</div>
 
+                          <div className="col-span-2"><Percentage size={14} className="mr-2"/> Margin</div>
+                          <div className="text-center">{
+                            this.state.stakePool_2_Stats?.poolVariableFee !== undefined
+                                ?
+                                (this.state.stakePool_2_Stats?.poolVariableFee).toLocaleString("en-US", {maximumFractionDigits: 1})
+                                :
+                                null
+                          }
+                          </div>
+
+                          <div className="col-span-2"><BankAccount size={14} className="mr-2"/> Min Fee</div>
+                          <div className="text-center">{
+                            this.state.stakePool_2_Stats?.poolFixedCost !== undefined
+                                ?
+                                (this.state.stakePool_2_Stats?.poolFixedCost).toLocaleString("en-US", {maximumFractionDigits: 0})
+                                :
+                                null
+                          }
+                          </div>
+
                         </div>
 
                         <p className="mt-8"><SeriesAdd size={14} className="mr-2"/> Expected Return</p>
                         {
                           // Only show expected return if there is something to show
-                          this.state.stakePool_2_Stats?.delegatorsReward_av
+                          this.state.stakePool_2_Stats?.delegatorsReward_av !== undefined
                               ?
                               <div className="grid gap-2 grid-cols-3 bg-gray-900/5 -ml-2 -mr-2 mt-1 py-4 px-2 text-center bg-blue-primary rounded-md">
                                 <div className="font-medium">Lower</div>
@@ -1326,7 +1353,11 @@ class RewardCalculator extends React.Component {
 
 
 
-                      <div key="stake-pool-3" className={`flex flex-col bg-gray-700/5 p-4 rounded-xl border-2 ${this.state.stakePoolNSelected === 3 ? "border-blue-primary" : ""}`}
+                      <div key="stake-pool-3" className={
+                        `flex flex-col bg-gray-700/5 p-4 rounded-xl border-2 
+                        ${this.state.stakePoolNSelected === 3 ? "border-gray-700" : ""}
+                        ${this.state.stakePool_3_Stats.isRedFlag ? "bg-red-300" : "bg-gray-700/5"}
+                        `}
                            onClick={() => {
                              // this.setState({stakePoolNSelected: 1})
 
@@ -1373,12 +1404,32 @@ class RewardCalculator extends React.Component {
 
                           }</div>
 
+                          <div className="col-span-2"><Percentage size={14} className="mr-2"/> Margin</div>
+                          <div className="text-center">{
+                            this.state.stakePool_3_Stats?.poolVariableFee !== undefined
+                                ?
+                                (this.state.stakePool_3_Stats?.poolVariableFee).toLocaleString("en-US", {maximumFractionDigits: 1})
+                                :
+                                null
+                          }
+                          </div>
+
+                          <div className="col-span-2"><BankAccount size={14} className="mr-2"/> Min Fee</div>
+                          <div className="text-center">{
+                            this.state.stakePool_3_Stats?.poolFixedCost !== undefined
+                                ?
+                                (this.state.stakePool_3_Stats?.poolFixedCost).toLocaleString("en-US", {maximumFractionDigits: 0})
+                                :
+                                null
+                          }
+                          </div>
+
                         </div>
 
                         <p className="mt-8"><SeriesAdd size={14} className="mr-2"/> Expected Return</p>
                         {
                           // Only show expected return if there is something to show
-                          this.state.stakePool_3_Stats?.delegatorsReward_av
+                          this.state.stakePool_3_Stats?.delegatorsReward_av !== undefined
                               ?
                               <div className="grid gap-2 grid-cols-3 bg-gray-900/5 -ml-2 -mr-2 mt-1 py-4 px-2 text-center bg-blue-primary rounded-md">
                                 <div className="font-medium">Lower</div>
