@@ -52,7 +52,7 @@ export const uiText = {
 		],
 		"jp": [
 			<div key="staking_rewards_per_year_ada_label_jp">
-				年間ステーキング報酬 ADA
+				年間のADAのステーキング報酬 
 			</div>
 		]
 	} ,
@@ -109,7 +109,7 @@ export const uiText = {
 		],
 		"jp": [
 			<div key="stake_pool_parameters_section_title_jp">
-				ステークプールのパラメータ
+				ステークプールのパラメーター
 			</div>
 		]
 	} ,
@@ -127,7 +127,8 @@ export const uiText = {
 		"jp": [
 			<div key="stake_pool_parameters_section_desc_jp">
 				これらのパラメーターは各ステークプールに固有のものであり、プールの運営者とデリゲーター
-				（委任者）の間で報酬がどのように分配されるか、また各エポックでプールがどれだけのブロックを生成するかに影響を与えます。
+				（委任者）の間で報酬がどのように分配されるか、また各エポックで
+				プールがどれだけのブロックを生成するかに影響を与えます。
 				パラメーターを変更して、報酬への影響を確認してください。
 			</div>
 		]
@@ -159,10 +160,10 @@ export const uiText = {
 		],
 		"jp": [
 			<div key="blockchain_params_section_desc_jp">
-				これらのパラメーターはCardanoブロックチェーンに特有のものであり、配布可能な報酬の「ポット」
+				これらのパラメーターはCardanoブロックチェーンに特有のもので、配布可能な報酬の「ポット」
 				の総額や、それが異なるプールにどのように分配されるかに影響を与えます。
-				一部のパラメーターはコミュニティの投票によって変更可能（ダイナミックパラメーター）
-				ですが、一部のパラメーターは全く変更できません（スタティックパラメーター）
+				一部のパラメーターはコミュニティの投票によって変更可能（動的パラメーター）
+				ですが、一部のパラメーターは全く変更できません（静的パラメーター）
 			</div>
 		]
 	} ,
@@ -193,7 +194,7 @@ export const uiText = {
 			<div key="dynamic_params_section_desc_jp">
 				動的なブロックチェーンパラメーターは、ガバナンスプロセスを通じて調整できます。
 				これらのパラメーターは、ブロック生成プロトコルの動作を変更したり、取引手数料を調整したり、
-				ステークの影響度を定義したりするために使用できます。
+				誓約の影響度を定義したりするために使用されます。
 				各パラメーターの役割を確認するには、(i) アイコンを押してください。
 			</div>
 		]
@@ -238,7 +239,7 @@ export const uiText = {
 		],
 		"jp": [
 			<div key="fees_section_title_jp">
-				料金と残りの予備
+				料金と残りのリザーブ
 			</div>
 		]
 	} ,
@@ -254,9 +255,9 @@ export const uiText = {
 		],
 		"jp": [
 			<div key="fees_section_desc_jp">
-				カルダノは、取引の処理および長期保存費用をカバーする取引手数料システムを使用しています。
+				Cardanoは、取引の処理および長期保存費用をカバーする取引手数料システムを使用しています。
 				各エポックの手数料はプールされ、その後、エポック中にブロックを作成したすべてのプールに分配されます。
-				手数料は、準備金からの一定の割合（ρ）の分配によって補完されます。
+				手数料は、リザーブからの一定の割合（rho）の分配によって補完されます。
 			</div>
 		]
 	} ,
@@ -447,7 +448,7 @@ export const infoHovers = {
 		],
 		"jp": [
 			<div key="tau_jp" className="space-y-2">
-				<h4 className="text-lg font-medium">τ（タウ）- トレジャリーへの分配 (Distribution to Treasury)</h4>
+				<h4 className="text-lg font-medium">Tau- トレジャリーへの分配 (Distribution to Treasury)</h4>
 				<p>各エポックでトレジャリーに割り当てられる報酬の割合（例: 20%）。</p>
 			</div>
 		]
@@ -550,7 +551,7 @@ export const infoHovers = {
 		],
 		"jp": [
 			<div key="slots_in_epoch_jp" className="space-y-2">
-				<h4 className="text-lg font-medium">エポック内のスロット数 (Slots in an Epoch)</h4>
+				<h4 className="text-lg font-medium">エポック内のスロット数</h4>
 				<p>...</p>
 			</div>
 		]
@@ -674,7 +675,7 @@ export const infoHovers = {
 			<div key="distribution_from_reserve_jp" className="space-y-2">
 				<h4 className="text-lg font-medium">リザーブから分配されるADA (ADA Distributed from Reserve)</h4>
 				<p>
-					各エポックごとにカルダノリザーブから一定割合（ρ）がステーキング報酬の支払いに充てられます。
+					各エポックごとにCardanoリザーブから一定割合（rho）がステーキング報酬の支払いに充てられます。
 					リザーブの残高が減少するにつれ、この割合も徐々に減少します。
 					ステーキング報酬を維持するためには、手数料からの報酬を増やす必要があります。
 				</p>
@@ -793,6 +794,8 @@ export const infoSections = {
 				<p>この計算機は、モンテカルロシミュレーションとCardanoメインネットからのリアルタイムデータに基づいています。</p>
 				<p>任意の値を設定したり、実在する既存のステーキングプールを選択したり、仮想値を自分で設定することができます。</p>
 				<p>あなたの<a href="https://cardano.org/stake-pool-delegation/" target="_blank">adaのプルーフオブステークの委任</a>と<a href="https://cardano.org/stake-pool-operation" target="_blank">ステーキングプールの運営</a>の詳細については、こちらをご覧ください。</p>
+
+
 			</div>
 		]
 	} ,
@@ -806,7 +809,7 @@ export const infoSections = {
 		],
 		"jp": [
 			<div key="info_section_2_jp" className="space-y-2">
-				<h4 className="text-md font-medium">情報 (じょうほう, jōhō)</h4>
+				<h4 className="text-md font-medium">情報</h4>
 				<p>...</p>
 			</div>
 		]
@@ -821,7 +824,7 @@ export const infoSections = {
 		],
 		"jp": [
 			<div key="info_section_3_jp" className="space-y-2">
-				<h4 className="text-md font-medium">情報 (じょうほう, jōhō)</h4>
+				<h4 className="text-md font-medium">情報</h4>
 				<p>...</p>
 			</div>
 		]
@@ -836,7 +839,7 @@ export const infoSections = {
 		],
 		"jp": [
 			<div key="info_section_4_jp" className="space-y-2">
-				<h4 className="text-md font-medium">情報 (じょうほう, jōhō)</h4>
+				<h4 className="text-md font-medium">情報</h4>
 				<p>...</p>
 			</div>
 		]
