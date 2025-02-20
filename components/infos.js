@@ -52,7 +52,7 @@ export const uiText = {
 		],
 		"jp": [
 			<div key="staking_rewards_per_year_ada_label_jp">
-				年間のADAのステーキング報酬 
+				年間のADAのステーキング報酬
 			</div>
 		]
 	} ,
@@ -782,8 +782,8 @@ export const infoSections = {
 			<div key="info_section_1_en" className="space-y-2">
 				<h4 className="text-md font-medium">Info</h4>
 				<p>You can delegate your ADA to a staking pool and automatically and regularly receive rewards for doing so. </p>
-				<p>This calculator is based on a Monte Carlo simulation and real-time data from the Cardano mainnet. 
-				<p>You can set arbitrary values, select real existing staking pools or set virtual values yourself.
+				<p>This calculator is based on a Monte Carlo simulation and real-time data from the Cardano mainnet.  </p>
+				<p>You can set arbitrary values, select real existing staking pools or set virtual values yourself.  </p>
 				<p>Learn more about <a href="https://cardano.org/stake-pool-delegation/" target="_blank">Proof of Stake delegations of your ada</a> and <a href="https://cardano.org/stake-pool-operation" target="_blank">Operating a staking pool</a>.</p>
 			</div>
 		],
@@ -794,8 +794,6 @@ export const infoSections = {
 				<p>この計算機は、モンテカルロシミュレーションとCardanoメインネットからのリアルタイムデータに基づいています。</p>
 				<p>任意の値を設定したり、実在する既存のステーキングプールを選択したり、仮想値を自分で設定することができます。</p>
 				<p>あなたの<a href="https://cardano.org/stake-pool-delegation/" target="_blank">adaのプルーフオブステークの委任</a>と<a href="https://cardano.org/stake-pool-operation" target="_blank">ステーキングプールの運営</a>の詳細については、こちらをご覧ください。</p>
-
-
 			</div>
 		]
 	} ,

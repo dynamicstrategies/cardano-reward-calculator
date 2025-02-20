@@ -42,6 +42,18 @@ npm run dev
 
 This will launch a rewards calculator on <a href="http://localhost:3000">http://localhost:3000</a>
 
+### Static Builds
+NextJS supports static builds through Static Export mode, 
+which can be enabled by uncommenting the `output: 'export'` line in `next.config.mjs`
+
+Static builds have some advantages over a full NextJs deployment in that they can be integrated into
+an existing front-end deployment and works similar to a One-page application. The limitations is that
+is gives away the Server-side rendering and loses the NextJs inbuilt API functionality - but this might not
+be a concern if relying on an external API provider from the front-end
+
+> [!IMPORTANT]  
+> For local development and debugging it usually works better when Not in Static Build mode (with `output: 'export'` commented out)
+
 #### Reverse Proxy
 
 The base path is `/crewardcalculator` and can be changed in the `next.config.mjs`
@@ -112,7 +124,7 @@ rewards.
 The info sections can be translated to other languages.
 The language is controlled by passing a parameter in the url (e.g. lang=jp for Japanese):
 
-`http://localhost:3000/?lang=jp`
+`http://localhost:3000/crewardcalculator?lang=jp`
 
 The default language is English
 
@@ -345,6 +357,8 @@ to be an acceptable trade-off as the main goal of the application is to
 inform users of the future expected rewards from staking and how these
 change if blockchain or stake pool parameters are amended rather than a
 precise calculation of historic rewards.
+
+
 
 ## Tests
 
