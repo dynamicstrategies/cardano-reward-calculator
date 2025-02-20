@@ -25,9 +25,7 @@ A demo is available <a href="https://dynamicstrategies.io/crewardcalculator">her
 
 ## Using NextJs
 We chose the NextJS framework as it is one of the most common forms to launch a web project and is well understood
-in the developer's community. An example using Create React App is also provided in the separate folder - the create-react-app,
-is being discontinued and does not have the same security updates as NextJS.
-Create React App is not advisable for a production deployment. For more info on the choice of framework check the React guidance
+in the developer's community. Create React App is not advisable for a production deployment. For more info on the choice of framework check the React guidance
 <a href="https://react.dev/learn/start-a-new-react-project">here</a>
 
 ### Install and Run
