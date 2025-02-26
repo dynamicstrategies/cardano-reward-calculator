@@ -427,13 +427,13 @@ export const infoHovers = {
 	"rho": {
 		"en": [
 			<div key="rho_en" className="space-y-2">
-				<h4 className="text-lg font-medium">Rho - Monetary Expansion</h4>
+				<h4 className="text-lg font-medium">Rho</h4>
 				<p>A % of the Reserve that goes towards paying Staking Reward in each epoch (e.g. 0.003 is 0.3%)</p>
 			</div>
 		],
 		"jp": [
 			<div key="rho_jp" className="space-y-2">
-				<h4 className="text-lg font-medium">ρ（ロー）- 通貨供給拡大 (Monetary Expansion)</h4>
+				<h4 className="text-lg font-medium">ρ（ロー）</h4>
 				<p>各エポックでステーキング報酬の支払いに充てられるリザーブの割合（例: 0.003 は 0.3%）。</p>
 			</div>
 		]
@@ -442,13 +442,13 @@ export const infoHovers = {
 	"tau": {
 		"en": [
 			<div key="tau_en" className="space-y-2">
-				<h4 className="text-lg font-medium">Tau - Distribution to Treasury</h4>
+				<h4 className="text-lg font-medium">Tau</h4>
 				<p>A of the % Reward that goes towards Treasury in each epoch (e.g. 20%)</p>
 			</div>
 		],
 		"jp": [
 			<div key="tau_jp" className="space-y-2">
-				<h4 className="text-lg font-medium">Tau- トレジャリーへの分配 (Distribution to Treasury)</h4>
+				<h4 className="text-lg font-medium">Tau</h4>
 				<p>各エポックでトレジャリーに割り当てられる報酬の割合（例: 20%）。</p>
 			</div>
 		]
@@ -457,7 +457,7 @@ export const infoHovers = {
 	"k": {
 		"en": [
 			<div key="k_en" className="space-y-2">
-				<h4 className="text-lg font-medium">K - Optimal Number of Pools</h4>
+				<h4 className="text-lg font-medium">K</h4>
 				<p>Optimal number of fully saturated pools (e.g. 500). This number determines the level of pool stake beyond
 					which the staking reward starts to decrease. This limits how big a single pool can economically become.</p>
 				<p>Given the relative ease with which it is to set-up new stake pools, this parameter rarely becomes a
@@ -466,7 +466,7 @@ export const infoHovers = {
 		],
 		"jp": [
 			<div key="k_jp" className="space-y-2">
-				<h4 className="text-lg font-medium">K - 最適プール数 (Optimal Number of Pools)</h4>
+				<h4 className="text-lg font-medium">K</h4>
 				<p>
 					完全に飽和したプールの最適な数（例: 500）。この数値は、ステーキング報酬が減少し始めるプールステークの上限を決定します。
 					これにより、単一のプールが経済的にどれほど大きくなるかが制限されます。
@@ -481,14 +481,14 @@ export const infoHovers = {
 	"a0": {
 		"en": [
 			<div key="a0_en" className="space-y-2">
-				<h4 className="text-lg font-medium">a0 - Pledge Influence Factor</h4>
+				<h4 className="text-lg font-medium">a0</h4>
 				<p>Determines how much the size of a stake pool&apos;s pledge influences the rewards distribution.
 					It serves as an incentive mechanism to encourage stake pool operators to pledge more ada to their pools.</p>
 			</div>
 		],
 		"jp": [
 			<div key="a0_jp" className="space-y-2">
-				<h4 className="text-lg font-medium">a0 - 誓約影響係数 (Pledge Influence Factor)</h4>
+				<h4 className="text-lg font-medium">a0</h4>
 				<p>
 					ステークプールの誓約の大きさが報酬分配にどれほど影響するかを決定します。
 					これは、ステークプール運営者が自分のプールにもっとADAを誓約するよう促すインセンティブ機構として機能します。
@@ -500,13 +500,13 @@ export const infoHovers = {
 	"z0": {
 		"en": [
 			<div key="z0_en" className="space-y-2">
-				<h4 className="text-lg font-medium">z0 - 1/a0</h4>
+				<h4 className="text-lg font-medium">z0</h4>
 				<p>This is a transformation of the a0 parameter for the rewards formula</p>
 			</div>
 		],
 		"jp": [
 			<div key="z0_jp" className="space-y-2">
-				<h4 className="text-lg font-medium">z0 - 1/a0</h4>
+				<h4 className="text-lg font-medium">z0</h4>
 				<p>これは報酬計算式のためにa0パラメータを変換したものです。</p>
 			</div>
 		]

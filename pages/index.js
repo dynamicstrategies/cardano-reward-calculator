@@ -1647,7 +1647,7 @@ class RewardCalculator extends React.Component {
 
                         <div className="grid grid-cols-1 sm:grid-cols-6 gap-2 sm:mr-12">
 
-                          <div className="col-span-2">Rho</div>
+                          <div className="col-span-2">Monetary Expansion</div>
                           <div className="col-span-4">
                             <InputGroup
                                 id="rho"
@@ -1668,7 +1668,7 @@ class RewardCalculator extends React.Component {
                             />
                           </div>
 
-                          <div className="col-span-2 mt-2 sm:mt-0">Tau</div>
+                          <div className="col-span-2 mt-2 sm:mt-0">Distribution to Treasury</div>
                           <div className="col-span-4">
                             <InputGroup
                                 id="tau"
@@ -1689,7 +1689,7 @@ class RewardCalculator extends React.Component {
                             />
                           </div>
 
-                          <div className="col-span-2 mt-2 sm:mt-0">K</div>
+                          <div className="col-span-2 mt-2 sm:mt-0">Optimal Number of Pools</div>
                           <div className="col-span-4">
                             <InputGroup
                                 id="k"
@@ -1709,7 +1709,7 @@ class RewardCalculator extends React.Component {
                             />
                           </div>
 
-                          <div className="col-span-2 mt-2 sm:mt-0">a0</div>
+                          <div className="col-span-2 mt-2 sm:mt-0">Pledge Influence Factor</div>
                           <div className="col-span-4">
                             <InputGroup
                                 id="a0"
@@ -1730,7 +1730,7 @@ class RewardCalculator extends React.Component {
                             />
                           </div>
 
-                          <div className="col-span-2 mt-2 sm:mt-0">z0</div>
+                          <div className="col-span-2 mt-2 sm:mt-0">1 / Pledge Influence Factor</div>
                           <div className="col-span-4">
                             <InputGroup
                                 id="z0"
