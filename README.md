@@ -21,7 +21,7 @@ This is a web interface where
 users can enter an ada balance and calculate their potential rewards
 based on current blockchain parameters and a representative staking pool.
 
-A demo is available <a href="https://dynamicstrategies.io/crewardcalculator">here</a>
+A demo is available <a href="https://cardano.org/calculator_demo/">here</a>
 
 ## Using NextJs
 We chose the NextJS framework as it is one of the most common forms to launch a web project and is well understood
@@ -32,7 +32,7 @@ in the developer's community. Create React App is not advisable for a production
 Clone the repo, install npm packaged and start a local development environment
 
 ```shell
-git clone https://github.com/dynamicstrategies/cardano-reward-calculator.git
+git clone https://github.com/cardano-foundation/cardano-reward-calculator.git
 cd cardano-reward-calculator
 npm install
 npm run dev
