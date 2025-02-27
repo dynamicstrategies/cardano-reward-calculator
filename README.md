@@ -38,7 +38,7 @@ npm install
 npm run dev
 ```
 
-This will launch a rewards calculator on <a href="http://localhost:3000">http://localhost:3000</a>
+This will launch a rewards calculator on <a href="http://localhost:3000/crewardcalculator">http://localhost:3000/crewardcalculator</a>
 
 ### Static Builds
 NextJS supports static builds through Static Export mode, 
