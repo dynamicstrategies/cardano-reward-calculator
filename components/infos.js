@@ -150,9 +150,9 @@ export const uiText = {
 		"en": [
 			<div key="blockchain_params_section_desc_en">
 				These parameters are specific to the Cardano blockchain and affect the total 
-				size of the reward "pot" available for distribution, and how it is distributed 
+				size of the reward &quot;pot&quot; available for distribution, and how it is distributed 
 				to different pools. Some parameters can be changed by community vote 
-				(dynamic parameters), while others can't be changed at all (static parameters).
+				(dynamic parameters), while others can&apos;t be changed at all (static parameters).
 			</div>
 		],
 		"jp": [
@@ -856,7 +856,7 @@ export const infoSections = {
 				<p>These values can be changed by a majority vote of the stake pool operators and/or DReps, and then apply to the entire blockchain, all stake pools and ada holders. 
 					A change can significantly influence the <a href="https://www.cardanofoundation.org/blog/releasing-an-open-source-rewards-calculation" target="_blank">reward calculation</a>, the game theory, 
 					the <a href="https://github.com/cardano-foundation/cardano-economic-parameter-insights/blob/main/whitepaper.md#actual-reserves-and-treasury-distribution" target="_blank">consumption of reserves</a>, 
-					the filling of the treasury pot and also the individual ada holder's staking rewards.
+					the filling of the treasury pot and also the individual ada holder&apos;s staking rewards.
 				</p>
 				<p>In the <span className="text-md font-medium">Fees & Remaining Reserves</span> section, the simulator also allows you to simulate a theoretical value of the transaction fees collected per epoch. The effective returns cannot be changed by governance actions, but depend largely on the adoption and integration of the blockchain in use cases. </p>
 			</div>
