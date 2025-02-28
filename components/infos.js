@@ -86,10 +86,9 @@ export const uiText = {
 	"stake_pool_section_desc": {
 		"en": [
 			<div key="stake_pool_section_desc_en">
-				Compare up to 3 stake pools between themselves.
-				Check how much Staking rewards is expected for the operator and the delegators (you).
-				Uses a Monte Carlo simulation to account for luck and shows the expected Low,
-				Medium and High reward for each pool.
+				Compare up to 3 stake pools with each other. Check how high the expected win is for you. 
+				A Monte Carlo simulation is used to take the luck factor into account and shows the 
+				expected low, medium and high return for each pool.
 			</div>
 		],
 		"jp": [
@@ -781,19 +780,28 @@ export const infoSections = {
 		"en": [
 			<div key="info_section_1_en" className="space-y-2">
 				<h4 className="text-md font-medium">Info</h4>
-				<p>You can delegate your ADA to a staking pool and automatically and regularly receive rewards for doing so. </p>
-				<p>This calculator is based on a Monte Carlo simulation and real-time data from the Cardano mainnet.  </p>
-				<p>You can set arbitrary values, select real existing staking pools or set virtual values yourself.  </p>
-				<p>Learn more about <a href="https://cardano.org/stake-pool-delegation/" target="_blank">Proof of Stake delegations of your ada</a> and <a href="https://cardano.org/stake-pool-operation" target="_blank">Operating a staking pool</a>.</p>
+				<p>This calculator is based on a <a href="https://en.wikipedia.org/wiki/Monte_Carlo_method">Monte Carlo simulation</a> and life data from the Cardano mainnet.</p>
+				<p>You can delegate your ada to a staking pool and automatically and regularly receive rewards for doing so. </p>
+				<p>Enter any ada value for which you want to calculate and simulate the yield.</p>
+				<p>The gray figure shows the result of your previous simulation so that different parameter values can be compared.</p>
+				<p>Learn more about <a href="https://cardano.org/stake-pool-delegation/" target="_blank">Proof of Stake delegations of your ada</a>, 
+				  how to <a href="https://cardano.org/stake-pool-operation" target="_blank">operate a staking pool </a> 
+				  and a good read about the <a href="https://cexplorer.io/article/cardano-s-liquid-staking-from-a-security-perspective" target="_blank">slashing free, liquid staking</a> capabilities offered to all ada holders.
+				</p>
 			</div>
 		],
 		"jp": [
 			<div key="info_section_1_jp" className="space-y-2">
 				<h4 className="text-md font-medium">情報 (じょうほう, jōhō)</h4>
-				<p>ADAをステーキングプールに委任し、自動的に定期的に報酬を受け取ることができます。</p>
-				<p>この計算機は、モンテカルロシミュレーションとCardanoメインネットからのリアルタイムデータに基づいています。</p>
-				<p>任意の値を設定したり、実在する既存のステーキングプールを選択したり、仮想値を自分で設定することができます。</p>
-				<p>あなたの<a href="https://cardano.org/stake-pool-delegation/" target="_blank">adaのプルーフオブステークの委任</a>と<a href="https://cardano.org/stake-pool-operation" target="_blank">ステーキングプールの運営</a>の詳細については、こちらをご覧ください。</p>
+				<p>この計算機は、<a href="https://en.wikipedia.org/wiki/Monte_Carlo_method">モンテカルロシミュレーション</a>とCardanoメインネットのライブデータに基づいています。</p>
+				<p>ADAをステーキングプールに委任することで、自動的かつ定期的に報酬を受け取ることができます。</p>
+				<p>任意のADA値を入力し、利回りを計算・シミュレーションしてください。</p>
+				<p>灰色の数値は前回のシミュレーション結果を示しており、異なるパラメーター値を比較できるようになっています。</p>
+				<p>詳しく知る:  
+					ADAの<a href="https://cardano.org/stake-pool-delegation/" target="_blank">プルーフ・オブ・ステーク（PoS）委任</a>について  
+					<a href="https://cardano.org/stake-pool-operation" target="_blank">ステーキングプールの運用方法</a>  
+					すべてのADA保有者に提供される、<a href="https://cexplorer.io/article/cardano-s-liquid-staking-from-a-security-perspective" target="_blank">スラッシングなしのリキッドステーキング</a>に関する解説
+				</p>
 			</div>
 		]
 	} ,
@@ -801,14 +809,20 @@ export const infoSections = {
 	"info_section_2": {
 		"en": [
 			<div key="info_section_2_en" className="space-y-2">
-				<h4 className="text-md font-medium">Info</h4>
-				<p>...</p>
+				<h4 className="text-md font-medium">Staking Pools Info</h4>
+				<p>You can actively participate with your ada tokens in the liquid staking mechanism and thus the <a href="https://eprint.iacr.org/2016/889.pdf" target="_blank">provable security of Cardano</a>.</p> 
+				   <p>The <a href="https://cardano.org/ouroboros/" target="_blank">Ouroboros protocol</a> provides rules that rely on the rational behavior of ada holders delegating to stake pools that yield the <a href="https://github.com/cardano-foundation/cardano-economic-parameter-insights/blob/main/whitepaper.md#pool-incentives-for-stake-and-pledge" target="_blank">maximum staking reward</a>.</p>
+				<p>Select up to 3 different real pools to compare the differences for the staking amount you initially set.</p> 
+				<p>You will see that the pools have different characteristics and qualities that can make a significant difference for you.</p>
 			</div>
 		],
 		"jp": [
 			<div key="info_section_2_jp" className="space-y-2">
-				<h4 className="text-md font-medium">情報</h4>
-				<p>...</p>
+				<h4 className="text-md font-medium">ステーキングプール情報</h4>
+				<p>あなたのADAトークンを使用してリキッドステーキングメカニズムに積極的に参加し、<a href="https://eprint.iacr.org/2016/889.pdf" target="_blank">Cardanoの証明可能なセキュリティ</a>を支えることができます。</p> 
+				<p><a href="https://cardano.org/ouroboros/" target="_blank">Ouroborosプロトコル</a>は、ADA保有者が合理的に行動し、<a href="https://github.com/cardano-foundation/cardano-economic-parameter-insights/blob/main/whitepaper.md#pool-incentives-for-stake-and-pledge" target="_blank">最大のステーキング報酬</a>を得られるステークプールに委任することを前提としたルールを提供します。</p>
+				<p>最大3つの異なる実際のステークプールを選択し、最初に設定したステーキング額に対する違いを比較できます。</p> 
+				<p>プールごとに異なる特徴や品質があり、それがあなたにとって大きな違いを生むことがわかるでしょう。</p>
 			</div>
 		]
 	} ,
@@ -816,14 +830,18 @@ export const infoSections = {
 	"info_section_3": {
 		"en": [
 			<div key="info_section_3_en" className="space-y-2">
-				<h4 className="text-md font-medium">Info</h4>
-				<p>...</p>
+				<h4 className="text-md font-medium">Staking Pool Parameters Info</h4>
+				<p>This section is pre-filled with the values of the pool you have just last-selected above. Here you can virtually change its essential values and thus simulate the effects on the rewards that are displayed at the top. </p>
+				<p>Depending on the size of the pool and the proportion of the pledge, there are differences in yield, which are also explained in detail in this <a href="https://github.com/cardano-foundation/cardano-economic-parameter-insights/blob/main/whitepaper.md#pool-incentives-for-stake-and-pledge" target="_blank">parameter modeling white paper</a>.</p>
+				<p>In order to enable simulations that examine new limit values, this simulator also allows you to set values that are currently not possible according to the valid global blockchain parameters and the <a href="https://ucarecdn.com/621764d9-92a1-4849-baab-8b87089dd600/" target="_blank">guardrails</a> document. e.g. min fixed fees below 170 ada.</p>
 			</div>
 		],
 		"jp": [
 			<div key="info_section_3_jp" className="space-y-2">
-				<h4 className="text-md font-medium">情報</h4>
-				<p>...</p>
+				<h4 className="text-md font-medium">ステーキングプールパラメーター情報</h4>
+				<p>このセクションは、直前に選択したプールの値で自動入力されています。  ここでは、その基本的な値を仮想的に変更し、上部に表示される報酬への影響をシミュレーションすることができます。</p>
+				<p>プールの規模やプレッジの割合に応じて利回りに差が生じます。  この詳細については、<a href="https://github.com/cardano-foundation/cardano-economic-parameter-insights/blob/main/whitepaper.md#pool-incentives-for-stake-and-pledge" target="_blank">パラメーターモデリングのホワイトペーパー</a>で詳しく説明されています。</p>
+				<p>新しい制限値を検討するシミュレーションを可能にするために、このシミュレーターでは、現在の有効なグローバルブロックチェーンパラメーターおよび<a href="https://ucarecdn.com/621764d9-92a1-4849-baab-8b87089dd600/" target="_blank">ガードレール</a>文書に基づく制約を超えた値も設定できます。  例えば、最小固定手数料を170 ADA未満に設定することも可能です。</p>
 			</div>
 		]
 	} ,
@@ -831,14 +849,35 @@ export const infoSections = {
 	"info_section_4": {
 		"en": [
 			<div key="info_section_4_en" className="space-y-2">
-				<h4 className="text-md font-medium">Info</h4>
-				<p>...</p>
+				<h4 className="text-md font-medium">Info Blockchain Parameters</h4>
+				<p>In the currently deepest part of this reward calculator, you can get an impression of the parameters that have become part of <a href="https://developers.cardano.org/docs/governance/cardano-governance/governance-model/" target="_blank">governance on the Cardano PoS blockchain</a> with the Chang and Plomin hard fork at the beginning of 2025.  </p>
+				<p>The first part deals with the <span className="text-md font-medium">dynamic parameters</span> that can be changed 
+					with <a href="https://developers.cardano.org/docs/governance/cardano-governance/governance-actions/" target="_blank">Governance Actions </a>
+					as defined in <a href="https://github.com/cardano-foundation/CIPs/tree/master/CIP-1694" target="_blank">CIP-1694</a>.  
+				</p>
+				<p>These values can be changed by a majority vote of the stake pool operators and/or DReps, and then apply to the entire blockchain, all stake pools and ada holders. 
+					A change can significantly influence the <a href="https://www.cardanofoundation.org/blog/releasing-an-open-source-rewards-calculation" target="_blank">reward calculation</a>, the game theory, 
+					the <a href="https://github.com/cardano-foundation/cardano-economic-parameter-insights/blob/main/whitepaper.md#actual-reserves-and-treasury-distribution" target="_blank">consumation of reserves</a>, 
+					the filling of the treasury pot and also the individual ada holders staking rewards.
+				</p>
+				<p>In the <span className="text-md font-medium">Fees & Remaining Reserves</span> section, the simulator also allows you to simulate a theoretical value of the transaction fees collected per epoch. The effective returns cannot be changed by governance actions, but depend largely on the adoption and integration of the blockchain in use cases. </p>
 			</div>
 		],
 		"jp": [
 			<div key="info_section_4_jp" className="space-y-2">
-				<h4 className="text-md font-medium">情報</h4>
-				<p>...</p>
+				<h4 className="text-md font-medium">ブロックチェーンパラメーター情報</h4>
+				<p>この報酬計算ツールの最も詳細な部分では、2025年初頭のChangおよびPlominハードフォークにより、<a href="https://developers.cardano.org/docs/governance/cardano-governance/governance-model/" target="_blank">Cardano PoSブロックチェーンのガバナンス</a>に組み込まれたパラメーターについての理解を深めることができます。</p>
+				<p>最初の部分では、<a href="https://github.com/cardano-foundation/CIPs/tree/master/CIP-1694" target="_blank">CIP-1694</a>で定義されている  
+					<a href="https://developers.cardano.org/docs/governance/cardano-governance/governance-actions/" target="_blank">ガバナンスアクション</a>を通じて変更可能な  
+					<span className="text-md font-medium">動的パラメーター</span>について扱います。 
+				</p>
+				<p>これらの値は、ステークプールオペレーターおよび/またはDRepの過半数の投票によって変更でき、その後、ブロックチェーン全体、すべてのステークプール、およびADA保有者に適用されます。  
+					変更は、<a href="https://www.cardanofoundation.org/blog/releasing-an-open-source-rewards-calculation" target="_blank">報酬計算</a>、ゲーム理論、  
+					<a href="https://github.com/cardano-foundation/cardano-economic-parameter-insights/blob/main/whitepaper.md#actual-reserves-and-treasury-distribution" target="_blank">準備金の消費</a>、  
+					トレジャリーの蓄積、さらには個々のADA保有者のステーキング報酬にも大きな影響を与える可能性があります。
+				</p>
+				<p><span className="text-md font-medium">手数料 & 残りの準備金</span> セクションでは、シミュレーターを使用して、エポックごとに回収される取引手数料の理論値をシミュレーションすることができます。  
+					実際のリターンはガバナンスアクションによって変更することはできませんが、主にブロックチェーンの採用とユースケースへの統合に依存します。</p>
 			</div>
 		]
 	} ,
