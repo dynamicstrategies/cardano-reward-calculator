@@ -731,8 +731,8 @@ export const infoHovers = {
 	"staking_reward_per_year_ada": {
 		"en": [
 			<div key="staking_reward_per_year_ada_en" className="space-y-2">
-				<h4 className="text-lg font-medium">Staking Reward per Year ADA</h4>
-				<p>Expected reward in ADA per year for the amount staked.</p>
+				<h4 className="text-lg font-medium">Staking Reward per Year Ada</h4>
+				<p>Expected reward in ada per year for the amount staked.</p>
 				<p>Number in grey shows the result from the previous simulation, for comparability between simulations with different parameters</p>
 			</div>
 		],
@@ -779,7 +779,7 @@ export const infoSections = {
 			<div key="info_section_1_en" className="space-y-2">
 				<h4 className="text-md font-medium">Info</h4>
 				<p>This calculator is based on a <a href="https://en.wikipedia.org/wiki/Monte_Carlo_method">Monte Carlo simulation</a> and live data from the Cardano mainnet.</p>
-				<p>You can delegate your ADA to a staking pool and receive automatic and regular rewards. </p>
+				<p>You can delegate your ada to a staking pool and receive automatic and regular rewards. </p>
 				<p>Enter any ada value for which you want to calculate and simulate the yield.</p>
 				<p>The gray number shows the result of your previous simulation so you can compare different parameter values.</p>
 				<p>Learn more about <a href="https://cardano.org/stake-pool-delegation/" target="_blank">Proof of Stake delegations of your ada</a>, 
