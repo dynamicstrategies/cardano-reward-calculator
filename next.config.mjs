@@ -3,7 +3,7 @@
 // use this for a static build
 const nextConfig = {
   reactStrictMode: true,
-  // output: 'export',
+  output: 'export',
   basePath: '/crewardcalculator',
   images: {unoptimized: true}
 };
