@@ -8,7 +8,7 @@ export const uiText = {
 	"amount_ada_to_stake": {
 		"en": [
 			<div key="amount_ada_to_stake_en">
-				Amount of ada to Stake
+				Amount of ada to stake
 			</div>
 		],
 		"jp": [
@@ -21,7 +21,7 @@ export const uiText = {
 	"amount_ada_to_stake_desc": {
 		"en": [
 			<div key="amount_ada_to_stake_desc_en">
-				Input the amount of ada that you are looking to stake
+				Enter the amount of ada you would like to stake.
 			</div>
 		],
 		"jp": [
@@ -47,7 +47,7 @@ export const uiText = {
 	"staking_rewards_per_year_ada_label": {
 		"en": [
 			<div key="staking_rewards_per_year_ada_label_en">
-				Staking Reward per Year Ada
+				Staking Reward per year ada
 			</div>
 		],
 		"jp": [
@@ -86,9 +86,9 @@ export const uiText = {
 	"stake_pool_section_desc": {
 		"en": [
 			<div key="stake_pool_section_desc_en">
-				Compare up to 3 stake pools with each other. Check how high the expected win is for you. 
-				A Monte Carlo simulation is used to take the luck factor into account and shows the 
-				expected low, medium and high return for each pool.
+				Compare up to 3 stake pools. See how much you can expect to earn. 
+				A Monte Carlo simulation is used to account for the luck factor and 
+				shows the expected low, medium and high return for each pool.
 			</div>
 		],
 		"jp": [
@@ -116,11 +116,10 @@ export const uiText = {
 	"stake_pool_parameters_section_desc": {
 		"en": [
 			<div key="stake_pool_parameters_section_desc_en">
-				These parameters are specific to each stake pool and influence
-				how the rewards are distributed between
-				the operator of the pool and the delegators, and also how many blocks
-				the pool is expected to mint each epoch. Expand to change
-				these parameters and see impact on rewards
+				These parameters are specific to each stake pool and affect how rewards are 
+				distributed between the pool operator and delegators, as well as how many 
+				blocks the pool is expected to mint each epoch. Expand to change these 
+				parameters and see the effect on rewards.
 			</div>
 		],
 		"jp": [
@@ -150,11 +149,10 @@ export const uiText = {
 	"blockchain_params_section_desc": {
 		"en": [
 			<div key="blockchain_params_section_desc_en">
-				These parameters are specific to the Cardano blockchain and affect the total
-				size of reward &quot;pot&quot; available
-				for distribution and how it is distributed to different pools.
-				Some parameters can be changed with a community vote (Dynamic Parameters)
-				and some can&apos;t be changed at all (Static Parameters)
+				These parameters are specific to the Cardano blockchain and affect the total 
+				size of the reward "pot" available for distribution, and how it is distributed 
+				to different pools. Some parameters can be changed by community vote 
+				(dynamic parameters), while others can't be changed at all (static parameters).
 			</div>
 		],
 		"jp": [
@@ -185,8 +183,8 @@ export const uiText = {
 			<div key="dynamic_params_section_desc_en">
 				Dynamic blockchain parameters can be adjusted through governance processes.
 				These parameters can be used to change the operation of the block-producing protocol,
-				vary transaction fees, define the influence of pledge, etc.
-				Press the (i) icon to see what each one is responsible for.
+				vary transaction fees, define the influence of pledges, etc.
+				Click the (i) icon to see what each is responsible for.
 			</div>
 		],
 		"jp": [
@@ -216,9 +214,9 @@ export const uiText = {
 		"en": [
 			<div key="static_params_section_desc_en">
 				Static parameters affect the fundamentals of the Cardano protocol and are stable,
-				which means that they can not be changed except via a hard fork.
-				Static parameters include those defining the genesis block or basic security properties, for example.
-				Some of these parameters may be embedded in the source code or implemented as software.
+				which means that they cannot be changed except by a hard fork.
+				Static parameters include, for example, those that define the genesis block or basic security properties.
+				Some of these parameters can be embedded in the source code or implemented as software.
 			</div>
 		],
 		"jp": [
@@ -246,9 +244,9 @@ export const uiText = {
 	"fees_section_desc": {
 		"en": [
 			<div key="fees_section_desc_en">
-				Cardano uses a transaction fee system that covers the processing
-				and long-term storage cost of transactions. Fees from each epoch are pooled and then
-				distributed to all pools that created blocks during an epoch. The fees are supplemented
+				Cardano uses a transaction fee system that covers the cost of processing
+				and long-term storage costs of transactions. The fees from each epoch are pooled and then
+				and then distributed to all pools that created blocks during that epoch. The fees are supplemented
 				by a distribution of a % (rho) from reserves.
 			</div>
 		],
@@ -780,12 +778,12 @@ export const infoSections = {
 		"en": [
 			<div key="info_section_1_en" className="space-y-2">
 				<h4 className="text-md font-medium">Info</h4>
-				<p>This calculator is based on a <a href="https://en.wikipedia.org/wiki/Monte_Carlo_method">Monte Carlo simulation</a> and life data from the Cardano mainnet.</p>
-				<p>You can delegate your ada to a staking pool and automatically and regularly receive rewards for doing so. </p>
+				<p>This calculator is based on a <a href="https://en.wikipedia.org/wiki/Monte_Carlo_method">Monte Carlo simulation</a> and live data from the Cardano mainnet.</p>
+				<p>You can delegate your ADA to a staking pool and receive automatic and regular rewards. </p>
 				<p>Enter any ada value for which you want to calculate and simulate the yield.</p>
-				<p>The gray figure shows the result of your previous simulation so that different parameter values can be compared.</p>
+				<p>The gray number shows the result of your previous simulation so you can compare different parameter values.</p>
 				<p>Learn more about <a href="https://cardano.org/stake-pool-delegation/" target="_blank">Proof of Stake delegations of your ada</a>, 
-				  how to <a href="https://cardano.org/stake-pool-operation" target="_blank">operate a staking pool </a> 
+				  how to <a href="https://cardano.org/stake-pool-operation" target="_blank">operate a staking pool </a>, 
 				  and a good read about the <a href="https://cexplorer.io/article/cardano-s-liquid-staking-from-a-security-perspective" target="_blank">slashing free, liquid staking</a> capabilities offered to all ada holders.
 				</p>
 			</div>
@@ -812,8 +810,8 @@ export const infoSections = {
 				<h4 className="text-md font-medium">Staking Pools Info</h4>
 				<p>You can actively participate with your ada tokens in the liquid staking mechanism and thus the <a href="https://eprint.iacr.org/2016/889.pdf" target="_blank">provable security of Cardano</a>.</p> 
 				   <p>The <a href="https://cardano.org/ouroboros/" target="_blank">Ouroboros protocol</a> provides rules that rely on the rational behavior of ada holders delegating to stake pools that yield the <a href="https://github.com/cardano-foundation/cardano-economic-parameter-insights/blob/main/whitepaper.md#pool-incentives-for-stake-and-pledge" target="_blank">maximum staking reward</a>.</p>
-				<p>Select up to 3 different real pools to compare the differences for the staking amount you initially set.</p> 
-				<p>You will see that the pools have different characteristics and qualities that can make a significant difference for you.</p>
+				<p>Select up to 3 different real pools to compare the differences for the stake amount you initially set.</p> 
+				<p>You will see that the pools have different characteristics and qualities that can make a significant difference to you.</p>
 			</div>
 		],
 		"jp": [
@@ -831,9 +829,9 @@ export const infoSections = {
 		"en": [
 			<div key="info_section_3_en" className="space-y-2">
 				<h4 className="text-md font-medium">Staking Pool Parameters Info</h4>
-				<p>This section is pre-filled with the values of the pool you have just last-selected above. Here you can virtually change its essential values and thus simulate the effects on the rewards that are displayed at the top. </p>
-				<p>Depending on the size of the pool and the proportion of the pledge, there are differences in yield, which are also explained in detail in this <a href="https://github.com/cardano-foundation/cardano-economic-parameter-insights/blob/main/whitepaper.md#pool-incentives-for-stake-and-pledge" target="_blank">parameter modeling white paper</a>.</p>
-				<p>In order to enable simulations that examine new limit values, this simulator also allows you to set values that are currently not possible according to the valid global blockchain parameters and the <a href="https://ucarecdn.com/621764d9-92a1-4849-baab-8b87089dd600/" target="_blank">guardrails</a> document. e.g. min fixed fees below 170 ada.</p>
+				<p>This section is pre-filled with the values of the pool you last selected above. Here you can virtually change its main values and thus simulate the effects on the rewards displayed above.</p>
+				<p>Depending on the size of the pool and the proportion of the pledge, there will be differences in returns, which are also explained in detail in this <a href="https://github.com/cardano-foundation/cardano-economic-parameter-insights/blob/main/whitepaper.md#pool-incentives-for-stake-and-pledge" target="_blank">Parameter Modeling whitepaper</a>.</p>
+				<p>To enable simulations that explore new limits, this simulator also allows you to set values that are not currently possible according to the valid global blockchain parameters and the <a href="https://ucarecdn.com/621764d9-92a1-4849-baab-8b87089dd600/" target="_blank">Guardrails</a> document, e.g. minimum fixed fees below 170 ada.</p>
 			</div>
 		],
 		"jp": [
@@ -850,15 +848,15 @@ export const infoSections = {
 		"en": [
 			<div key="info_section_4_en" className="space-y-2">
 				<h4 className="text-md font-medium">Info Blockchain Parameters</h4>
-				<p>In the currently deepest part of this reward calculator, you can get an impression of the parameters that have become part of <a href="https://developers.cardano.org/docs/governance/cardano-governance/governance-model/" target="_blank">governance on the Cardano PoS blockchain</a> with the Chang and Plomin hard fork at the beginning of 2025.  </p>
+				<p>In the currently deepest part of this reward calculator, you can get an impression of the parameters that have become part of <a href="https://developers.cardano.org/docs/governance/cardano-governance/governance-model/" target="_blank">governance on the Cardano PoS blockchain</a> with the Chang and Plomin hard fork in early 2025.  </p>
 				<p>The first part deals with the <span className="text-md font-medium">dynamic parameters</span> that can be changed 
-					with <a href="https://developers.cardano.org/docs/governance/cardano-governance/governance-actions/" target="_blank">Governance Actions </a>
+					with <a href="https://developers.cardano.org/docs/governance/cardano-governance/governance-actions/" target="_blank">governance actions </a>
 					as defined in <a href="https://github.com/cardano-foundation/CIPs/tree/master/CIP-1694" target="_blank">CIP-1694</a>.  
 				</p>
 				<p>These values can be changed by a majority vote of the stake pool operators and/or DReps, and then apply to the entire blockchain, all stake pools and ada holders. 
 					A change can significantly influence the <a href="https://www.cardanofoundation.org/blog/releasing-an-open-source-rewards-calculation" target="_blank">reward calculation</a>, the game theory, 
-					the <a href="https://github.com/cardano-foundation/cardano-economic-parameter-insights/blob/main/whitepaper.md#actual-reserves-and-treasury-distribution" target="_blank">consumation of reserves</a>, 
-					the filling of the treasury pot and also the individual ada holders staking rewards.
+					the <a href="https://github.com/cardano-foundation/cardano-economic-parameter-insights/blob/main/whitepaper.md#actual-reserves-and-treasury-distribution" target="_blank">consumption of reserves</a>, 
+					the filling of the treasury pot and also the individual ada holder's staking rewards.
 				</p>
 				<p>In the <span className="text-md font-medium">Fees & Remaining Reserves</span> section, the simulator also allows you to simulate a theoretical value of the transaction fees collected per epoch. The effective returns cannot be changed by governance actions, but depend largely on the adoption and integration of the blockchain in use cases. </p>
 			</div>
